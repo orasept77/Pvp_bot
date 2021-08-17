@@ -1,12 +1,11 @@
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import Text
-import aiogram.utils.markdown as fmt
 
-from keyboards.default.after_game_menu import after_game_menu
+from keyboards.inline.after_game_menu import after_game_menu
 from loader import dp
 
 
-@dp.message_handler(Text(equals="Выбрал игру я хз как это прописать осталяю временно на вас", ignore_case=True), state="*")
+@dp.message_handler(Text(equals="Выбрал игру я хз как это прописать осталяю временно на вас", ignore_case=True), state=None)
 async def bot_after_game(message: types.Message):
     await message.answer(
         f"Поздравляем! Вы победили! Или проиграли. Хз логики пока нет\n"

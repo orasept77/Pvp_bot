@@ -2,11 +2,11 @@ from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
 import aiogram.utils.markdown as fmt
 
-from keyboards.default.main_menu import main_menu
+from keyboards.inline.main_menu import main_menu
 from loader import dp
 
 
-@dp.message_handler(CommandStart())
+@dp.message_handler(CommandStart(), state=None)
 async def bot_start(message: types.Message):
 
     await message.answer(
@@ -23,3 +23,4 @@ async def bot_start(message: types.Message):
         f"Если у вас возникли какие либо вопросы, Мы рекомендуем к просмотру обучающий видео-ролик."
         f"Приятного просмотра и спасибо что выбрали нашего бота :)",
         parse_mode=types.ParseMode.HTML, reply_markup=main_menu)
+
