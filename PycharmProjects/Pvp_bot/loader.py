@@ -27,3 +27,13 @@ def create_connection(db_name, db_user, db_password, db_host, db_port):
 connection = create_connection(
     "Pvp_bot_db", "postgres", "postgres123", "127.0.0.1", "5432"
 )
+
+
+def execute_query(connection, query):
+    connection.autocommit = True
+    cursor = connection.cursor()
+    try:
+        cursor.execute(query)
+        print("Query executed successfully")
+    except OperationalError as e:
+        print(f"The error '{e}' occurred")
