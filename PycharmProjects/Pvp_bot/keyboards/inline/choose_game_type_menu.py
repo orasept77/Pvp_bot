@@ -1,7 +1,7 @@
 # Choice game type menu
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from keyboards.inline.callback_datas import choice_game_type_callback
+from keyboards.inline.callback_datas import choice_game_type_callback, cancel_callback
 
 choose_game_type_menu = InlineKeyboardMarkup(
             inline_keyboard=
@@ -22,7 +22,9 @@ choose_game_type_menu = InlineKeyboardMarkup(
                     )),
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data="cancel"),
+                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
+                        status="cancel"
+                    )),
                 ]
             ],
             resize_keyboard=True,

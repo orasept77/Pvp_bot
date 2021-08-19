@@ -15,3 +15,5 @@ deposit_withdrawal_amount_callback = CallbackData("withdrawal_amount", "amount")
 create_lobby_callback = CallbackData("game_name", "lobby_game_name")
 lobby_ready_callback = CallbackData("lobby_ready", "status")
 blackjack_callback = CallbackData("blackjack", "what_to_do")
+
+cancel_callback = CallbackData("cancel_btn", "status")
