@@ -17,7 +17,6 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
     game_name = data.get('game_name')
     game_type = data.get('type')
     game_bet = data.get('bet')
-    print(game_name)
     if game_name == 'Блек-Джек':
         await call.message.answer(
             f"Вы выбрали игру {game_name}\n"

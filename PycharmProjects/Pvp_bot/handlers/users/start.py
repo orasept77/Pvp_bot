@@ -10,8 +10,7 @@ from utils.db_api.find_room_for_blackjack import find_empty_room_for_blackjack
 
 @dp.message_handler(CommandStart(), state=None)
 async def bot_start(message: types.Message):
-    find_empty_room_for_blackjack(message.from_user)
-    #create_new_user(message.from_user)
+    create_new_user(message.from_user)
     await message.answer(
         f"{fmt.hide_link('https://www.youtube.com/watch?v=dQw4w9WgXcQ')}"
         f"Добро пожаловать в игрового бота *НАЗВАНИЕ БОТА*\n"

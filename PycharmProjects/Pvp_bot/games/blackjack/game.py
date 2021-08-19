@@ -4,6 +4,7 @@ import random
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import logic
 from logic import make_decks, total_up
 
 card_types = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]

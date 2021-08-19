@@ -21,24 +21,32 @@ def find_empty_room_for_blackjack(user):
         INSERT INTO blackjacks(room_id) VALUES ((SELECT id FROM room))
     """
 
+    get_room_number_query = f"""
+    SELECT id from rooms WHERE player_one = {user.id} AND room_state = 'WAITING'
+    """
 
     connection = db_connection()
     try:
         empty_room = None
         connect_to_the_empty_room_query = None
+        room_number = None
         try:
             empty_room = fetchone_query(connection, find_empty_room_to_connect_query)
             connect_to_the_empty_room_query = f"UPDATE rooms SET player_two = {user.id} WHERE rooms.id = {empty_room[8]}"
+            room_number = [empty_room[8]]
         except:
             pass
         if empty_room == None:
             # Создаём свободную комнату для подключения
             execute_query(connection, create_empty_room_query)
+            room_number = fetchone_query(connection, get_room_number_query)
             print("Созданна новая комната для блекджека")
         else:
             # Подключаем к первой свободной комнате
             execute_query(connection, connect_to_the_empty_room_query)
             print("Пользователь подключён к комнате для белжека")
+
     except:
-        print("Ошибка поиске комнаты для блекджека")
+        print("Ошибка в поиске комнаты для блекджека")
     close_connection(connection)
+    return room_number

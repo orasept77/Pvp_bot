@@ -4,7 +4,7 @@ from utils.db_api.create_connection import db_connection
 from utils.db_api.execute_query import execute_query, fetchall_query, print_query, fetchone_query
 
 
-def find_empty_room_for_blackjack(user):
+def find_empty_room_for_rpc(user):
     find_empty_room_to_connect_query = f"""
     SELECT rpc.*, room.* FROM rockpaperscisors as rpc 
     LEFT JOIN rooms as room on rpc.room_id=room.id
