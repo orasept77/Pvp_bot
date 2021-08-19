@@ -134,9 +134,9 @@ def compare_players_with_dealer_hands(dealer_hand, player_one_hand, player_two_h
 
 # TESTS
 result = 'Null'
-print(f"Результаты игроков: {result}")
-deck = make_decks(1, card_types)
-print(f"Начальная колода: {deck}")
+print(f"Результаты игроков: {result}")  #
+deck = make_decks(1, card_types)        #
+print(f"Начальная колода: {deck}")      #
 
 # Рука дилела
 dealer_hand = empty_hand()

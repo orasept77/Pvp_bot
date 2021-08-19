@@ -29,7 +29,9 @@ start_rcp_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=''),
+                    InlineKeyboardButton(text="Отмена", callback_data=create_lobby_callback.new(
+                        lobby_game_name="rcp"
+                    )),
                 ]
             ],
             resize_keyboard=True,
@@ -44,7 +46,9 @@ start_tiktaktoe_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=''),
+                    InlineKeyboardButton(text="Отмена", callback_data=create_lobby_callback.new(
+                        lobby_game_name="tiktaktoe"
+                    )),
                 ]
             ],
             resize_keyboard=True,
