@@ -11,3 +11,6 @@ deposit_deposit_type_callback = CallbackData("deposit", "type")
 deposit_deposit_amount_callback = CallbackData("deposit_amount", "amount")
 deposit_withdrawal_type_callback = CallbackData("withdrawal", "type")
 deposit_withdrawal_amount_callback = CallbackData("withdrawal_amount", "amount")
+
+create_lobby_callback = CallbackData("game_name", "lobby_game_name")
+blackjack_callback = CallbackData("blackjack", "what_to_do")
