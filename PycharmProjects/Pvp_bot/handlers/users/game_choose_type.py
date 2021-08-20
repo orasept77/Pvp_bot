@@ -25,5 +25,6 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
         f"  *Подключиться к другу - вы должны будете вписать уникальный ИД от вашего друга.\n\n"
         f"Для управления нажмите на кнопки в меню.",
         parse_mode=types.ParseMode.HTML, reply_markup=choose_game_type_menu)
+    
     await StartGame_State.type.set()
 
