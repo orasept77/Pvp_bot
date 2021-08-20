@@ -16,6 +16,10 @@ class TikTakToeRepo:
         id = await self.conn.fetchrow(sql, rates_id, first_step_user_id)
         if id:
             return id['id']
+    
+    async def set_game_end(self, game_id:int):
+        sql = 'update "tiktaktoe_game" set is_end = true where id = $1'
+        await self.conn.execute(sql, game_id)
         
     
     async def delete_users_lobby(self, user_id:int):
@@ -28,7 +32,7 @@ class TikTakToeRepo:
         id = await self.conn.execute(sql, user_id, game_id, character)
     
     async def set_game_user_step(self, sequence:int, user_step_id:int, game_id: int):
-        sql = 'update "tiktaktoe_game" set step = $1 and user_step_id = $2 where game_id = $3'
+        sql = 'update "tiktaktoe_game" set step = $1 , user_step_id = $2 where id = $3'
         id = await self.conn.execute(sql, sequence, user_step_id, game_id)
     
 
@@ -52,7 +56,7 @@ class TikTakToeRepo:
 
     
     async def get_game_cells(self, game_id: int):
-        sql = 'select * from tiktaktoe_cell where game_id = $1'
+        sql = 'select * from tiktaktoe_cell where game_id = $1 order by id '
         res = await self.conn.fetch(sql, game_id)
         return res
     
@@ -77,14 +81,14 @@ class TikTakToeRepo:
 
     async def set_game_user_message_id(self, user_id: int, game_id: int, message_id):
         sql = 'update tiktaktoe_game_user set message_id = $1 where game_id = $2 and user_id = $3'
-        return await self.conn.execute(sql, game_id, user_id, message_id)
+        return await self.conn.execute(sql, message_id, game_id, user_id)
 
     async def add_lobby_user(self, user_id: int, rates_id: int):
         sql = 'insert into "tiktaktoe_lobby"("user_id","rates_id") values($1, $2) on conflict do nothing'
         await self.conn.execute(sql, user_id, rates_id)
     
     async def take_cell(self, user_id: int, cell_id: int):
-        sql = 'update "tiktaktoe_cell" set user_id = $1 and is_busy=true where id = $2'
+        sql = 'update "tiktaktoe_cell" set user_id = $1 , is_busy=true where id = $2'
         await self.conn.execute(sql, user_id, cell_id)
 
     
