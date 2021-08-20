@@ -3,7 +3,7 @@ from aiogram.utils.callback_data import CallbackData
 main_menu_callback = CallbackData("main_menu_choice", "menu_choice")
 choice_game_callback = CallbackData("game_choice", "game")
 choice_game_type_callback = CallbackData("game_type_choice", "game_type")
-make_a_bet_callback = CallbackData("player_bet", "bet")
+make_a_bet_callback = CallbackData("player_bet", "id", "bet")
 after_game_callback = CallbackData("choice_after_game", "choice")
 
 deposit_main_callback = CallbackData("deposit_menu", "what_to_do")

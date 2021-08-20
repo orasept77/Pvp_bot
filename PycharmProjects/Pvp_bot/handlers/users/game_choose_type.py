@@ -14,6 +14,7 @@ from states.start_game import StartGame_State
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(game_name=callback_data.get('game'))
+    await state.update_data(user_id=call.from_user.id)
     await call.message.answer(
         f"Вы выбрали игру {callback_data.get('game')}\n"
         f"Ваш депозит составляет [минус тыща] фишек.\n"

@@ -5,7 +5,6 @@ import aiogram.utils.markdown as fmt
 from keyboards.inline.main_menu import main_menu
 from loader import dp
 from utils.db_api.create_new_user import create_new_user
-from utils.db_api.find_room_for_blackjack import find_empty_room_for_blackjack
 
 
 @dp.message_handler(CommandStart(), state=None)
