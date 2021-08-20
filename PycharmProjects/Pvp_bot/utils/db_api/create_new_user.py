@@ -12,7 +12,7 @@ def create_new_user(user):
     connection = db_connection()
     try:
         user = fetchall_query(connection, query1)
-        if user == None:
+        if not user:
             execute_query(connection, query2)
             print("Добавлен новый пользователь")
             execute_query(connection, query3)

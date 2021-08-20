@@ -20,5 +20,5 @@ def connection_settings(db_name, db_user, db_password, db_host, db_port):
 
 def db_connection():
     return connection_settings(
-        "PvP_bot_db", "postgres", "jwnPbVr263Dk", "localhost", "5432"
+        "postgres", "postgres", "123123123", "144.91.110.3", "5432"
     )
