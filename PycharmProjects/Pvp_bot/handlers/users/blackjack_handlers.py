@@ -6,7 +6,6 @@ from aiogram.types import CallbackQuery
 
 from keyboards.inline.blackjack_menu import blackjack_menu
 from keyboards.inline.callback_datas import create_lobby_callback, lobby_ready_callback
-from keyboards.inline.cancel_menu import cancel_menu
 from keyboards.inline.game_ready import game_ready_menu
 from loader import dp
 from states.start_game import StartGame_State
@@ -23,7 +22,7 @@ async def bot_blackjack_create_lobby(call:CallbackQuery, callback_data: dict, st
     await state.update_data(room_number=room_number)
     await call.message.answer(
         f"Идёт поиск лобби для игры.\n",
-        parse_mode=types.ParseMode.HTML, reply_markup=cancel_menu)
+        parse_mode=types.ParseMode.HTML)
     while check_is_room_is_full(room_number) is not True:
         await sleep(10)
         await call.message.answer(

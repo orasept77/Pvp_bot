@@ -1,7 +1,7 @@
 # --Choose game type menu--
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from keyboards.inline.callback_datas import create_lobby_callback, cancel_callback
+from keyboards.inline.callback_datas import create_lobby_callback
 
 start_blackjack_menu = InlineKeyboardMarkup(
             inline_keyboard=
@@ -12,8 +12,8 @@ start_blackjack_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
-                        status="cancel"
+                    InlineKeyboardButton(text="Отмена", callback_data=create_lobby_callback.new(
+                        lobby_game_name="blackjack"
                     )),
                 ]
             ],
@@ -29,8 +29,8 @@ start_rcp_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
-                        status="cancel"
+                    InlineKeyboardButton(text="Отмена", callback_data=create_lobby_callback.new(
+                        lobby_game_name="rcp"
                     )),
                 ]
             ],
@@ -46,8 +46,8 @@ start_tiktaktoe_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
-                        status="cancel"
+                    InlineKeyboardButton(text="Отмена", callback_data=create_lobby_callback.new(
+                        lobby_game_name="tiktaktoe"
                     )),
                 ]
             ],
