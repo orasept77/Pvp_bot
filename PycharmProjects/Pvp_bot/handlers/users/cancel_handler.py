@@ -2,9 +2,7 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery
 
-from keyboards.inline.callback_datas import choice_game_type_callback, cancel_callback
-from keyboards.inline.game_connect_to_the_friend_menu import connect_to_the_friend_menu
-from keyboards.inline.game_place_a_bet_menu import place_a_bet_menu
+from keyboards.inline.callback_datas import cancel_callback
 from loader import dp
 from states.deposit import Deposit_State
 from states.start_game import StartGame_State

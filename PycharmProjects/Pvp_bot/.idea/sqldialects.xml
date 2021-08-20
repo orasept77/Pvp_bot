@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/utils/db_api/blackjack/find_lobby_blackjack.py" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/utils/db_api/create_tables_if_not_exists.py" dialect="H2" />
-    <file url="file://$PROJECT_DIR$/utils/db_api/find_room_for_blackjack.py" dialect="GenericSQL" />
   </component>
 </project>

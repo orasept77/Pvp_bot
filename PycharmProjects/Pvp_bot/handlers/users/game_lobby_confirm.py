@@ -12,6 +12,7 @@ from states.start_game import StartGame_State
                            state=StartGame_State.bet)
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
+    await state.update_data(id=callback_data.get('bet_id'))
     await state.update_data(bet=callback_data.get('bet'))
     data = await state.get_data()
     game_name = data.get('game_name')

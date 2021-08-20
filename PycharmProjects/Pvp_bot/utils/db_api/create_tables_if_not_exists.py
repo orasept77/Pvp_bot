@@ -5,7 +5,7 @@ from utils.db_api.execute_query import execute_query
 query = """
 
 CREATE TABLE IF NOT EXISTS users(
-    id INT PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name varchar(255) NULL,
     username varchar(255)
 );
@@ -17,58 +17,43 @@ CREATE TABLE IF NOT EXISTS deposits(
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE IF NOT EXISTS rooms(
+CREATE TABLE IF NOT EXISTS rates(
     id SERIAL PRIMARY KEY,
-    player_one INT NOT NULL,
-    player_two INT NULL,
-    player_one_ready BOOLEAN DEFAULT FALSE,
-    player_two_ready BOOLEAN DEFAULT FALSE,
-    timeout integer DEFAULT 300,
-    room_state varchar(20) DEFAULT 'WAITING',
-    FOREIGN KEY (player_one) REFERENCES users(id),
-    FOREIGN KEY (player_two) REFERENCES users(id)
+    value INTEGER
 );
 
-CREATE TABLE IF NOT EXISTS blackjacks(
+CREATE TABLE IF NOT EXISTS blackjack_lobby(
+    user_id BIGINT,
+    rates_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (rates_id) REFERENCES rates(id)
+);
+
+CREATE TABLE IF NOT EXISTS blackjack_game(
     id SERIAL PRIMARY KEY,
-    room_id INT,
+    rates_id INTEGER,
+    user_step_id INTEGER,
+    game_round INTEGER DEFAULT 1,
+    is_end varchar(5) NULL,
+    FOREIGN KEY (rates_id) REFERENCES rates(id),
+    FOREIGN KEY (user_step_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS blackjack_game_user(
+    user_id INTEGER,
+    game_id INTEGER,
+    hand varchar(255) NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (game_id) REFERENCES blackjack_game(id)
+);
+
+CREATE TABLE IF NOT EXISTS blackjack_game_dealer(
+    game_id int,
     deck varchar(255) NULL,
-    hand_player_one varchar(255) NULL,
-    hand_player_two varchar(255) NULL,
-    hand_dealer varchar(255) NULL,
-    game_round integer DEFAULT 1,
-    game_result varchar(50),
-    FOREIGN KEY (room_id) REFERENCES rooms(id)
+    hand varchar(255) NULL,
+    FOREIGN KEY (game_id) REFERENCES blackjack_game(id)
 );
 
-CREATE TABLE IF NOT EXISTS rockpaperscisors (
-    id SERIAL PRIMARY KEY,
-    room_id INT,
-    choose_player1 text,
-    choose_player2 text,
-    result_player1 text,
-    result_player2 text,
-    id_room_rps integer,
-    score integer,
-    answer_player1 integer,
-    answer_player2 integer,
-    winning_answer text,
-    win_player BOOLEAN,
-    FOREIGN KEY (room_id) REFERENCES rooms(id)
-);
-CREATE TABLE IF NOT EXISTS tiktaktoes (
-    id SERIAL PRIMARY KEY,
-    room_id INT,
-    board_info_player1 integer,
-    board_info_player2 integer,
-    board_size_player1 integer,
-    board_size_player2 integer,
-    score integer,
-    player_win BOOLEAN,
-    choose_socket_board_player1 integer,
-    choose_socket_board_player2 integer,
-    FOREIGN KEY (room_id) REFERENCES rooms(id)
-);
 """
 
 

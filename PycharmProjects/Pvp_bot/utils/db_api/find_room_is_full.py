@@ -3,14 +3,14 @@ from utils.db_api.create_connection import db_connection
 from utils.db_api.execute_query import execute_query, fetchall_query, print_query, fetchone_query
 
 
-def check_is_room_is_full(room_number):
+def check_is_room_is_full_and_not_aborted(room_number):
     check_room_is_full_query = f"""
     SELECT * from rooms WHERE rooms.id = {room_number[0]}
     """
-
     connection = db_connection()
     try:
         room_info = fetchone_query(connection, check_room_is_full_query)
+        print(room_info)
         if room_info[1] is not None and room_info[2] is not None:
             return True
     except:
@@ -19,6 +19,7 @@ def check_is_room_is_full(room_number):
 
 
 def change_room_state_on_playing(room_number):
+    print(room_number)
     change_room_state_query = f"""
     UPDATE rooms SET room_state = 'PLAYING' WHERE id = {room_number[0]}
     """
