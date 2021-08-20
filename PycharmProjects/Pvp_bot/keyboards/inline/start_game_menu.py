@@ -1,8 +1,7 @@
 # --Choose game type menu--
-from os import add_dll_directory
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from keyboards.inline.callback_datas import create_lobby_callback, tiktaktoe_callback
+from keyboards.inline.callback_datas import create_lobby_callback, cancel_callback
 
 start_blackjack_menu = InlineKeyboardMarkup(
             inline_keyboard=
@@ -13,8 +12,8 @@ start_blackjack_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=create_lobby_callback.new(
-                        lobby_game_name="blackjack"
+                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
+                        status="cancel"
                     )),
                 ]
             ],
@@ -30,21 +29,27 @@ start_rcp_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=create_lobby_callback.new(
-                        lobby_game_name="rcp"
+                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
+                        status="cancel"
                     )),
                 ]
             ],
             resize_keyboard=True,
 )
 
-
-def start_tiktaktoe(rates_id):
-    markup = InlineKeyboardMarkup(resize_keyboard=True)
-    markup.add(InlineKeyboardButton(text="Старт", callback_data=tiktaktoe_callback.new(
-                            rates_id=rates_id
-            )))
-    markup.add(InlineKeyboardButton(text="Отмена", callback_data=create_lobby_callback.new(
-                            lobby_game_name="tiktaktoe"
-                        )))
-    return markup
+start_tiktaktoe_menu = InlineKeyboardMarkup(
+            inline_keyboard=
+            [
+                [
+                    InlineKeyboardButton(text="Старт", callback_data=create_lobby_callback.new(
+                        lobby_game_name="tiktaktoe"
+                    ))
+                ],
+                [
+                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
+                        status="cancel"
+                    )),
+                ]
+            ],
+            resize_keyboard=True,
+)

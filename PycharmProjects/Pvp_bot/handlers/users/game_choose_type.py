@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import Text
 from aiogram.types import CallbackQuery
 
-from keyboards.inline.callback_datas import choice_game_callback
+from keyboards.inline.callback_datas import choice_game_callback, cancel_callback
 from keyboards.inline.choose_game_type_menu import choose_game_type_menu
 from loader import dp
 from states.start_game import StartGame_State
@@ -26,6 +26,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
         f"  *Подключиться к другу - вы должны будете вписать уникальный ИД от вашего друга.\n\n"
         f"Для управления нажмите на кнопки в меню.",
         parse_mode=types.ParseMode.HTML, reply_markup=choose_game_type_menu)
-    
     await StartGame_State.type.set()
+
+
 

@@ -1,11 +1,17 @@
+import asyncio
+from time import sleep
+
 import numpy as np
 import pandas as pd
 import random
 import matplotlib.pyplot as plt
 import seaborn as sns
+from aiogram import types
 
-import logic
-from logic import make_decks, total_up
+from games.blackjack.logic import total_up, make_decks
+from keyboards.inline.blackjack_menu import blackjack_menu
+from loader import bot
+from utils.db_api.blackjack.give_first_cards import get_players_list_to_announce, set_players_hand, set_dealer_hand
 
 card_types = ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
 blackjack = set(['A', 10])
@@ -133,39 +139,51 @@ def compare_players_with_dealer_hands(dealer_hand, player_one_hand, player_two_h
         return 'draw'
 
 
-# TESTS
-result = 'Null'
-print(f"Результаты игроков: {result}")  #
-deck = make_decks(1, card_types)        #
-print(f"Начальная колода: {deck}")      #
+async def game_started(game_id):
+    players = get_players_list_to_announce(game_id)
+    players_hands = [[], []]
+    dealer_hand = []
+    deck = make_decks(1, card_types)
+    give_first_cards(deck, players_hands[0], players_hands[1], dealer_hand)
+    set_dealer_hand(game_id, dealer_hand, deck)
+    i = 0
+    for player in players:
+        await bot.send_message(player[2], parse_mode=types.ParseMode.HTML, text=
+        f"Игра начинается!\n")
+        set_players_hand(game_id, players[i][0], players_hands[i])
+        await bot.send_message(player[2], parse_mode=types.ParseMode.HTML, text=
+        f"Каждый игрок получил по 2 карты!\n"
+        f"Ваша рука: {players_hands[i]}, количество очков: {total_up(players_hands[i])}\n\n"
+        f"Хотите взять ещё карту?", reply_markup=blackjack_menu)
+        i += 1
 
-# Рука дилела
-dealer_hand = empty_hand()
-player_one_hand = empty_hand()
-player_two_hand = empty_hand()
-print(f"Рука дилера: {dealer_hand}, {total_up(dealer_hand)}")
-print(f"Рука игрока 1: {player_one_hand}, {total_up(player_one_hand)}")
-print(f"Рука игрока 2: {player_two_hand}, {total_up(player_two_hand)}")
-print()
 
-# Начинается игра
-print("Начало игры")
-give_first_cards(deck, player_one_hand, player_two_hand, dealer_hand)
-print("Раздали первые 2 карты. Руки игроков:")
-print(f"Рука дилера: {dealer_hand}, {total_up(dealer_hand)}")
-print(f"Рука игрока 1: {player_one_hand}, {total_up(player_one_hand)}")
-print(f"Рука игрока 2: {player_two_hand}, {total_up(player_two_hand)}")
-print(f"Колода: {deck}")
-print()
 
-give_card(deck, player_one_hand)
-give_card(deck, player_two_hand)
-print("Игроки 1 и 2 взяли по 1 карте")
-print(f"Рука игрока 1: {player_one_hand}, {total_up(player_one_hand)}")
-print(f"Рука игрока 2: {player_two_hand}, {total_up(player_two_hand)}")
-print(f"Колода: {deck}")
-print()
-
+# # TESTS
+# result = 'Null'
+# print(f"Результаты игроков: {result}")  #
+# deck = make_decks(1, card_types)        #
+# print(f"Начальная колода: {deck}")      #
+#
+# # Рука дилела
+# dealer_hand = empty_hand()
+# player_one_hand = empty_hand()
+# player_two_hand = empty_hand()
+# print(f"Рука дилера: {dealer_hand}, {total_up(dealer_hand)}")
+# print(f"Рука игрока 1: {player_one_hand}, {total_up(player_one_hand)}")
+# print(f"Рука игрока 2: {player_two_hand}, {total_up(player_two_hand)}")
+# print()
+#
+# # Начинается игра
+# print("Начало игры")
+# give_first_cards(deck, player_one_hand, player_two_hand, dealer_hand)
+# print("Раздали первые 2 карты. Руки игроков:")
+# print(f"Рука дилера: {dealer_hand}, {total_up(dealer_hand)}")
+# print(f"Рука игрока 1: {player_one_hand}, {total_up(player_one_hand)}")
+# print(f"Рука игрока 2: {player_two_hand}, {total_up(player_two_hand)}")
+# print(f"Колода: {deck}")
+# print()
+#
 # give_card(deck, player_one_hand)
 # give_card(deck, player_two_hand)
 # print("Игроки 1 и 2 взяли по 1 карте")
@@ -173,24 +191,32 @@ print()
 # print(f"Рука игрока 2: {player_two_hand}, {total_up(player_two_hand)}")
 # print(f"Колода: {deck}")
 # print()
-
-print(f"Рука дилера: {dealer_hand}, {total_up(dealer_hand)}")
-dealer_take_card_if_totalup_less_17(deck, dealer_hand)
-print("Если у дилера меньше 17 он добирает карты:")
-print(f"Рука дилера после набора карт: {dealer_hand}, {total_up(dealer_hand)}")
-print(f"Финальная колода: {deck}")
-print()
-
-print("Сравниваем карты между игроками")
-result = compare_players_hands(player_one_hand, player_two_hand)
-print(f"Рука игрока 1: {player_one_hand}, {total_up(player_one_hand)}")
-print(f"Рука игрока 2: {player_two_hand}, {total_up(player_two_hand)}")
-print(f"Результат между игроками: {result}")
-print()
-
-result = compare_players_with_dealer_hands(dealer_hand, player_one_hand, player_two_hand, result)
-print("Сравниваем игроков и дилера")
-print(f"Рука дилера: {dealer_hand}, {total_up(dealer_hand)}")
-print(f"Рука игрока 1: {player_one_hand}, {total_up(player_one_hand)}")
-print(f"Рука игрока 2: {player_two_hand}, {total_up(player_two_hand)}")
-print(f"Результат между игроками и дилером: {result}")
+#
+# # give_card(deck, player_one_hand)
+# # give_card(deck, player_two_hand)
+# # print("Игроки 1 и 2 взяли по 1 карте")
+# # print(f"Рука игрока 1: {player_one_hand}, {total_up(player_one_hand)}")
+# # print(f"Рука игрока 2: {player_two_hand}, {total_up(player_two_hand)}")
+# # print(f"Колода: {deck}")
+# # print()
+#
+# print(f"Рука дилера: {dealer_hand}, {total_up(dealer_hand)}")
+# dealer_take_card_if_totalup_less_17(deck, dealer_hand)
+# print("Если у дилера меньше 17 он добирает карты:")
+# print(f"Рука дилера после набора карт: {dealer_hand}, {total_up(dealer_hand)}")
+# print(f"Финальная колода: {deck}")
+# print()
+#
+# print("Сравниваем карты между игроками")
+# result = compare_players_hands(player_one_hand, player_two_hand)
+# print(f"Рука игрока 1: {player_one_hand}, {total_up(player_one_hand)}")
+# print(f"Рука игрока 2: {player_two_hand}, {total_up(player_two_hand)}")
+# print(f"Результат между игроками: {result}")
+# print()
+#
+# result = compare_players_with_dealer_hands(dealer_hand, player_one_hand, player_two_hand, result)
+# print("Сравниваем игроков и дилера")
+# print(f"Рука дилера: {dealer_hand}, {total_up(dealer_hand)}")
+# print(f"Рука игрока 1: {player_one_hand}, {total_up(player_one_hand)}")
+# print(f"Рука игрока 2: {player_two_hand}, {total_up(player_two_hand)}")
+# print(f"Результат между игроками и дилером: {result}")

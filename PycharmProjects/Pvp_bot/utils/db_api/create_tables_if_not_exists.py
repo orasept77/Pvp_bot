@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS rates(
 CREATE TABLE IF NOT EXISTS blackjack_lobby(
     user_id BIGINT,
     rates_id INTEGER,
+    chat_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (rates_id) REFERENCES rates(id)
 );
@@ -42,6 +43,7 @@ CREATE TABLE IF NOT EXISTS blackjack_game(
 CREATE TABLE IF NOT EXISTS blackjack_game_user(
     user_id INTEGER,
     game_id INTEGER,
+    chat_id INTEGER,
     hand varchar(255) NULL,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (game_id) REFERENCES blackjack_game(id)
