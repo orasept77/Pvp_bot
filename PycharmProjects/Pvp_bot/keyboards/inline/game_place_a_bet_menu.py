@@ -1,7 +1,7 @@
 # Bets menu menu
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from keyboards.inline.callback_datas import make_a_bet_callback, main_menu_callback
+from keyboards.inline.callback_datas import make_a_bet_callback, main_menu_callback, cancel_callback
 
 place_a_bet_menu = InlineKeyboardMarkup(
             inline_keyboard=
@@ -32,7 +32,9 @@ place_a_bet_menu = InlineKeyboardMarkup(
                     )),
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data="cancel"),
+                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
+                        status="cancel"
+                    )),
                 ]
             ],
             resize_keyboard=True,

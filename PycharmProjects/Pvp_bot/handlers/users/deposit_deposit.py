@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters.builtin import Text
 from aiogram.types import CallbackQuery
 
 from keyboards.inline.callback_datas import deposit_main_callback, \
-    deposit_deposit_type_callback, deposit_deposit_amount_callback
+    deposit_deposit_type_callback, deposit_deposit_amount_callback, cancel_callback
 from keyboards.inline.deposit_menu import deposit_amount_menu, deposit_menu
 from loader import dp
 from states.deposit import Deposit_State
@@ -57,3 +57,4 @@ async def bot_choice_game(call:CallbackQuery, state: FSMContext):
         f"Все данные являются приватными и не передаются третьим лицам.",
         parse_mode=types.ParseMode.HTML)
     await state.finish()
+
