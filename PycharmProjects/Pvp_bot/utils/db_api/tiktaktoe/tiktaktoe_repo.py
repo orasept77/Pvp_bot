@@ -12,21 +12,23 @@ class TikTakToeRepo:
     
     async def create_game(self, rates_id:int , first_step_user_id:int ):
         sql = 'insert into "tiktaktoe_game"("rates_id","user_step_id") values($1,$2) on conflict do nothing returning id'
-        id = await self.conn.fetch(sql, rates_id)
-        return id
+        id = await self.conn.fetchrow(sql, rates_id, first_step_user_id)
+        if id:
+            return id['id']
+        
     
     async def delete_users_lobby(self, user_id:int):
-        sql = 'delete form "tiktaktoe_lobby" where user_id = $1'
+        sql = 'delete from "tiktaktoe_lobby" where user_id = $1'
         id = await self.conn.fetch(sql, user_id)
         return id
     
     async def add_user_to_game(self, user_id:int, game_id:int, character: str):
         sql = 'insert into "tiktaktoe_game_user"("user_id","game_id", "character") values($1, $2, $3) on conflict do nothing'
-        id = await self.conn.execute(sql, user_id)
+        id = await self.conn.execute(sql, user_id, game_id, character)
     
 
     async def create_cells(self, n:int, game_id: int):
-        sql = 'insert into "tiktaktoe_cell"(,"game_id") values($1, $2) on conflict do nothing'
+        sql = 'insert into "tiktaktoe_cell"("game_id") values($1) on conflict do nothing'
         for i in range(0, n):
             await self.conn.execute(sql, game_id)
     
@@ -38,6 +40,12 @@ class TikTakToeRepo:
     async def get_user_character(self, user_id: int, game_id: int):
         sql = 'select * from tiktaktoe_game_user where game_id = $1 and user_id = $2'
         return await self.conn.fetchrow(sql, game_id, user_id)
+    
+    async def add_lobby_user(self, user_id: int, rates_id: int):
+        sql = 'insert into "tiktaktoe_lobby"("user_id","rates_id") values($1, $2) on conflict do nothing'
+        await self.conn.execute(sql, user_id, rates_id)
+
+    
 
     """async def get_user(self, user_id):
         sql = 'select * from "User" where "Id" = $1'
