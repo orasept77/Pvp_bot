@@ -11,7 +11,7 @@ from aiogram.types import CallbackQuery
 from keyboards.inline.callback_datas import main_menu_callback
 from keyboards.inline.deposit_menu import deposit_menu_main
 from loader import dp
-from keyboards.inline.callback_datas import tiktaktoe_callback
+from handlers.tiktaktoe.keybs.start_tiktaktoe import tiktaktoe_callback
 from handlers.tiktaktoe.keybs.draw import tiktoktoe_make_step_cb
 
 
@@ -50,8 +50,10 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
     cell = await repo.get_game_cell_by_id(int(callback_data['cell_id']))
     game = await repo.get_game_by_id(int(callback_data["game_id"]))
     if not game:
+        await conn.close()
         return await call.message.answer("game not found")
     if not cell:
+        await conn.close()
         return await call.message.answer("cell not found")
     if not game['is_end']:
         if game['user_step_id'] != call.from_user.id:
@@ -93,6 +95,7 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
             await call.answer("Поле уже занято", show_alert=True)
     else:
             await call.answer("Игра уже закончена", show_alert=True)
+    await conn.close()
 
 
 
