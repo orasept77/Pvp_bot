@@ -1,9 +1,8 @@
 from aiogram import types
-import aiogram.utils.markdown as fmt
 from aiogram.types import CallbackQuery
 
 from keyboards.inline.callback_datas import main_menu_callback
-from keyboards.inline.choice_game import game_choice_menu
+from keyboards.inline.choose_game_menu.choice_game import game_choice_menu
 from loader import dp
 from states.start_game import StartGame_State
 

@@ -3,7 +3,7 @@ from aiogram.dispatcher import FSMContext
 import aiogram.types
 
 from keyboards.inline.callback_datas import create_lobby_callback
-from keyboards.inline.game_place_a_bet_menu import place_a_bet_menu
+from keyboards.inline.choose_game_menu.game_place_a_bet_menu import place_a_bet_menu
 from loader import dp
 from states.start_game import StartGame_State
 
