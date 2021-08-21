@@ -62,6 +62,27 @@ async def prs_variant_user(call:CallbackQuery, callback_data: dict, ):
     rates_id = int(callback_data['rates_id'])
     conn = await create_conn("conn_str")
     repo = PSRRepo(conn)
+
+
+    game = await repo.get_game_by_id(int(callback_data['psr_id']))
+    if not game['is_end']:
+        answer = await repo.get_round_user_variant(game['round_id'], call.from_user.id )
+        if answer:
+            await call.answer("Вы уже отверили")
+            await conn.close()
+            return
+        else:
+            await repo.add_round_user_variant(game['round_id'], int(callback_data['variant_id']), call.from_user.id)
+            answers = await repo.get_round_user_variants(game['round_id'])
+            if len(answers) == game['user_count']:
+                
+
+
+
+
+
+
+
     players = await repo.get_lobby_players(rates_id, int(callback_data['user_count']))
     if len(players) >= int(callback_data['user_count']) - 1:
         game_id = await repo.create_game(rates_id, players[0]['user_id'], int(callback_data['game_type_id']))

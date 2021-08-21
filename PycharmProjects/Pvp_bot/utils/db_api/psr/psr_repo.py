@@ -57,14 +57,40 @@ class PSRRepo:
         return res
     
 
-
-
+    async def get_psr_users(self, game_id):
+        sql = 'select * from "psr_game_type"'
+        res = await self.conn.fetch(sql)
+        return res
     
+
+    async def get_game_by_id(self, id: int):
+        sql = 'select * from psr where id = $1'
+        res = await self.conn.fetchrow(sql, id)
+        return res
+
+
+    async def get_round_user_variant(self, user_id: int, round_id:int ):
+        sql = 'select * from psr_round_user_variant where user_id = $2 and round_id = $3 '
+        res = await self.conn.fetchrow(sql, user_id, round_id)
+        return res
+    
+    async def get_round_user_variants(self, round_id: int):
+        sql = 'select * from psr_round_user_variant where round_id = $1 '
+        res = await self.conn.fetch(sql, round_id)
+        return res
+    
+    async def add_round_user_variant(self, round_id, variant_id: int, user_id: int):
+        sql = 'insert into psr_round_user_variant("round_id", "variant_id", "user_id") values($1, $2, $3)'
+        await self.conn.execute(sql, round_id, variant_id, user_id)
+
 
         
     
     
     
+
+
+
     
     async def set_game_user_step(self, sequence:int, user_step_id:int, game_id: int):
         sql = 'update "tiktaktoe_game" set step = $1 , user_step_id = $2 where id = $3'
@@ -100,10 +126,6 @@ class PSRRepo:
         res = await self.conn.fetchrow(sql, id)
         return res
     
-    async def get_game_by_id(self, id: int):
-        sql = 'select * from tiktaktoe_game where id = $1'
-        res = await self.conn.fetchrow(sql, id)
-        return res
 
     async def get_game_user(self, user_id: int, game_id: int):
         sql = 'select * from tiktaktoe_game_user where game_id = $1 and user_id = $2'
