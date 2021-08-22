@@ -1,7 +1,8 @@
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import Text
 
-from keyboards.inline.after_game_menu import after_game_menu
+from keyboards.inline.choose_game_menu.after_game_menu import after_game_menu
+from keyboards.inline.callback_datas import cancel_callback
 from loader import dp
 
 

@@ -32,25 +32,26 @@ CREATE TABLE IF NOT EXISTS blackjack_lobby(
 CREATE TABLE IF NOT EXISTS blackjack_game(
     id SERIAL PRIMARY KEY,
     rates_id INTEGER,
-    user_step_id INTEGER,
+    result varchar(15) DEFAULT NULL,
     game_round INTEGER DEFAULT 1,
-    is_end varchar(5) NULL,
-    FOREIGN KEY (rates_id) REFERENCES rates(id),
-    FOREIGN KEY (user_step_id) REFERENCES users(id)
+    is_end varchar(10) NULL,
+    FOREIGN KEY (rates_id) REFERENCES rates(id)
 );
 
 CREATE TABLE IF NOT EXISTS blackjack_game_user(
     user_id INTEGER,
     game_id INTEGER,
-    hand varchar(255) NULL,
+    chat_id INTEGER,
+    hand JSON DEFAULT '[]',
+    state varchar(10) DEFAULT 'NONE',
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (game_id) REFERENCES blackjack_game(id)
 );
 
 CREATE TABLE IF NOT EXISTS blackjack_game_dealer(
     game_id int,
-    deck varchar(255) NULL,
-    hand varchar(255) NULL,
+    deck JSON DEFAULT '[]',
+    hand JSON DEFAULT '[]',
     FOREIGN KEY (game_id) REFERENCES blackjack_game(id)
 );
 

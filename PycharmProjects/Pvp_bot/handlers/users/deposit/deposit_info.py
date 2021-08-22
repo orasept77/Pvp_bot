@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters.builtin import Text
 from aiogram.types import CallbackQuery
 
 from keyboards.inline.callback_datas import main_menu_callback
-from keyboards.inline.deposit_menu import deposit_menu_main
+from keyboards.inline.deposit_menu.deposit_menu import deposit_menu_main
 from loader import dp
 from states.deposit import Deposit_State
 

@@ -6,8 +6,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery
 
 from keyboards.inline.callback_datas import make_a_bet_callback
-from keyboards.inline.start_game_menu import start_blackjack_menu, start_rcp_menu
-from handlers.tiktaktoe.keybs.start_tiktaktoe import start_tiktaktoe
+from keyboards.inline.choose_game_menu.start_game_menu import start_blackjack_menu, start_tiktaktoe, start_rcp_menu
 from loader import dp
 from states.start_game import StartGame_State
 
@@ -18,6 +17,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
     await call.answer(cache_time=60)
     await state.update_data(id=callback_data.get('id'))
     await state.update_data(bet=callback_data.get('bet'))
+    await state.update_data(chat_id=call.message.chat.id)
     data = await state.get_data()
     game_name = data.get('game_name')
     game_type = data.get('type')

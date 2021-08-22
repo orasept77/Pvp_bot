@@ -1,18 +1,16 @@
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.builtin import Text
 from aiogram.types import CallbackQuery
 
-from keyboards.inline.callback_datas import deposit_main_callback, deposit_withdrawal_amount_callback, \
-    deposit_deposit_amount_callback, deposit_withdrawal_type_callback
-from keyboards.inline.deposit_menu import withdrawal_menu, withdrawal_amount_menu
+from keyboards.inline.callback_datas import deposit_main_callback, deposit_withdrawal_amount_callback, deposit_withdrawal_type_callback
+from keyboards.inline.deposit_menu.deposit_menu import withdrawal_menu, withdrawal_amount_menu
 from loader import dp
 from states.deposit import Deposit_State
 
 
 @dp.callback_query_handler(deposit_main_callback.filter(what_to_do="withdrawal"), state=Deposit_State.what_to_do)
-async def bot_choice_game(call:CallbackQuery, state: FSMContext):
+async def bot_deposit_withdrawal(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(what_to_do="make_deposit")
     await call.message.answer(
@@ -24,7 +22,7 @@ async def bot_choice_game(call:CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query_handler(deposit_withdrawal_amount_callback.filter(amount=["50", "100", "200", "500"]), state=Deposit_State.amount)
-async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
+async def bot_deposit_withdrawal_amount(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(amount=callback_data.get('amount'))
     await call.message.answer(
@@ -48,7 +46,7 @@ async def bot_deposit_makedeposit_another(call:CallbackQuery, state: FSMContext)
 
 
 @dp.callback_query_handler(deposit_withdrawal_type_callback.filter(type="card_privatbank"), state=Deposit_State.purchase_type)
-async def bot_choice_game(call:CallbackQuery, state: FSMContext):
+async def bot_deposit_withdrawal_type(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(purchase_type="card_privatbank")
     await call.message.answer(

@@ -1,10 +1,9 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.builtin import Text
 from aiogram.types import CallbackQuery
 
 from keyboards.inline.callback_datas import choice_game_callback
-from keyboards.inline.choose_game_type_menu import choose_game_type_menu
+from keyboards.inline.choose_game_menu.choose_game_type_menu import choose_game_type_menu
 from loader import dp
 from states.start_game import StartGame_State
 

@@ -10,6 +10,7 @@ from utils.db_api.create_new_user import create_new_user
 @dp.message_handler(CommandStart(), state=None)
 async def bot_start(message: types.Message):
     create_new_user(message.from_user)
+
     await message.answer(
         f"{fmt.hide_link('https://www.youtube.com/watch?v=dQw4w9WgXcQ')}"
         f"Добро пожаловать в игрового бота *НАЗВАНИЕ БОТА*\n"

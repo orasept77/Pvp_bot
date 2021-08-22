@@ -9,7 +9,6 @@ from utils.db_api.tiktaktoe.tiktaktoe_repo import TikTakToeRepo
 from aiogram.types import CallbackQuery
 
 from keyboards.inline.callback_datas import main_menu_callback
-from keyboards.inline.deposit_menu import deposit_menu_main
 from loader import dp
 from handlers.tiktaktoe.keybs.start_tiktaktoe import tiktaktoe_callback
 from handlers.tiktaktoe.keybs.draw import tiktoktoe_make_step_cb

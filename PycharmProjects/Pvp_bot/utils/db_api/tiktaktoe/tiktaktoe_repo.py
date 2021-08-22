@@ -98,13 +98,11 @@ class TikTakToeRepo:
         user = await self.conn.fetchrow(sql, user_id)
         if user:
             return User(**user)
-
     async def create_user(self, user_id, username):
         sql = insert into "User"("Id","UserName") values($1,$2) on conflict do nothing returning * 
         res = await self.conn.fetchrow(sql, user_id, username)
         if res:
             return User(**res)
-
     async def get_user_groups(self, user_id):
         sql =  select * from "UserGroup"  where "UserId" = $1 ORDER BY "UserId" 
         groups = await self.conn.fetch(sql, user_id)
