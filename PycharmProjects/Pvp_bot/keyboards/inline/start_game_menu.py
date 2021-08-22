@@ -1,4 +1,5 @@
 # --Choose game type menu--
+from os import add_dll_directory
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from keyboards.inline.callback_datas import create_lobby_callback
@@ -12,8 +13,8 @@ start_blackjack_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
-                        status="cancel"
+                    InlineKeyboardButton(text="Отмена", callback_data=create_lobby_callback.new(
+                        lobby_game_name="blackjack"
                     )),
                 ]
             ],
@@ -29,11 +30,12 @@ start_rcp_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
-                        status="cancel"
+                    InlineKeyboardButton(text="Отмена", callback_data=create_lobby_callback.new(
+                        lobby_game_name="rcp"
                     )),
                 ]
             ],
             resize_keyboard=True,
 )
+
 

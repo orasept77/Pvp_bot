@@ -32,15 +32,6 @@ def fetchone_query(connection, query):
         print(f"The error '{e}' occurred")
 
 
-def mogrify_query(connection, query, list_object1, list_object2):
-    connection.autocommit = True
-    cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    try:
-        cursor.mogrify(query, (list_object1, list_object2))
-        return cursor.fetchone()
-    except OperationalError as e:
-        print(f"The error '{e}' occurred")
-
 def print_query(connection, query):
     connection.autocommit = True
     cursor = connection.cursor()

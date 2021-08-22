@@ -2,15 +2,11 @@ import psycopg2
 from psycopg2 import OperationalError
 
 
-def connection_settings(db_name, db_user, db_password, db_host, db_port):
+def connection_settings(conn_str):
     connection = None
     try:
         connection = psycopg2.connect(
-            database=db_name,
-            user=db_user,
-            password=db_password,
-            host=db_host,
-            port=db_port,
+            conn_str
         )
         print("Connection to PostgreSQL DB successful")
     except OperationalError as e:
@@ -20,5 +16,5 @@ def connection_settings(db_name, db_user, db_password, db_host, db_port):
 
 def db_connection():
     return connection_settings(
-        "PvP_bot_db", "postgres", "jwnPbVr263Dk", "localhost", "5432"
+        "postgres://postgres:123123123@144.91.110.3:5432/postgres"
     )

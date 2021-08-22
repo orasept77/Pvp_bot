@@ -12,7 +12,13 @@ from states.start_game import StartGame_State
 async def bot_blackjack_give_first_cards(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await call.message.answer(
-        f"Каждый игрок получил по 2 карты.\n",
+        f"Ожидаем когда соперник приймет игру.\n",
         parse_mode=types.ParseMode.HTML)
-
+    await call.message.answer(
+        f"Игра начинается!\n",
+        parse_mode=types.ParseMode.HTML)
+    await call.message.answer(
+        f"Раздаём карты. Каждый игрок получил по 2 карты.\n"
+        f"Выбирите, хотите ли вы взять ещё одну карту или остановиться.",
+        parse_mode=types.ParseMode.HTML, reply_markup=blackjack_menu)
     await StartGame_State.game.set()
