@@ -29,8 +29,7 @@ class PSRRepo:
     async def add_round(self, game_id: int, sequence:int):
         sql = 'insert into "psr_round"("psr_id", "sequence") values($1, $2) on conflict do nothing returning id '
         res = await self.conn.fetchrow(sql, game_id, sequence)
-        if res:
-            return res['id']
+        return res
 
     async def delete_users_lobby(self, user_id:int):
         sql = 'delete from "psr_lobby" where user_id = $1'
@@ -39,10 +38,6 @@ class PSRRepo:
     async def set_game_end(self, game_id:int):
         sql = 'update "psr" set is_end = true where id = $1'
         await self.conn.execute(sql, game_id)
-    
-    async def set_game_round(self, round_id:int, game_id:int ):
-        sql = 'update "psr" set round_id = $1 where id = $2'
-        await self.conn.execute(sql, round_id, game_id)
 
 
 

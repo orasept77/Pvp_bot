@@ -39,9 +39,8 @@ async def start_psr(call:CallbackQuery, callback_data: dict, ):
     repo = PSRRepo(conn)
     players = await repo.get_lobby_players(rates_id, int(callback_data['user_count']))
     if len(players) >= int(callback_data['user_count']) - 1:
-        game_id = await repo.create_game(rates_id, int(callback_data['user_count']), int(callback_data['game_type_id']))
+        game_id = await repo.create_game(rates_id, players[0]['user_id'], int(callback_data['game_type_id']))
         round_id = await repo.add_round(game_id, 1)
-        await repo.set_game_round(round_id=round_id, game_id=game_id)
         await repo.add_user_to_game(call.from_user.id, game_id)
         players_ids = [call.from_user.id]
         for i in range(0, int(callback_data['user_count']) - 1):

@@ -19,7 +19,7 @@ async def start_tiktaktoe(call:CallbackQuery, callback_data: dict, ):
     rates_id = int(callback_data['rates_id'])
     conn = await create_conn("conn_str")
     repo = TikTakToeRepo(conn)
-    players = await repo.get_lobby_players(rates_id, call.from_user.id)
+    players = await repo.get_lobby_players(rates_id)
     if players:
         game_id = await repo.create_game(rates_id, players[0]['user_id'])
         await repo.delete_users_lobby(players[0]['user_id'])
@@ -66,7 +66,7 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
             b_repo = BalanceRepo(conn)
             rates = await b_repo.get_rates_by_id(game['rates_id'])
             if if_end:
-                await repo.set_game_end(game['id'])
+                
                 for game_user in game_users:
                     if game_user['user_id'] == winner_id:
                         await call.bot.send_message(text=f"Вы победили, вам было начислено на счет {rates['value']} фишек", chat_id=game_user['user_id'])
@@ -76,10 +76,9 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
             if next_step:
                 await repo.set_game_user_step(next_step['sequence'], next_step['user_id'], game['id'])
             else:
-                await repo.set_game_end(game['id'])
-                if not if_end:
-                    for game_user in game_users:
-                        await call.bot.send_message(text=f"Игра окончена ничьей, баланс всех учасников не изменился", chat_id=game_user['user_id'])  
+                for game_user in game_users:
+                    await repo.set_game_end(game['id'])
+                    await call.bot.send_message(text=f"Игра окончена ничьей, баланс всех учасников не изменился", chat_id=game_user['user_id'])  
             for game_user in game_users:
                 if next_step:
                     text = "Ход соперника.\nВы играете за {}".format(game_user['character'])

@@ -13,10 +13,8 @@ from utils.db_api.blackjack.blackjack_repo import BlackJackRepo
 from utils.db_api.create_asyncpg_connection import create_conn
 
 
-"""@dp.callback_query_handler(create_lobby_callback.filter(lobby_game_name="blackjack"),
-                           state=StartGame_State.game)"""
-
-@dp.callback_query_handler(create_lobby_callback.filter(lobby_game_name="blackjack"))
+@dp.callback_query_handler(create_lobby_callback.filter(lobby_game_name="blackjack"),
+                           state=StartGame_State.game)
 async def bot_blackjack_create_lobby(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
 
@@ -30,7 +28,7 @@ async def bot_blackjack_create_lobby(call:CallbackQuery, callback_data: dict, st
         data = await state.get_data()
 
     await state.update_data(chat_id=call.message.chat.id)
-    game_start = await repo.find_lobby_blackjack(data.get('user_id'), data.get('id'), data.get('chat_id'))
+    game_start = await repo.find_lobby_blackjack(data.get('user_id'), data.get('bet_id'), data.get('chat_id'))
 
     await call.message.answer(
         f"Вы добавленны в лобби. Поиск игроков...\n",
@@ -38,9 +36,11 @@ async def bot_blackjack_create_lobby(call:CallbackQuery, callback_data: dict, st
     if game_start:
         await start_blackjack(game_start)
 
+    await StartGame_State.game.set()
 
 
-@dp.callback_query_handler(blackjack_endgame_callback.filter(result="revenge"))
+@dp.callback_query_handler(blackjack_endgame_callback.filter(result="revenge"),
+                           state=StartGame_State.game)
 async def bot_blackjack_revenge(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
 
@@ -50,7 +50,7 @@ async def bot_blackjack_revenge(call:CallbackQuery, state: FSMContext):
     await repo.set_player_state(data.get('game_id'), data.get('user_id'), 'REVENGE')
 
     states = await repo.get_players_states(data.get('game_id'))
-    if states[0][0] == 'REVENGE' and states[1][0] == 'REVENGE' and states != None:
+    if states[0][0] == 'REVENGE' and states[1][0] == 'REVENGE':
         await call.message.answer(
             f"Вы приняли предложение реванша.\n",
             parse_mode=types.ParseMode.HTML)
@@ -60,9 +60,11 @@ async def bot_blackjack_revenge(call:CallbackQuery, state: FSMContext):
         await call.message.answer(
             f"Вы отправили предложение реванша.\n",
             parse_mode=types.ParseMode.HTML, )
+    await StartGame_State.game.set()
 
 
-@dp.callback_query_handler(blackjack_endgame_callback.filter(result="revenge"))
+@dp.callback_query_handler(blackjack_endgame_callback.filter(result="revenge"),
+                           state=StartGame_State.game)
 async def bot_blackjack_revenge_cancel(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
 
@@ -77,7 +79,8 @@ async def bot_blackjack_revenge_cancel(call:CallbackQuery, state: FSMContext):
         parse_mode=types.ParseMode.HTML)
     await state.finish()
 
-@dp.callback_query_handler(leave_lobby_callback.filter(leave="yes"))
+@dp.callback_query_handler(leave_lobby_callback.filter(leave="yes"),
+                           state=StartGame_State.game)
 async def bot_blackjack_lobby_leave(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
 
@@ -93,7 +96,8 @@ async def bot_blackjack_lobby_leave(call:CallbackQuery, state: FSMContext):
     await state.finish()
 
 
-@dp.callback_query_handler(blackjack_endgame_callback.filter(result="leave"))
+@dp.callback_query_handler(blackjack_endgame_callback.filter(result="leave"),
+                           state=StartGame_State.game)
 async def bot_blackjack_game_leave(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
 

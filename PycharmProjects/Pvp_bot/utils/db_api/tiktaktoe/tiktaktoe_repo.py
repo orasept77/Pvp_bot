@@ -6,9 +6,9 @@ class TikTakToeRepo:
         self.conn = conn
     
 
-    async def get_lobby_players(self, rates_id, user_id):
-        sql = 'select * from "tiktaktoe_lobby" where rates_id = $1 and user_id != $2'
-        res = await self.conn.fetch(sql, rates_id, user_id)
+    async def get_lobby_players(self, rates_id):
+        sql = 'select * from "tiktaktoe_lobby" where rates_id = $1'
+        res = await self.conn.fetch(sql, rates_id)
         return res
     
     async def create_game(self, rates_id:int , first_step_user_id:int ):
