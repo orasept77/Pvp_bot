@@ -15,7 +15,7 @@ blackjack_endgame_menu = InlineKeyboardMarkup(
                     )),
                 ],
                 [
-                    InlineKeyboardButton(text="Выход", callback_data=blackjack_endgame_callback.new(
+                    InlineKeyboardButton(text="❌   Выход   ❌", callback_data=blackjack_endgame_callback.new(
                         result="leave"
                     ))
                 ]

@@ -26,6 +26,15 @@ class UserRepo:
         else:
             return user
 
+    async def update_user(self, user_id, first_name, last_name, username):
+        user = await self.get_user(user_id)
+        if not user:
+            sql = 'UPDATE users SET first_name = $2, last_name = $3, username = $4 WHERE id = $1'
+            res = await self.conn.fetch(sql, user_id, first_name, last_name, username)
+            return res
+        else:
+            return user
+
     async def set_id(self, user_id, new_id):
         sql = 'UPDATE users SET id = $1 WHERE id = $2'
         res = await self.conn.fetch(sql, user_id, new_id)

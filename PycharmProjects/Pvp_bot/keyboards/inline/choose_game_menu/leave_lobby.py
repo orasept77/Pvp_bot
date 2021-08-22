@@ -7,7 +7,7 @@ leave_lobby_menu = InlineKeyboardMarkup(
             inline_keyboard=
             [
                 [
-                    InlineKeyboardButton(text="Покинуть лобби", callback_data=leave_lobby_callback.new(
+                    InlineKeyboardButton(text="❌   Покинуть лобби   ❌", callback_data=leave_lobby_callback.new(
                         leave="yes"
                     ))
                 ]

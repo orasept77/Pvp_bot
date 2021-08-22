@@ -7,12 +7,12 @@ connect_to_the_friend_menu = InlineKeyboardMarkup(
             inline_keyboard=
             [
                 [
-                    InlineKeyboardButton(text="💰 Депозит 💰", callback_data=main_menu_callback.new(
+                    InlineKeyboardButton(text="💰   Депозит   💰", callback_data=main_menu_callback.new(
                         menu_choice="deposit"
                     )),
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
+                    InlineKeyboardButton(text="❌   Отмена   ❌", callback_data=cancel_callback.new(
                         status="cancel"
                     )),
                 ]

@@ -7,17 +7,17 @@ after_game_menu = InlineKeyboardMarkup(
             inline_keyboard=
             [
                 [
-                    InlineKeyboardButton(text="🏷 Предложить реванш 🏷", callback_data=after_game_callback.new(
+                    InlineKeyboardButton(text="🏷   Предложить реванш   🏷", callback_data=after_game_callback.new(
                         choice="revenge"
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="🤵 Новый соперник 🦹‍♀", callback_data=after_game_callback.new(
+                    InlineKeyboardButton(text="🤵   Новый соперник   🦹‍♀", callback_data=after_game_callback.new(
                         choice="random_player"
                     )),
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
+                    InlineKeyboardButton(text="❌   Отмена   ❌", callback_data=cancel_callback.new(
                         status="cancel"
                     )),
                 ]

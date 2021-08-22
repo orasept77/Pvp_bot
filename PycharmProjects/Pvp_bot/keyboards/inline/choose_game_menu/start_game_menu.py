@@ -8,12 +8,12 @@ start_blackjack_menu = InlineKeyboardMarkup(
             inline_keyboard=
             [
                 [
-                    InlineKeyboardButton(text="Старт", callback_data=create_lobby_callback.new(
+                    InlineKeyboardButton(text="✔   Старт   ✔", callback_data=create_lobby_callback.new(
                         lobby_game_name="blackjack"
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
+                    InlineKeyboardButton(text="❌    Отмена    ❌", callback_data=cancel_callback.new(
                         status="cancel"
                     )),
                 ]
@@ -25,12 +25,12 @@ start_rcp_menu = InlineKeyboardMarkup(
             inline_keyboard=
             [
                 [
-                    InlineKeyboardButton(text="Старт", callback_data=create_lobby_callback.new(
+                    InlineKeyboardButton(text="✔   Старт   ✔", callback_data=create_lobby_callback.new(
                         lobby_game_name="rcp"
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
+                    InlineKeyboardButton(text="❌   Отмена   ❌", callback_data=cancel_callback.new(
                         status="cancel"
                     )),
                 ]

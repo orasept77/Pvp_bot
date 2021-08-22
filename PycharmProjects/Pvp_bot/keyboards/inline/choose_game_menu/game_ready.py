@@ -7,12 +7,12 @@ game_ready_menu = InlineKeyboardMarkup(
             inline_keyboard=
             [
                 [
-                    InlineKeyboardButton(text="Начать", callback_data=lobby_ready_callback.new(
+                    InlineKeyboardButton(text="✔   Начать   ✔", callback_data=lobby_ready_callback.new(
                         status="start"
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=lobby_ready_callback.new(
+                    InlineKeyboardButton(text="❌   Отмена   ❌", callback_data=lobby_ready_callback.new(
                         status="abort"
                     )),
                 ]

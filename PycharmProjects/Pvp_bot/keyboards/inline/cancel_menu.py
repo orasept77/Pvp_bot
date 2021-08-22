@@ -7,7 +7,7 @@ cancel_menu = InlineKeyboardMarkup(
             inline_keyboard=
             [
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(
+                    InlineKeyboardButton(text="❌   Отмена   ❌", callback_data=cancel_callback.new(
                         status="cancel"
                     )),
                 ]

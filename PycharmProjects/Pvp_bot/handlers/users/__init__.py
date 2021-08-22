@@ -4,6 +4,8 @@ from . import start
 # Game Handlers imports
 from . import game_start
 
+# Account Handlers
+from . import account
 # Deposit Handlers imports
 from . import blackjack
 

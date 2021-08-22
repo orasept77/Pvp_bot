@@ -8,17 +8,24 @@ from keyboards.inline.callback_datas import deposit_main_callback, \
 from keyboards.inline.deposit_menu.deposit_menu import deposit_amount_menu, deposit_menu
 from loader import dp
 from states.deposit import Deposit_State
+from utils.db_api.create_asyncpg_connection import create_conn
+from utils.db_api.deposit.deposit_repo import DepositRepo
+
 
 @dp.callback_query_handler(deposit_main_callback.filter(what_to_do="deposit"), state=Deposit_State.what_to_do)
 async def bot_choice_game(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(what_to_do="make_deposit")
+    conn = await create_conn("conn_str")
+    deposit_repo = DepositRepo(conn=conn)
+    user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
     await call.message.answer(
         f"Пожалуйста, укажите сумму для пополнения из меню нижу.\n\n"
-        f"На данный момент у вас [ни одной] фишек.\n"
+        f"На данный момент у вас [{user_deposit[2]}] фишек.\n"
         f"Одна фишка эквивалентна одной гривне.",
         parse_mode=types.ParseMode.HTML, reply_markup=deposit_amount_menu)
     await Deposit_State.amount.set()
+    await conn.close()
 
 
 @dp.callback_query_handler(deposit_deposit_amount_callback.filter(amount=["50", "100", "200", "500"]), state=Deposit_State.amount)

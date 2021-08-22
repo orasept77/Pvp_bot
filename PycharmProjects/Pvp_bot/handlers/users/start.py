@@ -12,8 +12,7 @@ from utils.db_api.user.user_repo import UserRepo
 async def bot_start(message: types.Message):
     conn = await create_conn("conn_str")
     user_repo = UserRepo(conn=conn)
-    user = await user_repo.create_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name, message.from_user.username)
-
+    await user_repo.create_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name, message.from_user.username)
     await message.answer(
         f"{fmt.hide_link('https://www.youtube.com/watch?v=dQw4w9WgXcQ')}"
         f"Добро пожаловать в игрового бота *НАЗВАНИЕ БОТА*\n"

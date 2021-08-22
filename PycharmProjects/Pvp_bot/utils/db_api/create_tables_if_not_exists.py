@@ -19,10 +19,14 @@ CREATE TABLE IF NOT EXISTS deposits(
 
 CREATE TABLE IF NOT EXISTS statistics(
     user_id int,
+    games_blackjack integer DEFAULT 0,
     win_blackjack integer DEFAULT 0,
+    games_tiktaktoe integer DEFAULT 0,
     win_tiktaktoe integer DEFAULT 0,
+    games_rpc integer DEFAULT 0,
     win_rpc integer DEFAULT 0,
     win_balance integer DEFAULT 0,
+    lost_balance integer DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
