@@ -5,7 +5,7 @@ from aiogram import types
 from keyboards.inline.blackjack_menu.blackjacj_endgame_menu import blackjack_endgame_menu
 from utils.db_api.create_asyncpg_connection import create_conn
 
-from keyboards.inline.blackjack_menu import blackjack_menu
+from keyboards.inline.blackjack_menu.blackjack_menu import blackjack_menu
 from loader import bot
 
 from utils.db_api.blackjack.blackjack_repo import BlackJackRepo
