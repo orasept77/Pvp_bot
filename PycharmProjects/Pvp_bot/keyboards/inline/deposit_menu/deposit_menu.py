@@ -3,7 +3,8 @@ from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from keyboards.inline.callback_datas import deposit_main_callback, deposit_deposit_type_callback, \
-    deposit_withdrawal_type_callback, deposit_deposit_amount_callback, deposit_withdrawal_amount_callback
+    deposit_withdrawal_type_callback, deposit_deposit_amount_callback, deposit_withdrawal_amount_callback, \
+    cancel_callback
 
 # --Main deposit menu--
 deposit_menu_main = InlineKeyboardMarkup(
@@ -20,7 +21,7 @@ deposit_menu_main = InlineKeyboardMarkup(
                     )),
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data="cancel"),
+                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(status="cancel")),
                 ]
             ],
             resize_keyboard=True,
@@ -36,7 +37,7 @@ withdrawal_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data="cancel"),
+                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(status="cancel")),
                 ]
             ],
             resize_keyboard=True,
@@ -52,7 +53,7 @@ deposit_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data="cancel"),
+                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(status="cancel")),
                 ]
             ],
             resize_keyboard=True,
@@ -88,7 +89,7 @@ deposit_amount_menu = InlineKeyboardMarkup(
                     )),
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data="cancel"),
+                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(status="cancel")),
                 ]
             ],
             resize_keyboard=True,
@@ -125,7 +126,7 @@ withdrawal_amount_menu = InlineKeyboardMarkup(
                     )),
                 ],
                 [
-                    InlineKeyboardButton(text="Отмена", callback_data="cancel"),
+                    InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(status="cancel")),
                 ]
             ],
             resize_keyboard=True,

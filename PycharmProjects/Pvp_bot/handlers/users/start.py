@@ -4,12 +4,15 @@ import aiogram.utils.markdown as fmt
 
 from keyboards.inline.main_menu import main_menu
 from loader import dp
-from utils.db_api.create_new_user import create_new_user
+from utils.db_api.create_asyncpg_connection import create_conn
+from utils.db_api.user.user_repo import UserRepo
 
 
 @dp.message_handler(CommandStart(), state=None)
 async def bot_start(message: types.Message):
-    create_new_user(message.from_user)
+    conn = await create_conn("conn_str")
+    user_repo = UserRepo(conn=conn)
+    user = await user_repo.create_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name, message.from_user.username)
 
     await message.answer(
         f"{fmt.hide_link('https://www.youtube.com/watch?v=dQw4w9WgXcQ')}"
@@ -25,4 +28,4 @@ async def bot_start(message: types.Message):
         f"Если у вас возникли какие либо вопросы, Мы рекомендуем к просмотру обучающий видео-ролик."
         f"Приятного просмотра и спасибо что выбрали нашего бота :)",
         parse_mode=types.ParseMode.HTML, reply_markup=main_menu)
-
+    await conn.close()

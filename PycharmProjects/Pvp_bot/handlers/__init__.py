@@ -3,4 +3,4 @@ from . import users
 from . import groups
 from . import channels
 
-from . import blackjack
+from .users import blackjack

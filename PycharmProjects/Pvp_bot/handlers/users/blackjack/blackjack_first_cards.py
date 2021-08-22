@@ -4,12 +4,10 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery
 
-from handlers.blackjack.blackjack import blackjack_endgame
+from handlers.users.blackjack.blackjack import blackjack_endgame
 from keyboards.inline.blackjack_menu.blackjack_menu import blackjack_menu
 from keyboards.inline.callback_datas import blackjack_callback
-
 from loader import dp
-from states.start_game import StartGame_State
 from utils.db_api.blackjack.blackjack_repo import BlackJackRepo
 from utils.db_api.create_asyncpg_connection import create_conn
 
@@ -39,7 +37,7 @@ async def bot_blackjack_give_one_card(call:CallbackQuery, callback_data: dict, s
         f"Вы взяли ещё одну карту.\n\n"
         f"Ваша рука: {player_hand} - {await repo.total_up(player_hand)}",
         parse_mode=types.ParseMode.HTML, reply_markup=blackjack_menu)
-
+    await conn.close()
 
 @dp.callback_query_handler(blackjack_callback.filter(what_to_do="stop"))
 async def bot_blackjack_stop_taking(call:CallbackQuery, callback_data: dict, state: FSMContext):
@@ -67,3 +65,4 @@ async def bot_blackjack_stop_taking(call:CallbackQuery, callback_data: dict, sta
             f"Вы решили больше не брать карт. Ожидаем конца хода второго игрока.\n\n"
             f"Ваша рука: {player_hand} - {await repo.total_up(player_hand)}",
             parse_mode=types.ParseMode.HTML)
+    await conn.close()
