@@ -3,7 +3,6 @@ from utils.db_api.create_connection import db_connection
 from utils.db_api.execute_query import execute_query
 
 query = """
-
 CREATE TABLE IF NOT EXISTS users(
     id SERIAL PRIMARY KEY,
     name varchar(255) NULL,
@@ -25,6 +24,7 @@ CREATE TABLE IF NOT EXISTS rates(
 CREATE TABLE IF NOT EXISTS blackjack_lobby(
     user_id BIGINT,
     rates_id INTEGER,
+    chat_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (rates_id) REFERENCES rates(id)
 );

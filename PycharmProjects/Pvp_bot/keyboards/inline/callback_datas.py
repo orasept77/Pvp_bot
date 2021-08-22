@@ -1,3 +1,4 @@
+  
 from aiogram.utils.callback_data import CallbackData
 
 main_menu_callback = CallbackData("main_menu_choice", "menu_choice")
@@ -13,12 +14,13 @@ deposit_withdrawal_type_callback = CallbackData("withdrawal", "type")
 deposit_withdrawal_amount_callback = CallbackData("withdrawal_amount", "amount")
 
 create_lobby_callback = CallbackData("game_name", "lobby_game_name")
+leave_lobby_callback = CallbackData("leave_lobby", "leave")
+
 lobby_ready_callback = CallbackData("lobby_ready", "status")
 blackjack_callback = CallbackData("blackjack", "what_to_do")
 blackjack_endgame_callback = CallbackData("blackjack_endgame", "result")
 
 tiktaktoe_callback = CallbackData("tiktaktoe_callback", "rates_id")
-
 
 
 cancel_callback = CallbackData("cancel_btn", "status")

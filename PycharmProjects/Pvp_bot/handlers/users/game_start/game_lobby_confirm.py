@@ -6,7 +6,9 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery
 
 from keyboards.inline.callback_datas import make_a_bet_callback
-from keyboards.inline.choose_game_menu.start_game_menu import start_blackjack_menu, start_tiktaktoe, start_rcp_menu
+from keyboards.inline.choose_game_menu.start_game_menu import start_blackjack_menu
+from handlers.tiktaktoe.keybs.start_tiktaktoe import start_tiktaktoe
+
 from loader import dp
 from states.start_game import StartGame_State
 
@@ -22,6 +24,9 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
     game_name = data.get('game_name')
     game_type = data.get('type')
     game_bet = data.get('bet')
+    await state.finish()
+    await state.update_data(**data)
+    data = await state.get_data()
     if game_name == 'Блек-Джек':
         await call.message.answer(
             f"Вы выбрали игру {game_name}\n"
@@ -42,8 +47,6 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
         conn = await create_conn("conn_str")
         repo = PSRRepo(conn)
         game_types = await repo.get_game_types()
-        
         text = "Выберите режим игры"
         await call.message.answer(text=text, reply_markup=psr_game_types(game_types))
         return
-    await StartGame_State.game.set()
