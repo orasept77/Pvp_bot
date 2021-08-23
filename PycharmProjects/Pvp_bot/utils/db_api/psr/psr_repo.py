@@ -21,9 +21,9 @@ class PSRRepo:
         sql = 'insert into "psr_user"("user_id","psr_id") values($1, $2) on conflict do nothing'
         id = await self.conn.execute(sql, user_id, game_id)
 
-    async def get_lobby_players(self, rates_id, user_count):
-        sql = 'select * from "psr_lobby" where rates_id = $1 and user_count = $2 '
-        res = await self.conn.fetch(sql, rates_id, user_count)
+    async def get_lobby_players(self, rates_id, user_count, user_id):
+        sql = 'select * from "psr_lobby" where rates_id = $1 and user_count = $2 and user_id != $3'
+        res = await self.conn.fetch(sql, rates_id, user_count, user_id)
         return res
     
     async def add_round(self, game_id: int, sequence:int):
@@ -51,9 +51,9 @@ class PSRRepo:
         res = await self.conn.fetch(sql, game_type_id)
         return res
 
-    async def set_game_user_message_id(self, user_id: int, game_id: int, message_id):
-        sql = 'update psr_user set message_id = $1 where psr_id = $2 and user_id = $3'
-        return await self.conn.execute(sql, message_id, game_id, user_id)
+    async def set_round_user_message_id(self, user_id: int, round_id: int, message_id):
+        sql = 'update psr_round_user set message_id = $1 where round_id = $2 and user_id = $3'
+        return await self.conn.execute(sql, message_id, round_id, user_id)
     
 
     async def get_game_types(self):
@@ -69,28 +69,39 @@ class PSRRepo:
     
 
     async def get_game_by_id(self, id: int):
-        sql = 'select * from psr where id = $1'
+        sql = 'select p.*, pr."sequence" round_sequence from psr p join psr_round pr on p."id" = pr."psr_id" where p."round_id" = pr."id" and p."id" = $1  '
         res = await self.conn.fetchrow(sql, id)
         return res
 
 
     async def get_round_user_variant(self, user_id: int, round_id:int ):
-        sql = 'select * from psr_round_user_variant where user_id = $2 and round_id = $3 '
+        sql = 'select * from psr_round_user_variant where user_id = $1 and round_id = $2 '
         res = await self.conn.fetchrow(sql, user_id, round_id)
         return res
     
     async def get_round_user_variants(self, round_id: int):
-        sql = 'select * from psr_round_user_variant where round_id = $1 '
+        sql = 'select pruv.*, pv."title" variant_title, u."name" user_name from psr_round_user_variant pruv join psr_variant pv on pv.id = pruv.variant_id join users u on u."id" = pruv."user_id" where round_id = $1  '
         res = await self.conn.fetch(sql, round_id)
         return res
     
     async def add_round_user_variant(self, round_id, variant_id: int, user_id: int):
         sql = 'insert into psr_round_user_variant("round_id", "variant_id", "user_id") values($1, $2, $3)'
         await self.conn.execute(sql, round_id, variant_id, user_id)
-
-
-        
     
+    async def get_beaten_variants(self, id):
+        sql = 'select pv.* from "psr_variant_beat" pvb join "psr_variant" pv on pv."id" = pvb."beat_variant_id" where pvb."variant_id" = $1 '
+        res = await self.conn.fetch(sql, id)
+        return res
+
+
+    async def add_round_user(self, round_id, user_id: int):
+        sql = 'insert into psr_round_user("round_id", "user_id") values($1, $2)'
+        await self.conn.execute(sql, round_id, user_id)
+    
+    async def get_round_users(self, round_id):
+        sql = 'select * from psr_round_user where round_id = $1 '
+        res = await self.conn.fetch(sql, round_id)
+        return res
     
     
 

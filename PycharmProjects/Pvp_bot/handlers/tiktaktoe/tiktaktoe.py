@@ -11,7 +11,17 @@ from aiogram.types import CallbackQuery
 from keyboards.inline.callback_datas import main_menu_callback
 from loader import dp
 from handlers.tiktaktoe.keybs.start_tiktaktoe import tiktaktoe_callback
+from handlers.tiktaktoe.keybs.cancel_search_tiktaktoe import cancel_search_tiktaktoe_cb, cancel_search_tiktaktoe_keyb
 from handlers.tiktaktoe.keybs.draw import tiktoktoe_make_step_cb
+
+
+@dp.callback_query_handler(lambda call: call.data == cancel_search_tiktaktoe_cb, state="*")
+async def cancel_search_tiktaktoe(call:CallbackQuery):
+    conn = await create_conn("conn_str")
+    repo = TikTakToeRepo(conn)
+    await repo.delete_users_lobby(call.from_user.id)
+    await call.message.answer("Отменено")
+    
 
 
 @dp.callback_query_handler(tiktaktoe_callback.filter(), state="*")
@@ -21,6 +31,8 @@ async def start_tiktaktoe(call:CallbackQuery, callback_data: dict, ):
     repo = TikTakToeRepo(conn)
     players = await repo.get_lobby_players(rates_id, call.from_user.id)
     if players:
+        await call.message.delete()
+        await call.message.answer("Ваша игра найдена")
         game_id = await repo.create_game(rates_id, players[0]['user_id'])
         await repo.delete_users_lobby(players[0]['user_id'])
         await repo.add_user_to_game(players[0]['user_id'], game_id, "X")
@@ -38,6 +50,7 @@ async def start_tiktaktoe(call:CallbackQuery, callback_data: dict, ):
         await repo.set_game_user_message_id(players[0]['user_id'], game_id, message.message_id)
     else:
         await repo.add_lobby_user(call.from_user.id, rates_id)
+        await call.message.edit_text("Поиск игры начат, для отмены нажмите \"Отменить\" ", reply_markup=cancel_search_tiktaktoe_keyb())
     await conn.close()
 
 

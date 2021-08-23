@@ -1,7 +1,7 @@
 from aiogram.utils.callback_data import CallbackData
 from aiogram import types
 
-set_psr_variant_cb = CallbackData('tiktoktoe_make_step_cb', 'variant_id', 'psr_id')
+set_psr_variant_cb = CallbackData('set_psr_variant_cb', 'variant_id', 'psr_id')
 
 def draw(variants: list, psr_id:int):
     markup = types.InlineKeyboardMarkup()
