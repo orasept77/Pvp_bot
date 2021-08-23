@@ -9,7 +9,6 @@ from aiogram.types import InlineKeyboardButton
 
 @dp.callback_query_handler(main_menu_callback.filter(menu_choice="choice_game"), state="*")
 async def bot_choice_game(call:CallbackQuery):
-    await call.answer(cache_time=60)
     back_button = InlineKeyboardButton("Назад", callback_data=main_menu_callback.new(menu_choice="main_menu"))
     await call.message.edit_text(
         f"Выберите игру в которую вы бы хотели сыграть",

@@ -1,3 +1,4 @@
+from states.start_game import StartGame_State
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
 import aiogram.utils.markdown as fmt
@@ -46,3 +47,4 @@ async def bot_start_cb(call: types.CallbackQuery):
         f"Если у вас возникли какие либо вопросы, Мы рекомендуем к просмотру обучающий видео-ролик."
         f"Приятного просмотра и спасибо что выбрали нашего бота :)",
         parse_mode=types.ParseMode.HTML, reply_markup=main_menu)
+    return
