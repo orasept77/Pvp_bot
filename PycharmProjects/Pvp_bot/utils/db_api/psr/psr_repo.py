@@ -80,7 +80,7 @@ class PSRRepo:
         return res
     
     async def get_round_user_variants(self, round_id: int):
-        sql = 'select pruv.*, pv."title" variant_title, u."name" user_name from psr_round_user_variant pruv join psr_variant pv on pv.id = pruv.variant_id join users u on u."id" = pruv."user_id" where round_id = $1  '
+        sql = 'select pruv.*, pv."title" variant_title, u."first_name" user_name from psr_round_user_variant pruv join psr_variant pv on pv.id = pruv.variant_id join users u on u."id" = pruv."user_id" where round_id = $1  '
         res = await self.conn.fetch(sql, round_id)
         return res
     

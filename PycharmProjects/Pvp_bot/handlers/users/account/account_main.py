@@ -16,18 +16,21 @@ async def bot_account_main(call:CallbackQuery):
     user_repo = UserRepo(conn=conn)
     deposit_repo = DepositRepo(conn=conn)
     user = await user_repo.get_user(call.from_user.id)
-    user_balance = await deposit_repo.get_user_deposit(call.from_user.id)
-    await call.message.answer(
-        f"Добро пожаловать в ваш личный кабинет.\n\n"
-        f"Данные вашего профиля:\n"
-        f"Ваш ID: {user[0][0]}\n"
-        f"Имя пользователя: @{user[0][3]}\n"
-        f"Имя: {user[0][1]}\n"
-        f"Фамилия: {user[0][2]}\n\n"
-        f"Количество фишек: {user_balance[2]}\n"
-        f"В этом меню вы можете посмотреть вашу статистику, а так-же топ игроков по набранным очкам.\n"
-        f"Для доступа к вашему депозиту выберете 'Депозит'\n"
-        f"Если данные в играх о вашем аккаунте отображатся не верно, вы можете обновить их нажав кнопку 'Обновить данные'\n\n"
-        f"Выберете интересующую вас опцию из меню ниже.",
-        parse_mode=types.ParseMode.HTML, reply_markup=account_menu)
-    await conn.close()
+    if user:
+        user_balance = await deposit_repo.get_user_deposit(call.from_user.id)
+        await call.message.edit_text(
+            f"Добро пожаловать в ваш личный кабинет.\n\n"
+            f"Данные вашего профиля:\n"
+            f"Ваш ID: {user['id']}\n"
+            f"Имя пользователя: @{user['username']}\n"
+            f"Имя: {user['first_name']}\n"
+            f"Фамилия: {user['last_name']}\n\n"
+            f"Количество фишек: {user_balance[2]}\n"
+            f"В этом меню вы можете посмотреть вашу статистику, а так-же топ игроков по набранным очкам.\n"
+            f"Для доступа к вашему депозиту выберете 'Депозит'\n"
+            f"Если данные в играх о вашем аккаунте отображатся не верно, вы можете обновить их нажав кнопку 'Обновить данные'\n\n"
+            f"Выберете интересующую вас опцию из меню ниже.",
+            parse_mode=types.ParseMode.HTML, reply_markup=account_menu)
+        await conn.close()
+    else:
+        await call.message.answer("user not found")

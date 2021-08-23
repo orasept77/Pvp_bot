@@ -33,7 +33,7 @@ async def start_blackjack(game_id):
         f"Ваша рука: {players_hands[i]}, количество очков: {await repo.total_up(players_hands[i])}\n\n"
         f"Хотите взять ещё карту?", reply_markup=blackjack_menu)
         i += 1
-    conn.close()
+    await conn.close()
 
 async def blackjack_endgame(game_id):
     conn = await create_conn("conn_str")

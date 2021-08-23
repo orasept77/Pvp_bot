@@ -109,21 +109,6 @@ async def prs_variant_user(call:CallbackQuery, callback_data: dict, ):
                                 await call.bot.edit_message_text(chat_id=round_user['user_id'], message_id=round_user['message_id'], text=text+"Вы победитель")
                             else:
                                 await call.bot.edit_message_text(chat_id=round_user['user_id'], message_id=round_user['message_id'], text=text+"Вы проиграли")
-                    """ if winners:
-                    user_index = 1
-                    for winner in winners:
-                        await repo.add_round_user(round_id, winner)
-                        if winner != call.from_user.id:
-                            text += f"Игрок {user_index} ответил:"
-                        variant = "unknown"
-                        a = next((answer for answer in answers if answer['user_id'] == winner), None)
-                        if a:
-                            variant = a["variant_title"]
-                        text += variant + "\n"
-                    for winner in winners:
-                        user = next((i for i in round_users if i['user_id'] == winner))
-                        await call.message.edit_text(chat_id=winner, message_id=user['message_id'], text=text+"Вы проходите в следующий круг\n")
-                    """
 
 
 

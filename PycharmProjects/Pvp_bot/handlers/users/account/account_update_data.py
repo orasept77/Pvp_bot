@@ -16,7 +16,7 @@ async def bot_account_update_data(call:CallbackQuery):
     conn = await create_conn("conn_str")
     user_repo = UserRepo(conn=conn)
     await user_repo.update_user(call.from_user.id, call.from_user.first_name, call.from_user.last_name, call.from_user.username)
-    await call.message.answer(
+    await call.message.edit_text(
         f"Уважаемый {call.from_user.first_name} {call.from_user.last_name} [@{call.from_user.username}],\n\n"
         f"Ваши данные профиля были обновленны в меру открытости вашего профиля.\n\n"
         f"Новые обновлённые данные профиля:\n"

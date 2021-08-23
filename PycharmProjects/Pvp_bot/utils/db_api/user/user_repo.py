@@ -10,7 +10,7 @@ class UserRepo:
 
     async def get_user(self, user_id):
         sql = 'SELECT * FROM users WHERE id = $1'
-        res = await self.conn.fetch(sql, user_id)
+        res = await self.conn.fetchrow(sql, user_id)
         return res
 
     async def create_user(self, user_id, first_name, last_name, username):

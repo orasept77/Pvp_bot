@@ -25,7 +25,7 @@ async def bot_account_statistics(call:CallbackQuery):
     deposit_win = await stat_repo.get_win_balance(call.from_user.id)
     deposit_lost = await stat_repo.get_lost_balance(call.from_user.id)
     deposit_position = await stat_repo.get_user_position_balance(call.from_user.id)
-    await call.message.answer(
+    await call.message.edit_text(
         f"Тут показана ваша статистика по всем сыгранным играм:\n\n"
         f"Блекджек: Игр - {blackjack_games[0][0]} | Побед: {blackjack_wins[0][0]}\n"
         f"Камень-ножницы-бумага: Игр - {rpc_games[0][0]} | Побед: {rpc_wins[0][0]}\n"

@@ -17,7 +17,7 @@ async def bot_choice_game(call:CallbackQuery):
     conn = await create_conn("conn_str")
     deposit_repo = DepositRepo(conn=conn)
     user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
-    await call.message.answer(
+    await call.message.edit_text(
         f"Ваш депозит составляет [{user_deposit[2]}] фишек.\n\n"
         f"Вы можете пополнить или вывести свой депозит в любое время.\n\n"
         f"Доступные способы оплаты:\n"
