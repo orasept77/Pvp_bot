@@ -3,12 +3,10 @@ import json
 from aiogram import types
 
 from keyboards.inline.blackjack_menu.blackjacj_endgame_menu import blackjack_endgame_menu
-from utils.db_api.create_asyncpg_connection import create_conn
-
 from keyboards.inline.blackjack_menu.blackjack_menu import blackjack_menu
 from loader import bot
-
 from utils.db_api.blackjack.blackjack_repo import BlackJackRepo
+from utils.db_api.create_asyncpg_connection import create_conn
 
 
 async def start_blackjack(game_id):
@@ -35,7 +33,7 @@ async def start_blackjack(game_id):
         f"Ваша рука: {players_hands[i]}, количество очков: {await repo.total_up(players_hands[i])}\n\n"
         f"Хотите взять ещё карту?", reply_markup=blackjack_menu)
         i += 1
-
+    conn.close()
 
 async def blackjack_endgame(game_id):
     conn = await create_conn("conn_str")
@@ -79,4 +77,4 @@ async def blackjack_endgame(game_id):
         f"Рука игрока 2: {players_hands[1]} - {await repo.total_up(players_hands[1])}\n\n"
         f"Результат: {result}.", reply_markup=blackjack_endgame_menu)
         i += 1
-
+    conn.close()

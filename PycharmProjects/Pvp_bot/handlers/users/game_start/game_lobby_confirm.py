@@ -1,4 +1,5 @@
 from handlers.psr.keybs.game_types import psr_game_types
+from utils.db_api.deposit.deposit_repo import DepositRepo
 from utils.db_api.psr.psr_repo import PSRRepo
 from utils.db_api.create_asyncpg_connection import create_conn
 from aiogram import types
@@ -17,6 +18,9 @@ from states.start_game import StartGame_State
                            state=StartGame_State.bet)
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
+    conn = await create_conn("conn_str")
+    deposit_repo = DepositRepo(conn=conn)
+    user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
     await state.update_data(id=callback_data.get('id'))
     await state.update_data(bet=callback_data.get('bet'))
     await state.update_data(chat_id=call.message.chat.id)
@@ -31,6 +35,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
         await call.message.answer(
             f"Вы выбрали игру {game_name}\n"
             f"Тип игры: {game_type}\n"
+            f"Ваш депозит: [{user_deposit[2]}]\n"
             f"Ваша ставка на игру: {game_bet}\n\n"
             f"Для начала игры нажми кнопку 'СТАРТ'.",
             parse_mode=types.ParseMode.HTML, reply_markup=start_blackjack_menu)
@@ -39,8 +44,8 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
         await call.message.answer(
             f"Вы выбрали игру {game_name}\n"
             f"Тип игры: {game_type}\n"
-            f"Ваша ставка на игру: {game_bet}\n\n"
-            f"Дальше ничего нет. Нужно писать логику",
+            f"Ваш депозит: [{user_deposit[2]}]\n"
+            f"Ваша ставка на игру: {game_bet}\n\n",
             parse_mode=types.ParseMode.HTML, reply_markup=start_tiktaktoe(rates_id=rates_id))
         return
     if game_name == 'Камень-Ножницы-Бумага':
@@ -50,3 +55,4 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
         text = "Выберите режим игры"
         await call.message.answer(text=text, reply_markup=psr_game_types(game_types))
         return
+    await conn.close()

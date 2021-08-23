@@ -5,7 +5,8 @@ from utils.db_api.execute_query import execute_query
 query = """
 CREATE TABLE IF NOT EXISTS users(
     id SERIAL PRIMARY KEY,
-    name varchar(255) NULL,
+    first_name varchar(255) NULL,
+    last_name varchar(255) NULL,
     username varchar(255)
 );
 
@@ -13,6 +14,19 @@ CREATE TABLE IF NOT EXISTS deposits(
     id SERIAL PRIMARY KEY,
     user_id int,
     balance integer DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS statistics(
+    user_id int,
+    games_blackjack integer DEFAULT 0,
+    win_blackjack integer DEFAULT 0,
+    games_tiktaktoe integer DEFAULT 0,
+    win_tiktaktoe integer DEFAULT 0,
+    games_rpc integer DEFAULT 0,
+    win_rpc integer DEFAULT 0,
+    win_balance integer DEFAULT 0,
+    lost_balance integer DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 

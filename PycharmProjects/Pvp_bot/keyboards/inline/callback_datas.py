@@ -7,6 +7,11 @@ choice_game_type_callback = CallbackData("game_type_choice", "game_type")
 make_a_bet_callback = CallbackData("player_bet", "id", "bet")
 after_game_callback = CallbackData("choice_after_game", "choice")
 
+account_main_callback = CallbackData("account_main", "enter")
+account_statistics_callback = CallbackData("account_stat", "enter")
+account_statistics_top_callback = CallbackData("account_stat_top", "type")
+account_update_data_callback = CallbackData("account_update", "enter")
+
 deposit_main_callback = CallbackData("deposit_menu", "what_to_do")
 deposit_deposit_type_callback = CallbackData("deposit", "type")
 deposit_deposit_amount_callback = CallbackData("deposit_amount", "amount")

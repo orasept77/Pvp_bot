@@ -45,8 +45,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
     await state.finish()
 
 
-@dp.callback_query_handler(cancel_callback.filter(status='cancel'),
-                           state=StartGame_State.lobby_confirm)
+@dp.callback_query_handler(cancel_callback.filter(status='cancel'))
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(type=callback_data.get('game_type'))

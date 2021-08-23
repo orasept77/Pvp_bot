@@ -7,10 +7,10 @@ blackjack_menu = InlineKeyboardMarkup(
             inline_keyboard=
             [
                 [
-                    InlineKeyboardButton(text="Взять ещё", callback_data=blackjack_callback.new(
+                    InlineKeyboardButton(text="✔   Взять ещё   ✔", callback_data=blackjack_callback.new(
                         what_to_do="more"
                     )),
-                    InlineKeyboardButton(text="Хватит", callback_data=blackjack_callback.new(
+                    InlineKeyboardButton(text="❌   Хватит   ❌", callback_data=blackjack_callback.new(
                         what_to_do="stop"
                     )),
                 ]

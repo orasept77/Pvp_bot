@@ -2,19 +2,14 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery
 
-from handlers.blackjack.blackjack import start_blackjack
-from keyboards.inline.callback_datas import create_lobby_callback, leave_lobby_callback, blackjack_endgame_callback
-
+from handlers.users.blackjack.blackjack import start_blackjack
+from keyboards.inline.callback_datas import create_lobby_callback, blackjack_endgame_callback, \
+    leave_lobby_callback
 from keyboards.inline.choose_game_menu.leave_lobby import leave_lobby_menu
 from loader import dp
-from states.start_game import StartGame_State
-
 from utils.db_api.blackjack.blackjack_repo import BlackJackRepo
 from utils.db_api.create_asyncpg_connection import create_conn
 
-
-"""@dp.callback_query_handler(create_lobby_callback.filter(lobby_game_name="blackjack"),
-                           state=StartGame_State.game)"""
 
 @dp.callback_query_handler(create_lobby_callback.filter(lobby_game_name="blackjack"))
 async def bot_blackjack_create_lobby(call:CallbackQuery, callback_data: dict, state: FSMContext):
@@ -37,6 +32,7 @@ async def bot_blackjack_create_lobby(call:CallbackQuery, callback_data: dict, st
         parse_mode=types.ParseMode.HTML, reply_markup=leave_lobby_menu)
     if game_start:
         await start_blackjack(game_start)
+    await conn.close()
 
 
 
@@ -60,7 +56,7 @@ async def bot_blackjack_revenge(call:CallbackQuery, state: FSMContext):
         await call.message.answer(
             f"Вы отправили предложение реванша.\n",
             parse_mode=types.ParseMode.HTML, )
-
+    await conn.close()
 
 @dp.callback_query_handler(blackjack_endgame_callback.filter(result="revenge"))
 async def bot_blackjack_revenge_cancel(call:CallbackQuery, state: FSMContext):
@@ -76,6 +72,7 @@ async def bot_blackjack_revenge_cancel(call:CallbackQuery, state: FSMContext):
         f"Для доступа к меню используйте команду /start",
         parse_mode=types.ParseMode.HTML)
     await state.finish()
+    await conn.close()
 
 @dp.callback_query_handler(leave_lobby_callback.filter(leave="yes"))
 async def bot_blackjack_lobby_leave(call:CallbackQuery, state: FSMContext):
@@ -91,7 +88,7 @@ async def bot_blackjack_lobby_leave(call:CallbackQuery, state: FSMContext):
         f"Для доступа к меню используйте команду /start.",
         parse_mode=types.ParseMode.HTML)
     await state.finish()
-
+    await conn.close()
 
 @dp.callback_query_handler(blackjack_endgame_callback.filter(result="leave"))
 async def bot_blackjack_game_leave(call:CallbackQuery, state: FSMContext):
@@ -109,3 +106,4 @@ async def bot_blackjack_game_leave(call:CallbackQuery, state: FSMContext):
         f"Для доступа к меню используйте команду /start.",
         parse_mode=types.ParseMode.HTML)
     await state.finish()
+    await conn.close()

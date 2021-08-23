@@ -7,19 +7,24 @@ from keyboards.inline.callback_datas import deposit_main_callback, deposit_withd
 from keyboards.inline.deposit_menu.deposit_menu import withdrawal_menu, withdrawal_amount_menu
 from loader import dp
 from states.deposit import Deposit_State
+from utils.db_api.create_asyncpg_connection import create_conn
+from utils.db_api.deposit.deposit_repo import DepositRepo
 
 
 @dp.callback_query_handler(deposit_main_callback.filter(what_to_do="withdrawal"), state=Deposit_State.what_to_do)
 async def bot_deposit_withdrawal(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(what_to_do="make_deposit")
+    conn = await create_conn("conn_str")
+    deposit_repo = DepositRepo(conn=conn)
+    user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
     await call.message.answer(
         f"Выберете удобную для вас сумму для вывода из меню ниже.\n\n"
-        f"На данный момент у вас [ни одной] фишек.\n"
+        f"На данный момент у вас [{user_deposit[2]}] фишек.\n"
         f"Одна фишка эквивалентна одной гривне.",
         parse_mode=types.ParseMode.HTML, reply_markup=withdrawal_amount_menu)
     await Deposit_State.amount.set()
-
+    await conn.close()
 
 @dp.callback_query_handler(deposit_withdrawal_amount_callback.filter(amount=["50", "100", "200", "500"]), state=Deposit_State.amount)
 async def bot_deposit_withdrawal_amount(call:CallbackQuery, callback_data: dict, state: FSMContext):
