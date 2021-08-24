@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS blackjack_game(
     id SERIAL PRIMARY KEY,
     rates_id INTEGER,
     result varchar(15) DEFAULT NULL,
+    deck JSON DEFAULT '[]',
     game_round INTEGER DEFAULT 1,
     is_end varchar(10) NULL,
     FOREIGN KEY (rates_id) REFERENCES rates(id)
@@ -61,14 +62,6 @@ CREATE TABLE IF NOT EXISTS blackjack_game_user(
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (game_id) REFERENCES blackjack_game(id)
 );
-
-CREATE TABLE IF NOT EXISTS blackjack_game_dealer(
-    game_id int,
-    deck JSON DEFAULT '[]',
-    hand JSON DEFAULT '[]',
-    FOREIGN KEY (game_id) REFERENCES blackjack_game(id)
-);
-
 """
 
 

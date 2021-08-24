@@ -10,8 +10,12 @@ class DepositRepo:
         sql = """select * from deposits where user_id = $1"""
         return await self.conn.fetchrow(sql, user_id)
 
-    async def set_user_deposit(self, user_id, balance):
+    async def plus_user_deposit(self, user_id, balance):
         sql = """UPDATE deposits SET balance = balance + $2 where user_id = $1"""
+        return await self.conn.fetchrow(sql, user_id, balance)
+
+    async def minus_user_deposit(self, user_id, balance):
+        sql = """UPDATE deposits SET balance = balance - $2 where user_id = $1"""
         return await self.conn.fetchrow(sql, user_id, balance)
 
 
