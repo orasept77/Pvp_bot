@@ -1,3 +1,5 @@
+import asyncio
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery
@@ -52,10 +54,29 @@ async def bot_blackjack_revenge(call:CallbackQuery, state: FSMContext):
             parse_mode=types.ParseMode.HTML)
         await repo.create_revenge_game(data.get('game_id'))
         await start_blackjack(data.get('game_id'))
+    elif states == None:
+        await call.message.answer(
+            f"Игрок отказался от реванша. Для доступа к меню используйте команду /start.\n",
+            parse_mode=types.ParseMode.HTML, )
     else:
         await call.message.answer(
-            f"Вы отправили предложение реванша.\n",
-            parse_mode=types.ParseMode.HTML, )
+            f"Вы отправили предложение реванша. Ожидаем решения игрока.\n",
+            parse_mode=types.ParseMode.HTML)
+        while states != 'STOP_FIND':
+            if states != 'STOP_FIND':
+                states = await repo.get_players_states(data.get('game_id'))
+            if states != []:
+                if (states[0][0] == 'REVENGE' and states[1][0] == 'REVENGE'):
+                    states = 'STOP_FIND'
+                    extra = 'REVENGE'
+            if states == []:
+                states = 'STOP_FIND'
+                extra = 'bruh'
+            await asyncio.sleep(5)
+        if states == 'STOP_FIND' and extra != 'REVENGE':
+            await call.message.answer(
+                f"Игрок отказался от реванша. Для доступа к меню используйте команду /start.\n",
+                parse_mode=types.ParseMode.HTML, )
     await conn.close()
 
 @dp.callback_query_handler(blackjack_endgame_callback.filter(result="revenge"))

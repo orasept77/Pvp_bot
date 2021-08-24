@@ -19,9 +19,9 @@ async def bot_blackjack_give_one_card(call:CallbackQuery, callback_data: dict, s
     conn = await create_conn("conn_str")
     repo = BlackJackRepo(conn=conn)
     data = await state.get_data()
-    if not data.get('game_id'):
-        game_id = await repo.get_player_game_id(data.get('user_id'))
-        await state.update_data(game_id=game_id[0])
+
+    game_id = await repo.get_player_game_id(data.get('user_id'))
+    await state.update_data(game_id=game_id[0])
 
     data = await state.get_data()
     deck = await repo.get_deck(data.get('game_id'))
