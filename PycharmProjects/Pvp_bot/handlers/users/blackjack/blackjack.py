@@ -35,13 +35,8 @@ async def start_blackjack(game_id):
     for player in players:
         await bot.send_message(player[2], parse_mode=types.ParseMode.HTML, text=
         f"Игра начинается!\n"
-<<<<<<< HEAD
-        f"Игрок 1: {users_data[0][1]} - @{users_data[0][2]}\n"
-        f"Игрок 2: {users_data[1][1]} - @{users_data[1][2]}\n")
-=======
         f"Игрок 1: {users_data[0]['first_name']} - @{users_data[0]['username']}\n"
         f"Игрок 2: {users_data[1]['first_name']} - @{users_data[1]['username']}\n")
->>>>>>> d0b601ecf4f05ee84991893006179c7093bb7ea7
         await repo.set_players_hand(game_id, players[i][0], players_hands[i])
         msg = await bot.send_message(player[2], parse_mode=types.ParseMode.HTML, text=
         f"Каждый игрок получил по 2 карты!\n"
