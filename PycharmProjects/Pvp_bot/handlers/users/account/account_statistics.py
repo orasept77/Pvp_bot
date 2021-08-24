@@ -47,9 +47,9 @@ async def bot_account_statistics_top_10_by_points(call:CallbackQuery):
     text=f"Топ 10 игроков по набранным очкам:\nВаша позиция: {user_top[0][0] + 1}\n\n"
     i = 0
     for top in tops:
-        text+=f"{i+1}. @{top[3]} - {top[8]}\n"
+        text+=f"{i+1}. @{top[2]} - {top[11]}\n"
         i+=i
-    await call.message.answer(text,
+    await call.message.edit_text(text,
         parse_mode=types.ParseMode.HTML, reply_markup=account_statistics_menu_top)
     await conn.close()
 
@@ -63,9 +63,9 @@ async def bot_account_statistics_top_10_by_win_blackjack(call:CallbackQuery):
     text=f"Топ 10 игроков по победам в блекджек:\nВаша позиция: {user_top[0][0] + 1}\n\n"
     i = 0
     for top in tops:
-        text+=f"{i+1}. @{top[3]} - {top[8]}\n"
+        text+=f"{i+1}. @{top[2]} - {top[6]}\n"
         i+=i
-    await call.message.answer(text,
+    await call.message.edit_text(text,
         parse_mode=types.ParseMode.HTML, reply_markup=account_statistics_menu_top)
     await conn.close()
 
@@ -79,9 +79,9 @@ async def bot_account_statistics_top_10_by_win_tiktaktoe(call:CallbackQuery):
     text=f"Топ 10 игроков по победам в крестиках-ноликах:\nВаша позиция: {user_top[0][0] + 1}\n\n"
     i = 0
     for top in tops:
-        text+=f"{i+1}. @{top[3]} - {top[8]}\n"
+        text+=f"{i+1}. @{top[2]} - {top[9]}\n"
         i+=i
-    await call.message.answer(text,
+    await call.message.edit_text(text,
         parse_mode=types.ParseMode.HTML, reply_markup=account_statistics_menu_top)
     await conn.close()
 
@@ -95,9 +95,9 @@ async def bot_account_statistics_top_10_by_win_rpc(call:CallbackQuery):
     text=f"Топ 10 игроков по победам в камень-ножницы-бумага:\nВаша позиция: {user_top[0][0] + 1}\n\n"
     i = 0
     for top in tops:
-        text+=f"{i+1}. @{top[3]} - {top[8]}\n"
+        text+=f"{i+1}. @{top[2]} - {top[10]}\n"
         i+=i
-    await call.message.answer(text,
+    await call.message.edit_text(text,
         parse_mode=types.ParseMode.HTML, reply_markup=account_statistics_menu_top)
     await conn.close()
 

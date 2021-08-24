@@ -20,7 +20,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
     user_balance = await deposit_repo.get_user_deposit(call.from_user.id)
     await state.update_data(type=callback_data.get('game_type'))
     data = await state.get_data()
-    await call.message.answer(
+    await call.message.edit_text(
         f"Вы выбрали игру {data.get('game_name')}\n"
         f"Ваш депозит составляет [{user_balance[2]}] фишек.\n\n"
         f"Выберите наиболее интересующую вас ставку из меню ниже.\n\n"
@@ -38,7 +38,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
     user_balance = await deposit_repo.get_user_deposit(call.from_user.id)
     await state.update_data(type=callback_data.get('game_type'))
     data = await state.get_data()
-    await call.message.answer(
+    await call.message.edit_text(
         f"Вы выбрали игру {data.get('game_name')}\n"
         f"Ваш депозит составляет [{user_balance[2]}] фишек.\n"
         f"Для подключения у вас должно быть достаточно фишек на счету.\n\n"

@@ -19,7 +19,7 @@ async def bot_choice_game(call:CallbackQuery, state: FSMContext):
     conn = await create_conn("conn_str")
     deposit_repo = DepositRepo(conn=conn)
     user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
-    await call.message.answer(
+    await call.message.edit_text(
         f"Пожалуйста, укажите сумму для пополнения из меню нижу.\n\n"
         f"На данный момент у вас [{user_deposit[2]}] фишек.\n"
         f"Одна фишка эквивалентна одной гривне.",
@@ -32,7 +32,7 @@ async def bot_choice_game(call:CallbackQuery, state: FSMContext):
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(amount=callback_data.get('amount'))
-    await call.message.answer(
+    await call.message.edit_text(
         f"Вы выбрали пополнение на {callback_data.get('amount')} фишек.\n\n"
         f"Для пополнения депозита выберите предпочитаемый способ получения из меню ниже.\n\n"
         f"Доступные способы пополнения:\n"
@@ -45,7 +45,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
 async def bot_deposit_makedeposit_another(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(amount="amount")
-    await call.message.answer(
+    await call.message.edit_text(
         f"Введите желаемую сумму для пополнения при помощи клавиатуры.",
         parse_mode=types.ParseMode.HTML)
     await Deposit_State.purchase_type.set()
@@ -55,7 +55,7 @@ async def bot_deposit_makedeposit_another(call:CallbackQuery, state: FSMContext)
 async def bot_choice_game(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(purchase_type="card_privatbank")
-    await call.message.answer(
+    await call.message.edit_text(
         f"Вы выбрали пополнение картой ПриватБанка.\n\n"
         f"Пожалуйста, укажите необходимые данные для перевода.\n\n"
         f"*СПИСОК ДАННЫХ*\n\n"

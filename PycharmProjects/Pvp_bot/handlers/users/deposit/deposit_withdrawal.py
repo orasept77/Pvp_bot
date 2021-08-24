@@ -18,7 +18,7 @@ async def bot_deposit_withdrawal(call:CallbackQuery, state: FSMContext):
     conn = await create_conn("conn_str")
     deposit_repo = DepositRepo(conn=conn)
     user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
-    await call.message.answer(
+    await call.message.edit_text(
         f"Выберете удобную для вас сумму для вывода из меню ниже.\n\n"
         f"На данный момент у вас [{user_deposit[2]}] фишек.\n"
         f"Одна фишка эквивалентна одной гривне.",
@@ -30,7 +30,7 @@ async def bot_deposit_withdrawal(call:CallbackQuery, state: FSMContext):
 async def bot_deposit_withdrawal_amount(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(amount=callback_data.get('amount'))
-    await call.message.answer(
+    await call.message.edit_text(
         f"Вы выбрали вывод на {callback_data.get('amount')} фишек.\n\n"
         f"Для пополнения депозита выберите предпочитаемый способ получения из меню ниже.\n\n"
         f"Доступные способы пополнения:\n"
@@ -44,7 +44,7 @@ async def bot_deposit_makedeposit_another(call:CallbackQuery, state: FSMContext)
     await call.answer(cache_time=60)
     await state.update_data(amount="amount")
 
-    await call.message.answer(
+    await call.message.edit_text(
         f"Введите желаемую сумму для вывода при помощи клавиатуры.",
         parse_mode=types.ParseMode.HTML)
     await Deposit_State.purchase_type.set()
@@ -54,7 +54,7 @@ async def bot_deposit_makedeposit_another(call:CallbackQuery, state: FSMContext)
 async def bot_deposit_withdrawal_type(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(purchase_type="card_privatbank")
-    await call.message.answer(
+    await call.message.edit_text(
         f"Вы выбрали вывод на карту ПриватБанка.\n\n"
         f"Пожалуйста, укажите необходимые данные для перевода.\n\n"
         f"*СПИСОК ДАННЫХ"

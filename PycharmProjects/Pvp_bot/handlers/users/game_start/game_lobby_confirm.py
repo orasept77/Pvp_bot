@@ -32,7 +32,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
     await state.update_data(**data)
     data = await state.get_data()
     if game_name == 'Блек-Джек':
-        await call.message.answer(
+        await call.message.edit_text(
             f"Вы выбрали игру {game_name}\n"
             f"Тип игры: {game_type}\n"
             f"Ваш депозит: [{user_deposit[2]}]\n"
@@ -41,7 +41,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
             parse_mode=types.ParseMode.HTML, reply_markup=start_blackjack_menu)
     if game_name == 'Крестики-Нолики':
         rates_id = int(callback_data.get('id'))
-        await call.message.answer(
+        await call.message.edit_text(
             f"Вы выбрали игру {game_name}\n"
             f"Тип игры: {game_type}\n"
             f"Ваш депозит: [{user_deposit[2]}]\n"
@@ -53,6 +53,6 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
         repo = PSRRepo(conn)
         game_types = await repo.get_game_types()
         text = "Выберите режим игры"
-        await call.message.answer(text=text, reply_markup=psr_game_types(game_types))
+        await call.message.edit_text(text=text, reply_markup=psr_game_types(game_types))
         return
     await conn.close()

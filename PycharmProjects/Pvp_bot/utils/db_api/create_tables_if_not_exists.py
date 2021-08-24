@@ -6,8 +6,8 @@ query = """
 CREATE TABLE IF NOT EXISTS users(
     id SERIAL PRIMARY KEY,
     first_name varchar(255) NULL,
-    last_name varchar(255) NULL,
-    username varchar(255)
+    username varchar(255),
+    last_name varchar(255) NULL
 );
 
 CREATE TABLE IF NOT EXISTS deposits(
@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS blackjack_game_user(
     user_id INTEGER,
     game_id INTEGER,
     chat_id INTEGER,
+    message_id INTEGER,
     hand JSON DEFAULT '[]',
     state varchar(10) DEFAULT 'NONE',
     FOREIGN KEY (user_id) REFERENCES users(id),

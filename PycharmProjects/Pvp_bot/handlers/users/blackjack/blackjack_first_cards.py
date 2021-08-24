@@ -14,8 +14,6 @@ from utils.db_api.create_asyncpg_connection import create_conn
 
 @dp.callback_query_handler(blackjack_callback.filter(what_to_do="more"))
 async def bot_blackjack_give_one_card(call:CallbackQuery, callback_data: dict, state: FSMContext):
-    await call.answer(cache_time=60)
-
     conn = await create_conn("conn_str")
     repo = BlackJackRepo(conn=conn)
     data = await state.get_data()
@@ -29,11 +27,15 @@ async def bot_blackjack_give_one_card(call:CallbackQuery, callback_data: dict, s
 
     player_hand = await repo.get_player_hand(data.get('game_id'), data.get('user_id'))
     player_hand = json.loads(player_hand[0])
+
     await repo.give_card(deck, player_hand)
     await repo.set_deck(data.get('game_id'), deck)
     await repo.set_players_hand(data.get('game_id'), data.get('user_id'), player_hand)
     await repo.set_player_state(data.get('game_id'), data.get('user_id'), 'MORE')
-    await call.message.answer(
+
+    msg = await repo.get_player_message_id(data.get('user_id'), data.get('game_id'))
+    chat_id = await repo.get_player_chat_id(data.get('user_id'), data.get('game_id'))
+    await call.bot.edit_message_text(message_id=msg[0], chat_id=chat_id[0], text=
         f"Вы взяли ещё одну карту.\n\n"
         f"Ваша рука: {player_hand} - {await repo.total_up(player_hand)}",
         parse_mode=types.ParseMode.HTML, reply_markup=blackjack_menu)
@@ -41,7 +43,6 @@ async def bot_blackjack_give_one_card(call:CallbackQuery, callback_data: dict, s
 
 @dp.callback_query_handler(blackjack_callback.filter(what_to_do="stop"))
 async def bot_blackjack_stop_taking(call:CallbackQuery, callback_data: dict, state: FSMContext):
-    await call.answer(cache_time=60)
     data = await state.get_data()
 
     conn = await create_conn("conn_str")
@@ -61,7 +62,9 @@ async def bot_blackjack_stop_taking(call:CallbackQuery, callback_data: dict, sta
     if states[0][0] == 'STOP' and states[1][0] == 'STOP':
         await blackjack_endgame(data.get('game_id'))
     else:
-        await call.message.answer(
+        msg = await repo.get_player_message_id(data.get('user_id'), data.get('game_id'))
+        chat_id = await repo.get_player_chat_id(data.get('user_id'), data.get('game_id'))
+        await call.bot.edit_message_text(message_id=msg[0], chat_id=chat_id[0], text=
             f"Вы решили больше не брать карт. Ожидаем конца хода второго игрока.\n\n"
             f"Ваша рука: {player_hand} - {await repo.total_up(player_hand)}",
             parse_mode=types.ParseMode.HTML)

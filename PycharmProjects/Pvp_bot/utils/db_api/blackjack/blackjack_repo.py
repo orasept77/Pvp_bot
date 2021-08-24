@@ -166,6 +166,26 @@ class BlackJackRepo:
         res = await self.conn.fetch(sql, game_id)
         return res
 
+    async def set_player_message_id(self, user_id, game_id, message_id):
+        sql = 'UPDATE blackjack_game_user SET message_id = $3 WHERE user_id = $1 AND game_id = $2'
+        res = await self.conn.fetchrow(sql, user_id, game_id, message_id)
+        return res
+
+    async def get_player_message_id(self, user_id, game_id):
+        sql = 'SELECT message_id FROM blackjack_game_user WHERE user_id = $1 AND game_id = $2'
+        res = await self.conn.fetchrow(sql, user_id, game_id)
+        return res
+
+    async def set_player_chat_id(self, user_id, game_id, message_id):
+        sql = 'UPDATE blackjack_game_user SET chat_id = $3 WHERE user_id = $1 AND game_id = $2'
+        res = await self.conn.fetchrow(sql, user_id, game_id, message_id)
+        return res
+
+    async def get_player_chat_id(self, user_id, game_id):
+        sql = 'SELECT chat_id FROM blackjack_game_user WHERE user_id = $1 AND game_id = $2'
+        res = await self.conn.fetchrow(sql, user_id, game_id)
+        return res
+
     async def get_player_game_id(self, user_id):
         sql = 'SELECT game_id FROM blackjack_game_user WHERE user_id = $1'
         res = await self.conn.fetchrow(sql, user_id)

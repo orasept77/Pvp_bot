@@ -14,7 +14,7 @@ from states.start_game import StartGame_State
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(type=callback_data.get('game_type'))
-    await call.message.answer(
+    await call.message.edit_text(
         f"Отмена\n"
         f"Для доступа в главное меню введите /start\n\n",
         parse_mode=types.ParseMode.HTML)
@@ -26,7 +26,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(type=callback_data.get('game_type'))
-    await call.message.answer(
+    await call.message.edit_text(
         f"Отмена\n"
         f"Для доступа в главное меню введите /start\n\n",
         parse_mode=types.ParseMode.HTML)
@@ -38,7 +38,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(type=callback_data.get('game_type'))
-    await call.message.answer(
+    await call.message.edit_text(
         f"Отмена\n"
         f"Для доступа в главное меню введите /start\n\n",
         parse_mode=types.ParseMode.HTML)
@@ -49,7 +49,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(type=callback_data.get('game_type'))
-    await call.message.answer(
+    await call.message.edit_text(
         f"Отмена\n"
         f"Для доступа в главное меню введите /start\n\n",
         parse_mode=types.ParseMode.HTML)
@@ -61,7 +61,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(type=callback_data.get('game_type'))
-    await call.message.answer(
+    await call.message.edit_text(
         f"Отмена\n"
         f"Для доступа в главное меню введите /start\n\n",
         parse_mode=types.ParseMode.HTML)
@@ -74,7 +74,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(type=callback_data.get('game_type'))
-    await call.message.answer(
+    await call.message.edit_text(
         f"Отмена\n"
         f"Для доступа в главное меню введите /start\n\n",
         parse_mode=types.ParseMode.HTML)
@@ -86,7 +86,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(type=callback_data.get('game_type'))
-    await call.message.answer(
+    await call.message.edit_text(
         f"Отмена\n"
         f"Для доступа в главное меню введите /start\n\n",
         parse_mode=types.ParseMode.HTML)
@@ -98,7 +98,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     await state.update_data(type=callback_data.get('game_type'))
-    await call.message.answer(
+    await call.message.edit_text(
         f"Отмена\n"
         f"Для доступа в главное меню введите /start\n\n",
         parse_mode=types.ParseMode.HTML)
