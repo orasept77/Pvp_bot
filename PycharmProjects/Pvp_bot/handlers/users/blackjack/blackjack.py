@@ -22,10 +22,10 @@ async def start_blackjack(game_id):
 
     players = await repo.get_players_list_to_announce(game_id)
     players_hands = [[], []]
-    users_data = [[], []]
+    users_data = []
     i = 0
     for player in players:
-        users_data[i] = await user_repo.get_user(players[i][0])
+        users_data.append(await user_repo.get_user(players[i][0]))
         i += 1
 
     await repo.give_first_cards(deck, players_hands[0], players_hands[1])
@@ -35,8 +35,8 @@ async def start_blackjack(game_id):
     for player in players:
         await bot.send_message(player[2], parse_mode=types.ParseMode.HTML, text=
         f"Игра начинается!\n"
-        f"Игрок 1: {users_data[0][0][1]} - @{users_data[0][0][3]}\n"
-        f"Игрок 2: {users_data[1][0][1]} - @{users_data[1][0][3]}\n")
+        f"Игрок 1: {users_data[0]['first_name']} - @{users_data[0]['username']}\n"
+        f"Игрок 2: {users_data[1]['first_name']} - @{users_data[1]['username']}\n")
         await repo.set_players_hand(game_id, players[i][0], players_hands[i])
         await bot.send_message(player[2], parse_mode=types.ParseMode.HTML, text=
         f"Каждый игрок получил по 2 карты!\n"
@@ -44,6 +44,7 @@ async def start_blackjack(game_id):
         f"Хотите взять ещё карту?", reply_markup=blackjack_menu)
         i += 1
     await conn.close()
+
 
 async def blackjack_endgame(game_id):
     conn = await create_conn("conn_str")
