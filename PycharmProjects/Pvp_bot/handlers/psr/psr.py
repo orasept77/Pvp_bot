@@ -1,4 +1,5 @@
 
+from aiogram.types.message import Message
 from handlers.psr.services.is_eligible_for_next_round import is_eligible_for_next_round
 from handlers.psr.models.variant import Variant
 from handlers.psr.keybs.user_count import psr_user_counts
@@ -9,7 +10,7 @@ from handlers.psr.keybs.draw import draw
 from aiogram.types import CallbackQuery, user
 from handlers.psr.keybs.game_types import select_psr_game_type_cb
 from handlers.psr.keybs.user_count import select_psr_user_count_cb
-from handlers.psr.keybs.start_psr import start_psr_keyb, psr_cb
+from handlers.psr.keybs.start_psr import cancel_psr_random_keyb, cancel_psr_revansh_keyb, psr_revansh_keyb, start_psr_keyb, psr_cb, cancel_psr_randon_cb, psr_revansh_cb, cancel_psr_revansh_cb, to_menu
 from handlers.psr.keybs.draw import set_psr_variant_cb
 
 from loader import dp
@@ -35,32 +36,73 @@ async def psr_confirm_screen(call:CallbackQuery, callback_data: dict, state: FSM
     await call.message.edit_text(text=text, reply_markup=start_psr_keyb(rates_id, user_count, game_type_id))
 
 
+@dp.callback_query_handler(psr_revansh_cb.filter(), state="*")
+async def start_psr_revansh(call:CallbackQuery, callback_data: dict, ):
+    conn = await create_conn("conn_str")
+    repo = PSRRepo(conn)
+    lobby = await repo.get_private_lobby(int(callback_data['private_lobby_id']))
+    players = await repo.get_lobby_private_players(int(callback_data['private_lobby_id']))
+    if len(players) >= lobby['user_count'] - 1:
+        await create_psr(repo, lobby['rates_id'], lobby['user_count'], players, lobby['game_type_id'], call.from_user.id, call.message, 2)
+    else:
+        await repo.add_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
+        await call.answer("Вы записались в очередь на реванш")
+        await call.message.edit_text(text=call.message.text, reply_markup=cancel_psr_revansh_keyb(int(callback_data['private_lobby_id'])))
+    await conn.close()
+
+
+@dp.callback_query_handler(cancel_psr_revansh_cb.filter(), state="*")
+async def start_psr_cancel_revansh(call:CallbackQuery, callback_data: dict, ):
+    conn = await create_conn("conn_str")
+    repo = PSRRepo(conn)
+    await repo.delete_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
+    await call.answer("Вы вышли из очереди")
+    await call.message.edit_text(text=call.message.text, reply_markup=psr_revansh_keyb(int(callback_data['private_lobby_id'])))
+
+
 @dp.callback_query_handler(psr_cb.filter(), state="*")
-async def start_psr(call:CallbackQuery, callback_data: dict, ):
+async def start_psr_random(call:CallbackQuery, callback_data: dict, ):
     rates_id = int(callback_data['rates_id'])
     conn = await create_conn("conn_str")
     repo = PSRRepo(conn)
     players = await repo.get_lobby_players(rates_id, int(callback_data['user_count']), call.from_user.id)
     if len(players) >= int(callback_data['user_count']) - 1:
-        game_id = await repo.create_game(rates_id, int(callback_data['user_count']), int(callback_data['game_type_id']))
-        round_id = await repo.add_round(game_id, 1)
-        await repo.set_game_round(round_id=round_id, game_id=game_id)
-        await repo.add_user_to_game(call.from_user.id, game_id)
-        await repo.add_round_user(round_id, call.from_user.id)
-        players_ids = [call.from_user.id]
-        for i in range(0, int(callback_data['user_count']) - 1):
-            await repo.add_user_to_game(players[i]['user_id'], game_id)
-            await repo.add_round_user(round_id, players[i]['user_id'])
-            await repo.delete_users_lobby(players[i]['user_id'])
-            players_ids.append(players[i]['user_id'])
-        variants = await repo.get_variants(int(callback_data['game_type_id']))
-        for player_id in players_ids:
-            message = await call.message.bot.send_message(chat_id=player_id, text="Раунд 1\nВыберите вариант", reply_markup=draw(variants, game_id))
-            await repo.set_round_user_message_id(player_id, round_id, message.message_id)
+        players = players[:int(callback_data['user_count']) - 1]
+        for player in players:
+            await repo.delete_users_lobby(player['user_id'])
+        await create_psr(repo, int(callback_data['rates_id']), int(callback_data['user_count']), players, int(callback_data['game_type_id']), call.from_user.id, call.message, 1)
     else:
         await repo.add_lobby_user(call.from_user.id, rates_id, int(callback_data['user_count']))
+        await call.message.edit_text("Поиск игры начат", reply_markup=cancel_psr_random_keyb())
     await conn.close()
 
+@dp.callback_query_handler(lambda call: call.data == cancel_psr_randon_cb, state="*")
+async def cancel_psr_random(call:CallbackQuery ):
+    conn = await create_conn("conn_str")
+    repo = PSRRepo(conn)
+    await repo.delete_users_lobby(call.from_user.id)
+    await call.message.edit_text(text="Поиск игры отменен", reply_markup=to_menu())
+    await conn.close()
+
+
+
+
+async def create_psr(repo: PSRRepo, rates_id, user_count, players, game_type_id, user_id, message: Message, lobby_type_id):
+    pl_id = await repo.create_private_lobby(user_count, game_type_id, rates_id)
+    game_id = await repo.create_game(rates_id, user_count, game_type_id, pl_id, lobby_type_id)
+    round_id = await repo.add_round(game_id, 1)
+    await repo.set_game_round(round_id=round_id, game_id=game_id)
+    await repo.add_user_to_game(user_id, game_id)
+    await repo.add_round_user(round_id, user_id)
+    players_ids = [user_id]
+    for player in players:
+        await repo.add_user_to_game(player['user_id'], game_id)
+        await repo.add_round_user(round_id, player['user_id'])
+        players_ids.append(player['user_id'])
+    variants = await repo.get_variants(int(game_type_id))
+    for player_id in players_ids:
+        message = await message.bot.send_message(chat_id=player_id, text="Раунд 1\nВыберите вариант", reply_markup=draw(variants, game_id))
+        await repo.set_round_user_message_id(player_id, round_id, message.message_id)
 
 
 @dp.callback_query_handler(set_psr_variant_cb.filter(), state="*")
@@ -101,14 +143,14 @@ async def prs_variant_user(call:CallbackQuery, callback_data: dict, ):
                                 await repo.set_round_user_message_id(round_user['user_id'], round_id, msg.message_id)
                             else:
                                 result_text = "Вы не проходите в следующий круг. Для вас игра окончена"
-                                await call.bot.edit_message_text(chat_id=round_user['user_id'], message_id=round_user['message_id'], text=text+result_text)
+                                await call.bot.edit_message_text(chat_id=round_user['user_id'], message_id=round_user['message_id'], text=text+result_text, reply_markup=psr_revansh_keyb(game['private_lobby_id']))
                     elif len(winners) == 1:
                         await repo.set_game_end(game['id'])
                         for round_user in round_users:
                             if round_user['user_id'] in winners:
-                                await call.bot.edit_message_text(chat_id=round_user['user_id'], message_id=round_user['message_id'], text=text+"Вы победитель")
+                                await call.bot.edit_message_text(chat_id=round_user['user_id'], message_id=round_user['message_id'], text=text+"Вы победитель", reply_markup=psr_revansh_keyb(game['private_lobby_id']))
                             else:
-                                await call.bot.edit_message_text(chat_id=round_user['user_id'], message_id=round_user['message_id'], text=text+"Вы проиграли")
+                                await call.bot.edit_message_text(chat_id=round_user['user_id'], message_id=round_user['message_id'], text=text+"Вы проиграли", reply_markup=psr_revansh_keyb(game['private_lobby_id']))
 
 
 
