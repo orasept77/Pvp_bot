@@ -9,10 +9,28 @@ class PSRRepo:
     async def add_lobby_user(self, user_id: int, rates_id: int, user_count):
         sql = 'insert into "psr_lobby"("user_id","rates_id", "user_count") values($1, $2, $3) on conflict do nothing'
         await self.conn.execute(sql, user_id, rates_id, user_count)
+    
 
-    async def create_game(self, rates_id:int , user_count:int, game_type_id ):
-        sql = 'insert into "psr"("rates_id", "user_count", "game_type_id") values($1,$2,$3) on conflict do nothing returning id'
-        id = await self.conn.fetchrow(sql, rates_id, user_count, game_type_id)
+    async def create_private_lobby(self, user_count: int, game_type_id, rates_id: int):
+        sql = 'insert into "psr_lobby_private"("user_count", "game_type_id", "rates_id") values($1, $2, $3) on conflict do nothing returning id'
+        id = await self.conn.fetchrow(sql, user_count, game_type_id, rates_id)
+        if id:
+            return id['id']
+        
+
+    async def add_private_lobby_user(self, lobby_id: int, user_id: int):
+        sql = 'insert into "psr_lobby_private_user"("lobby_id", "user_id") values($1, $2) on conflict do nothing'
+        id = await self.conn.fetchrow(sql, lobby_id, user_id)
+        if id:
+            return id['id']
+        
+    async def delete_private_lobby_user(self, lobby_id: int, user_id: int):
+        sql = 'delete from "psr_lobby_private_user" where "lobby_id" = $1 and "user_id" = $2'
+        id = await self.conn.execute(sql, lobby_id, user_id)
+
+    async def create_game(self, rates_id:int , user_count:int, game_type_id, private_lobby_id, lobby_type_id):
+        sql = 'insert into "psr"("rates_id", "user_count", "game_type_id", "private_lobby_id", "lobby_type_id") values($1,$2,$3,$4,$5) on conflict do nothing returning id'
+        id = await self.conn.fetchrow(sql, rates_id, user_count, game_type_id, private_lobby_id, lobby_type_id)
         if id:
             return id['id']
 
@@ -20,10 +38,20 @@ class PSRRepo:
     async def add_user_to_game(self, user_id:int, game_id:int):
         sql = 'insert into "psr_user"("user_id","psr_id") values($1, $2) on conflict do nothing'
         id = await self.conn.execute(sql, user_id, game_id)
+    
+    async def get_private_lobby(self, lobby_id):
+        sql = 'select * from "psr_lobby_private" where id = $1'
+        res = await self.conn.fetchrow(sql, lobby_id)
+        return res
 
     async def get_lobby_players(self, rates_id, user_count, user_id):
         sql = 'select * from "psr_lobby" where rates_id = $1 and user_count = $2 and user_id != $3'
         res = await self.conn.fetch(sql, rates_id, user_count, user_id)
+        return res
+    
+    async def get_lobby_private_players(self, lobby_id):
+        sql = 'select * from "psr_lobby_private_user" where lobby_id = $1'
+        res = await self.conn.fetch(sql, lobby_id)
         return res
     
     async def add_round(self, game_id: int, sequence:int):
