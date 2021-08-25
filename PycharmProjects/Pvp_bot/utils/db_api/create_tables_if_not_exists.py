@@ -43,6 +43,15 @@ CREATE TABLE IF NOT EXISTS blackjack_lobby(
     FOREIGN KEY (rates_id) REFERENCES rates(id)
 );
 
+CREATE TABLE IF NOT EXISTS blackjack_invite_lobby(
+    id SERIAL PRIMARY KEY,
+    user_id BIGINT,
+    rates_id INTEGER,
+    chat_id INTEGER,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (rates_id) REFERENCES rates(id)
+);
+
 CREATE TABLE IF NOT EXISTS blackjack_game(
     id SERIAL PRIMARY KEY,
     rates_id INTEGER,

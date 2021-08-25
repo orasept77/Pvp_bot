@@ -159,6 +159,50 @@ class BlackJackRepo:
             await self.delete_lobby_blackjack(find_lobby_result[0])
             return game_id
 
+    async def start_invite_game(self, user_id, chat_id, lobby_id):
+        find_lobby_query = 'SELECT * FROM blackjack_invite_lobby WHERE id = $1'
+        create_game_query = """
+        WITH game AS (
+            INSERT INTO blackjack_game(rates_id) VALUES ($1)
+            RETURNING id
+        )
+            SELECT id FROM game
+        """
+        connect_players_to_game_query_one = 'INSERT INTO blackjack_game_user(user_id, game_id, chat_id) VALUES ($1, $2, $3);'
+        connect_players_to_game_query_two = 'INSERT INTO blackjack_game_user(user_id, game_id, chat_id) VALUES ($1, $2, $3);'
+
+        find_lobby_result = await self.conn.fetchrow(find_lobby_query, int(lobby_id))
+        rates_id = int(find_lobby_result[2])
+
+        game = await self.conn.fetch(create_game_query, int(rates_id))
+        game_id = game[0][0]
+
+        await self.conn.fetch(create_game_query, rates_id)
+        await self.conn.fetch(connect_players_to_game_query_one, int(user_id), int(game_id), int(chat_id))
+        await self.conn.fetch(connect_players_to_game_query_two, int(find_lobby_result[1]), int(game_id), int(find_lobby_result[3]))
+        await self.delete_lobby_blackjack(find_lobby_result[0])
+        return game_id
+
+    async def create_invite_lobby(self, user_id, rates_id, game_id):
+        sql = "INSERT INTO blackjack_invite_lobby (user_id, rates_id, chat_id) VALUES ($1, $2, $3)"
+        res = await self.conn.fetch(sql, user_id, int(rates_id), int(game_id))
+        return res
+
+    async def get_invite_lobby_id(self, user_id):
+        sql = "SELECT id FROM blackjack_invite_lobby WHERE user_id = $1"
+        res = await self.conn.fetch(sql, user_id)
+        return res
+
+    async def delete_invite_lobby_by_id(self, id):
+        sql = "DELETE FROM blackjack_invite_lobby WHERE id = $1"
+        res = await self.conn.fetch(sql, id)
+        return res
+
+    async def delete_invite_lobby_by_userid(self, user_id):
+        sql = "DELETE FROM blackjack_invite_lobby WHERE user_id = $1"
+        res = await self.conn.fetch(sql, user_id)
+        return res
+
     async def create_revenge_game(self, game_id):
         sql = "UPDATE blackjack_game SET result = 'REVENGE', deck = '[]', game_round = game_round + 1 WHERE id = $1;"
         await self.conn.fetch(sql, game_id)

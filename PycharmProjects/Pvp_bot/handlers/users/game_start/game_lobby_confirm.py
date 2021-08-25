@@ -7,7 +7,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery
 
 from keyboards.inline.callback_datas import make_a_bet_callback
-from keyboards.inline.choose_game_menu.start_game_menu import start_blackjack_menu
+from keyboards.inline.choose_game_menu.start_game_menu import start_blackjack_menu, invite_blackjack_menu
 from handlers.tiktaktoe.keybs.start_tiktaktoe import start_tiktaktoe
 
 from loader import dp
@@ -32,13 +32,22 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
     await state.update_data(**data)
     data = await state.get_data()
     if game_name == 'Блек-Джек':
-        await call.message.edit_text(
-            f"Вы выбрали игру {game_name}\n"
-            f"Тип игры: {game_type}\n"
-            f"Ваш депозит: [{user_deposit[2]}]\n"
-            f"Ваша ставка на игру: {game_bet}\n\n"
-            f"Для начала игры нажми кнопку 'СТАРТ'.",
-            parse_mode=types.ParseMode.HTML, reply_markup=start_blackjack_menu)
+        if data.get('type') == 'random_player':
+            await call.message.edit_text(
+                f"Вы выбрали игру {game_name}\n"
+                f"Тип игры: случайный соперник\n\n"
+                f"Ваш депозит: [{user_deposit[2]}]\n"
+                f"Ваша ставка на игру: {game_bet}\n\n"
+                f"Для начала игры нажми кнопку 'СТАРТ'.",
+                parse_mode=types.ParseMode.HTML, reply_markup=start_blackjack_menu)
+        elif data.get('type') == 'play_with_friend':
+            await call.message.edit_text(
+                f"Вы выбрали игру {game_name}\n"
+                f"Тип игры: игра с другом\n\n"
+                f"Ваш депозит: [{user_deposit[2]}]\n"
+                f"Ваша ставка на игру: {game_bet}\n\n"
+                f"Для создания лобби нажми кнопку 'СТАРТ'.",
+                parse_mode=types.ParseMode.HTML, reply_markup=invite_blackjack_menu)
     if game_name == 'Крестики-Нолики':
         rates_id = int(callback_data.get('id'))
         await call.message.edit_text(
