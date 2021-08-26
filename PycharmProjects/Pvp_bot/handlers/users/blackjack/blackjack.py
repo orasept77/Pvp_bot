@@ -78,8 +78,10 @@ async def blackjack_endgame(game_id):
         print(rate)
         await deposit_repo.plus_user_deposit(users_data[0]["id"], rate["value"])
         await deposit_repo.minus_user_deposit(users_data[1]["id"], rate["value"])
+
         await stat_repo.update_win_balance(users_data[0]["id"], rate["value"])
         await stat_repo.update_lost_balance(users_data[1]["id"], rate["value"])
+
         await stat_repo.update_win_blackjack(users_data[0]["id"])
         await stat_repo.update_games_blackjack(users_data[0]["id"])
         await stat_repo.update_games_blackjack(users_data[1]["id"])
@@ -101,14 +103,14 @@ async def blackjack_endgame(game_id):
 
     i = 0
     for player in players:
-        msg = await repo.get_player_message_id(players[i]['user_id'], game_id)
-        chat_id = await repo.get_player_chat_id(players[i]['user_id'], game_id)
+        msg = await repo.get_player_message_id(players[i][0], game_id)
+        chat_id = await repo.get_player_chat_id(players[i][0], game_id)
 
-        await repo.set_players_hand(game_id, players[i]['user_id'], players_hands[i])
+        await repo.set_players_hand(game_id, players[i][0], players_hands[i])
         await bot.edit_message_text(message_id=int(msg[0]), chat_id=chat_id[0], parse_mode=types.ParseMode.HTML, text=
         f"Игра окончена!\n\n"
-        f"Рука {users_data[0]['first_name']}: {players_hands[0]} - {await repo.total_up(players_hands[0])}\n"
-        f"Рука игрока {users_data[1]['first_name']}: {players_hands[1]} - {await repo.total_up(players_hands[1])}\n\n"
+        f"Рука {users_data[0][1]}: {players_hands[0]} - {await repo.total_up(players_hands[0])}\n"
+        f"Рука игрока {users_data[1][1]}: {players_hands[1]} - {await repo.total_up(players_hands[1])}\n\n"
         f"Результат: {result}.", reply_markup=blackjack_endgame_menu)
         i += 1
     await conn.close()
