@@ -253,6 +253,11 @@ class BlackJackRepo:
         res = await self.conn.fetchrow(sql, result, game_id)
         return res
 
+    async def get_rate_id(self, game_id):
+        sql = 'SELECT r.id FROM blackjack_game as bj LEFT JOIN rates AS r ON bj.rates_id=r.id WHERE bj.id=$1'
+        res = await self.conn.fetchrow(sql, game_id)
+        return res
+
     async def get_rate(self, game_id):
         sql = 'SELECT r.value FROM blackjack_game as bj LEFT JOIN rates AS r ON bj.rates_id=r.id WHERE bj.id=$1'
         res = await self.conn.fetchrow(sql, game_id)

@@ -12,6 +12,8 @@ account_statistics_callback = CallbackData("account_stat", "enter")
 account_statistics_top_callback = CallbackData("account_stat_top", "type")
 account_update_data_callback = CallbackData("account_update", "enter")
 
+support_callback = CallbackData("support", "to_do")
+
 deposit_main_callback = CallbackData("deposit_menu", "what_to_do")
 deposit_deposit_type_callback = CallbackData("deposit", "type")
 deposit_deposit_amount_callback = CallbackData("deposit_amount", "amount")

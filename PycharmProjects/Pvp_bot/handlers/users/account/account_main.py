@@ -18,16 +18,15 @@ async def bot_account_main(call:CallbackQuery):
     deposit_repo = DepositRepo(conn=conn)
     user = await user_repo.get_user(call.from_user.id)
     if user:
-        back_button = InlineKeyboardButton("Назад", callback_data=main_menu_callback.new(menu_choice="main_menu"))
+        back_button = InlineKeyboardButton("🔽   Назад   🔽", callback_data=main_menu_callback.new(menu_choice="main_menu"))
         user_balance = await deposit_repo.get_user_deposit(call.from_user.id)
         await call.message.edit_text(
             f"Добро пожаловать в ваш личный кабинет.\n\n"
             f"Данные вашего профиля:\n"
             f"Ваш ID: {user['id']}\n"
             f"Имя пользователя: @{user['username']}\n"
-            f"Имя: {user['first_name']}\n"
-            f"Фамилия: {user['last_name']}\n\n"
-            f"Количество фишек: {user_balance[2]}\n"
+            f"Ник: {user['first_name']}\n\n"
+            f"Количество фишек: {user_balance[2]}\n\n"
             f"В этом меню вы можете посмотреть вашу статистику, а так-же топ игроков по набранным очкам.\n"
             f"Для доступа к вашему депозиту выберете 'Депозит'\n"
             f"Если данные в играх о вашем аккаунте отображатся не верно, вы можете обновить их нажав кнопку 'Обновить данные'\n\n"

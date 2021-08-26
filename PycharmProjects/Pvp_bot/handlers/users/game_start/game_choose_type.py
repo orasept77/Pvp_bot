@@ -20,17 +20,16 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
     deposit_repo = DepositRepo(conn=conn)
     user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
     data = await state.get_data()
-    back_button = InlineKeyboardButton("Назад", callback_data=main_menu_callback.new(menu_choice="choice_game"))
+    back_button = InlineKeyboardButton("🔽   Назад   🔽", callback_data=main_menu_callback.new(menu_choice="choice_game"))
     await call.message.edit_text(
         f"Вы выбрали игру {callback_data.get('game')}\n"
         f"Ваш депозит составляет [{user_deposit[2]}] фишек.\n\n"
 
         f"Выберите интересующий вас тип игры:\n"
         f"  *Случайный противник - вам будет подобран случайный оппонент.\n"
-        f"  *Играть с другом - вы получите уникальный ИД который вы должны будете передать вашему другу.\n"
-        f"  *Подключиться к другу - вы должны будете вписать уникальный ИД от вашего друга.\n\n"
+        f"  *Играть с другом - вы получите уникальный ИД который вы должны будете передать вашему другу.\n\n"
         f"Для управления нажмите на кнопки в меню.",
         parse_mode=types.ParseMode.HTML, reply_markup=choose_game_type_menu_keyb([back_button]))
     await conn.close()
-    await StartGame_State.type.set()
+    #await StartGame_State.type.set()
 

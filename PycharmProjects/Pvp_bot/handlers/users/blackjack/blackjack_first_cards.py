@@ -17,23 +17,23 @@ async def bot_blackjack_give_one_card(call:CallbackQuery, callback_data: dict, s
     conn = await create_conn("conn_str")
     repo = BlackJackRepo(conn=conn)
     data = await state.get_data()
-    game_id = await repo.get_player_game_id(data.get('user_id'))
+    game_id = await repo.get_player_game_id(call.from_user.id)
     await state.update_data(game_id=game_id[0])
 
     data = await state.get_data()
     deck = await repo.get_deck(data.get('game_id'))
     deck = json.loads(deck[0])
 
-    player_hand = await repo.get_player_hand(data.get('game_id'), data.get('user_id'))
+    player_hand = await repo.get_player_hand(data.get('game_id'), call.from_user.id)
     player_hand = json.loads(player_hand[0])
 
     await repo.give_card(deck, player_hand)
     await repo.set_deck(data.get('game_id'), deck)
-    await repo.set_players_hand(data.get('game_id'), data.get('user_id'), player_hand)
-    await repo.set_player_state(data.get('game_id'), data.get('user_id'), 'MORE')
+    await repo.set_players_hand(data.get('game_id'), call.from_user.id, player_hand)
+    await repo.set_player_state(data.get('game_id'), call.from_user.id, 'MORE')
 
-    msg = await repo.get_player_message_id(data.get('user_id'), data.get('game_id'))
-    chat_id = await repo.get_player_chat_id(data.get('user_id'), data.get('game_id'))
+    msg = await repo.get_player_message_id(call.from_user.id, data.get('game_id'))
+    chat_id = await repo.get_player_chat_id(call.from_user.id, data.get('game_id'))
     await call.bot.edit_message_text(message_id=msg[0], chat_id=chat_id[0], text=
         f"Вы взяли ещё одну карту.\n\n"
         f"Ваша рука: {player_hand} - {await repo.total_up(player_hand)}",
@@ -48,21 +48,22 @@ async def bot_blackjack_stop_taking(call:CallbackQuery, callback_data: dict, sta
     repo = BlackJackRepo(conn=conn)
 
     if not data.get('game_id'):
-        game_id = await repo.get_player_game_id(data.get('user_id'))
+        game_id = await repo.get_player_game_id(call.from_user.id)
+        print(game_id)
         await state.update_data(game_id=game_id[0])
 
     data = await state.get_data()
-    await repo.set_player_state(data.get('game_id'), data.get('user_id'), 'STOP')
+    await repo.set_player_state(data.get('game_id'), call.from_user.id, 'STOP')
 
-    player_hand = await repo.get_player_hand(data.get('game_id'), data.get('user_id'))
+    player_hand = await repo.get_player_hand(data.get('game_id'), call.from_user.id)
     player_hand = json.loads(player_hand[0])
 
     states = await repo.get_players_states(data.get('game_id'))
     if states[0][0] == 'STOP' and states[1][0] == 'STOP':
         await blackjack_endgame(data.get('game_id'))
     else:
-        msg = await repo.get_player_message_id(data.get('user_id'), data.get('game_id'))
-        chat_id = await repo.get_player_chat_id(data.get('user_id'), data.get('game_id'))
+        msg = await repo.get_player_message_id(call.from_user.id, data.get('game_id'))
+        chat_id = await repo.get_player_chat_id(call.from_user.id, data.get('game_id'))
         await call.bot.edit_message_text(message_id=msg[0], chat_id=chat_id[0], text=
             f"Вы решили больше не брать карт. Ожидаем конца хода второго игрока.\n\n"
             f"Ваша рука: {player_hand} - {await repo.total_up(player_hand)}",

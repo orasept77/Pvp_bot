@@ -24,15 +24,15 @@ account_statistics_menu_top = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="🎫  Личный кабинет  🎫", callback_data=account_main_callback.new(
-                        enter="true"
-                    )),
-                ],
-                [
                     InlineKeyboardButton(text="🎮  Начать играть  🎮", callback_data=main_menu_callback.new(
                         menu_choice="choice_game"
                     )),
-                ]
+                ],
+                [
+                    InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=account_main_callback.new(
+                        enter="true"
+                    )),
+                ],
             ],
             resize_keyboard=True,
 )

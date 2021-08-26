@@ -11,9 +11,8 @@ from utils.db_api.create_asyncpg_connection import create_conn
 from utils.db_api.deposit.deposit_repo import DepositRepo
 
 
-@dp.callback_query_handler(main_menu_callback.filter(menu_choice="deposit"), state=None)
+@dp.callback_query_handler(main_menu_callback.filter(menu_choice="deposit"))
 async def bot_choice_game(call:CallbackQuery):
-    await call.answer(cache_time=60)
     conn = await create_conn("conn_str")
     deposit_repo = DepositRepo(conn=conn)
     user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
@@ -24,5 +23,4 @@ async def bot_choice_game(call:CallbackQuery):
         f"  *ПриватБанк\n\n"
         f"Для управления депозитом нажмите на кнопки в меню.",
         parse_mode=types.ParseMode.HTML, reply_markup=deposit_menu_main)
-    await Deposit_State.what_to_do.set()
     await conn.close()

@@ -14,10 +14,11 @@ from loader import dp
 from states.start_game import StartGame_State
 
 
-@dp.callback_query_handler(make_a_bet_callback.filter(bet=["5", "10", "20", "50"]),
-                           state=StartGame_State.bet)
+# @dp.callback_query_handler(make_a_bet_callback.filter(bet=["5", "10", "20", "50"]),
+#                            state=StartGame_State.bet)
+@dp.callback_query_handler(make_a_bet_callback.filter(bet=["5", "10", "20", "50"]))
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
-    await call.answer(cache_time=60)
+    #await call.answer(cache_time=60)
     conn = await create_conn("conn_str")
     deposit_repo = DepositRepo(conn=conn)
     user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
