@@ -74,11 +74,13 @@ CREATE TABLE IF NOT EXISTS blackjack_game_user(
 );
 """
 
+query2 = """TRUNCATE blackjack_game_user, blackjack_game, blackjack_invite_lobby, blackjack_lobby"""
 
 def create_tables_if_not_exists():
     connection = db_connection()
     try:
         execute_query(connection, query)
+        execute_query(connection, query2)
         print("База данных успешно создана")
     except:
         print("Ошибка при создании базы")
