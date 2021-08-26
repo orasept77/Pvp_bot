@@ -12,6 +12,7 @@ from . import blackjack
 # Deposit Handlers imports
 from . import deposit
 
+from . import support
 # Cancel Handler
 from . import cancel_handler
 # Echo import

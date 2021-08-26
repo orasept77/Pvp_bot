@@ -22,12 +22,12 @@ async def bot_blackjack_create_lobby(call:CallbackQuery, callback_data: dict, st
     if data.get('game_id'):
         await repo.delete_game_blackjack(data.get('game_id'))
         await state.update_data(game_id=None)
-        data = await state.get_data()
 
+    data = await state.get_data()
     await state.update_data(chat_id=call.message.chat.id)
     lobby = await repo.find_lobby(data.get('id'))
     if not lobby:
-        await repo.create_lobby(data.get('user_id'), data.get('id'), data.get('chat_id'))
+        await repo.create_lobby(call.from_user.id, data.get('id'), call.message.chat.id)
         await call.message.edit_text(
             f"Вы добавленны в лобби. Поиск игроков...\n",
             parse_mode=types.ParseMode.HTML, reply_markup=leave_lobby_menu)
@@ -36,7 +36,7 @@ async def bot_blackjack_create_lobby(call:CallbackQuery, callback_data: dict, st
             f"Мы нашли вам оппонента, скоро игра начнётся!\n",
             parse_mode=types.ParseMode.HTML)
         game = await repo.create_game(data.get('id'))
-        await repo.connect_player(data.get('user_id'), game[0], data.get('chat_id'))
+        await repo.connect_player(call.from_user.id, game[0], call.message.chat.id)
         await repo.connect_player(lobby[0], game[0], lobby[2])
         await repo.delete_lobby_blackjack(lobby[0])
         await start_blackjack(game[0])
@@ -54,12 +54,15 @@ async def bot_blackjack_create_invite_lobby(call:CallbackQuery, callback_data: d
         await state.update_data(game_id=None)
         data = await state.get_data()
     await state.update_data(chat_id=call.message.chat.id)
-    await repo.create_invited_lobby(data.get('user_id'), data.get('id'), data.get('chat_id'))
-    lobby_id = await repo.get_invite_lobby_id(data.get('user_id'))
+    await repo.create_invited_lobby(call.from_user.id, data.get('id'), call.message.chat.id)
+    lobby_id = await repo.get_invite_lobby_id(call.from_user.id)
     text = "Вы успешно создали лобби.\nДля подключения, ваш друг должен вписать в главном меню бота команду ниже:\n"
-    text += "\n( /blackjack_connect " + str(lobby_id[0]) + " )"
+    text2 = "\n/blackjack_connect " + str(lobby_id[0])
     await call.message.edit_text(
         text=text,
+        parse_mode=types.ParseMode.HTML)
+    await call.message.answer(
+        text=text2,
         parse_mode=types.ParseMode.HTML, reply_markup=leave_invite_lobby_menu)
     await conn.close()
 
@@ -98,6 +101,8 @@ async def bot_blackjack_start_invite_lobby(message: types.Message, state: FSMCon
             await repo.connect_player(message.from_user.id, game[0], message.chat.id)
             await repo.connect_player(lobby[1], game[0], lobby[3])
 
+            rate = await repo.get_rate_id(game[0])
+            await state.update_data(id=rate[0])
             await repo.delete_invite_lobby_by_id(lobby[0])
             await state.update_data(game_id=game[0])
             await state.update_data(user_id=int(message.from_user.id))
@@ -112,7 +117,7 @@ async def bot_blackjack_revenge(call:CallbackQuery, state: FSMContext):
     conn = await create_conn("conn_str")
     repo = BlackJackRepo(conn=conn)
     data = await state.get_data()
-    await repo.set_player_state(data.get('game_id'), data.get('user_id'), 'REVENGE')
+    await repo.set_player_state(data.get('game_id'), call.from_user.id, 'REVENGE')
 
     states = await repo.get_players_states(data.get('game_id'))
     if states == None or states == []:
@@ -170,7 +175,7 @@ async def bot_blackjack_lobby_leave(call:CallbackQuery, state: FSMContext):
     repo = BlackJackRepo(conn=conn)
 
     data = await state.get_data()
-    await repo.delete_lobby_blackjack(data.get('user_id'))
+    await repo.delete_lobby_blackjack(call.from_user.id)
     await call.message.edit_text(
         f"Вы отменили поиск игры.\n"
         f"Для доступа к меню используйте команду /start.",
@@ -187,7 +192,7 @@ async def bot_blackjack_lobby_invite_leave(call:CallbackQuery, state: FSMContext
     repo = BlackJackRepo(conn=conn)
 
     data = await state.get_data()
-    await repo.delete_invite_lobby_by_userid(data.get('user_id'))
+    await repo.delete_invite_lobby_by_userid(call.from_user.id)
     await call.message.edit_text(
         f"Лобби было закрыто.\n"
         f"Для доступа к меню используйте команду /start.",

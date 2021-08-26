@@ -19,22 +19,22 @@ class StatisticsRepo:
         return res
 
     async def get_user_position_blackjack(self, user_id):
-        sql = 'SELECT count(*) FROM statistics WHERE win_blackjack < (select win_blackjack from statistics where user_id = $1)'
+        sql = 'SELECT count(*) FROM statistics WHERE win_blackjack > (select win_blackjack from statistics where user_id = $1)'
         res = await self.conn.fetch(sql, user_id)
         return res
 
     async def get_user_position_tiktaktoe(self, user_id):
-        sql = 'SELECT count(*) FROM statistics WHERE win_tiktaktoe < (select win_tiktaktoe from statistics where user_id = $1)'
+        sql = 'SELECT count(*) FROM statistics WHERE win_tiktaktoe > (select win_tiktaktoe from statistics where user_id = $1)'
         res = await self.conn.fetch(sql, user_id)
         return res
 
     async def get_user_position_rpc(self, user_id):
-        sql = 'SELECT count(*) FROM statistics WHERE win_rpc < (select win_rpc from statistics where user_id = $1)'
+        sql = 'SELECT count(*) FROM statistics WHERE win_rpc > (select win_rpc from statistics where user_id = $1)'
         res = await self.conn.fetch(sql, user_id)
         return res
 
     async def get_user_position_balance(self, user_id):
-        sql = 'SELECT count(*) FROM statistics WHERE win_balance < (select win_balance from statistics where user_id = $1)'
+        sql = 'SELECT count(*) FROM statistics WHERE win_balance > (select win_balance from statistics where user_id = $1)'
         res = await self.conn.fetch(sql, user_id)
         return res
 
@@ -129,11 +129,11 @@ class StatisticsRepo:
         return res
 
     async def update_lost_balance(self, user_id, balance):
-        sql = 'UPDATE statistics SET lost_balance = lost_balance + $1 WHERE user_id = $1'
+        sql = 'UPDATE statistics SET lost_balance = lost_balance + $2 WHERE user_id = $1'
         res = await self.conn.fetch(sql, user_id, balance)
         return res
 
     async def update_win_balance(self, user_id, balance):
-        sql = 'UPDATE statistics SET win_balance = win_balance + $1 WHERE user_id = $1'
+        sql = 'UPDATE statistics SET win_balance = win_balance + $2 WHERE user_id = $1'
         res = await self.conn.fetch(sql, user_id, balance)
         return res

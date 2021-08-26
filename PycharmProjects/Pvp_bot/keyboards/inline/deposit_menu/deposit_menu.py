@@ -4,7 +4,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from keyboards.inline.callback_datas import deposit_main_callback, deposit_deposit_type_callback, \
     deposit_withdrawal_type_callback, deposit_deposit_amount_callback, deposit_withdrawal_amount_callback, \
-    cancel_callback
+    cancel_callback, account_main_callback, main_menu_callback
 
 # --Main deposit menu--
 deposit_menu_main = InlineKeyboardMarkup(
@@ -21,7 +21,9 @@ deposit_menu_main = InlineKeyboardMarkup(
                     )),
                 ],
                 [
-                    InlineKeyboardButton(text="❌   Отмена   ❌", callback_data=cancel_callback.new(status="cancel")),
+                    InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=account_main_callback.new(
+                        enter="true"
+                    )),
                 ]
             ],
             resize_keyboard=True,
@@ -37,7 +39,9 @@ withdrawal_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="❌   Отмена   ❌", callback_data=cancel_callback.new(status="cancel")),
+                    InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
+                        what_to_do="withdrawal"
+                    ))
                 ]
             ],
             resize_keyboard=True,
@@ -53,7 +57,9 @@ deposit_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="❌   Отмена   ❌", callback_data=cancel_callback.new(status="cancel")),
+                    InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
+                        what_to_do="deposit"
+                    )),
                 ]
             ],
             resize_keyboard=True,
@@ -89,7 +95,9 @@ deposit_amount_menu = InlineKeyboardMarkup(
                     )),
                 ],
                 [
-                    InlineKeyboardButton(text="❌   Отмена   ❌", callback_data=cancel_callback.new(status="cancel")),
+                    InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=main_menu_callback.new(
+                        menu_choice="deposit"
+                    )),
                 ]
             ],
             resize_keyboard=True,
@@ -126,7 +134,56 @@ withdrawal_amount_menu = InlineKeyboardMarkup(
                     )),
                 ],
                 [
-                    InlineKeyboardButton(text="❌   Отмена   ❌", callback_data=cancel_callback.new(status="cancel")),
+                    InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=main_menu_callback.new(
+                        menu_choice="deposit"
+                    )),
+                ]
+            ],
+            resize_keyboard=True,
+)
+deposit_amount_back_menu = InlineKeyboardMarkup(
+    inline_keyboard=
+            [
+                [
+                    InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
+                        what_to_do="deposit"
+                    ))
+                ]
+            ],
+            resize_keyboard=True,
+)
+
+withdrawal_amount_back_menu = InlineKeyboardMarkup(
+    inline_keyboard=
+            [
+                [
+                    InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
+                        what_to_do="withdrawal"
+                    ))
+                ]
+            ],
+            resize_keyboard=True,
+)
+
+withdrawal_type_back_menu = InlineKeyboardMarkup(
+    inline_keyboard=
+            [
+                [
+                    InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
+                        what_to_do="withdrawal"
+                    ))
+                ]
+            ],
+            resize_keyboard=True,
+)
+
+deposit_type_back_menu = InlineKeyboardMarkup(
+    inline_keyboard=
+            [
+                [
+                    InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
+                        what_to_do="deposit"
+                    ))
                 ]
             ],
             resize_keyboard=True,

@@ -12,7 +12,7 @@ main_menu = InlineKeyboardMarkup(
                     ))
                 ],
                 [
-                    InlineKeyboardButton(text="🎫   Личный кабинет   🎫", callback_data=account_main_callback.new(
+                    InlineKeyboardButton(text="💼   Личный кабинет   💼", callback_data=account_main_callback.new(
                         enter="true"
                     )),
                 ]

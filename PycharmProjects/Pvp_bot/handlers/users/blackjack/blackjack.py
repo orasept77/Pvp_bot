@@ -33,18 +33,16 @@ async def start_blackjack(game_id):
 
     i = 0
     for player in players:
-        await bot.send_message(player[2], parse_mode=types.ParseMode.HTML, text=
+        await bot.send_message(player['user_id'], parse_mode=types.ParseMode.HTML, text=
         f"Игра начинается!\n"
-        f"Игрок 1: {users_data[0][1]} - @{users_data[0][2]}\n"
-        f"Игрок 2: {users_data[1][1]} - @{users_data[1][2]}\n")
-        f"Игрок 1: {users_data[0]['first_name']} - @{users_data[0]['username']}\n"
-        f"Игрок 2: {users_data[1]['first_name']} - @{users_data[1]['username']}\n"
-        await repo.set_players_hand(game_id, players[i][0], players_hands[i])
-        msg = await bot.send_message(player[2], parse_mode=types.ParseMode.HTML, text=
+        f"Игрок 1: {users_data[0]['first_name']}\n"
+        f"Игрок 2: {users_data[1]['first_name']}\n")
+        await repo.set_players_hand(game_id, players[i]['user_id'], players_hands[i])
+        msg = await bot.send_message(player['user_id'], parse_mode=types.ParseMode.HTML, text=
         f"Каждый игрок получил по 2 карты!\n"
         f"Ваша рука: {players_hands[i]}, количество очков: {await repo.total_up(players_hands[i])}\n\n"
         f"Хотите взять ещё карту?", reply_markup=blackjack_menu)
-        await repo.set_player_message_id(users_data[i][0], game_id, msg.message_id)
+        await repo.set_player_message_id(users_data[i]['id'], game_id, msg.message_id)
         i += 1
     await conn.close()
 
@@ -75,19 +73,30 @@ async def blackjack_endgame(game_id):
 
     await repo.set_result(game_id, result)
     if result == 'player_one_won':
-        result = f'Победа игрока {users_data[0][1]} - @{users_data[0][2]}'
-        await deposit_repo.plus_user_deposit(users_data[0][0], rate[0])
-        await deposit_repo.minus_user_deposit(users_data[1][0], rate[0])
-        await stat_repo.update_win_blackjack(users_data[0][0])
-        await stat_repo.update_games_blackjack(users_data[0][0])
-        await stat_repo.update_games_blackjack(users_data[1][0])
+        result = f'Победа игрока {users_data[0][1]}'
+        print(users_data)
+        print(rate)
+        await deposit_repo.plus_user_deposit(users_data[0]["id"], rate["value"])
+        await deposit_repo.minus_user_deposit(users_data[1]["id"], rate["value"])
+
+        await stat_repo.update_win_balance(users_data[0]["id"], rate["value"])
+        await stat_repo.update_lost_balance(users_data[1]["id"], rate["value"])
+
+        await stat_repo.update_win_blackjack(users_data[0]["id"])
+        await stat_repo.update_games_blackjack(users_data[0]["id"])
+        await stat_repo.update_games_blackjack(users_data[1]["id"])
     elif result == 'player_two_won':
-        result = f'Победа игрока {users_data[1][1]} - @{users_data[1][2]}'
-        await deposit_repo.minus_user_deposit(users_data[0][0], rate[0])
-        await deposit_repo.plus_user_deposit(users_data[1][0], rate[0])
-        await stat_repo.update_win_blackjack(users_data[1][0])
-        await stat_repo.update_games_blackjack(users_data[0][0])
-        await stat_repo.update_games_blackjack(users_data[1][0])
+        result = f'Победа игрока {users_data[1][1]}'
+        await deposit_repo.minus_user_deposit(users_data[0]["id"], rate["value"])
+        await deposit_repo.plus_user_deposit(users_data[1]["id"], rate["value"])
+
+        await stat_repo.update_win_balance(users_data[1]["id"], rate["value"])
+        await stat_repo.update_lost_balance(users_data[0]["id"], rate["value"])
+
+        await stat_repo.update_win_blackjack(users_data[1]["id"])
+        await stat_repo.update_games_blackjack(users_data[0]["id"])
+        await stat_repo.update_games_blackjack(users_data[1]["id"])
+
     elif result == 'draw':
         result = 'Нет победителя'
 
@@ -100,8 +109,8 @@ async def blackjack_endgame(game_id):
         await repo.set_players_hand(game_id, players[i][0], players_hands[i])
         await bot.edit_message_text(message_id=int(msg[0]), chat_id=chat_id[0], parse_mode=types.ParseMode.HTML, text=
         f"Игра окончена!\n\n"
-        f"Рука {users_data[0][1]} - @{users_data[0][2]}: {players_hands[0]} - {await repo.total_up(players_hands[0])}\n"
-        f"Рука игрока {users_data[1][1]} - @{users_data[1][2]}: {players_hands[1]} - {await repo.total_up(players_hands[1])}\n\n"
+        f"Рука {users_data[0][1]}: {players_hands[0]} - {await repo.total_up(players_hands[0])}\n"
+        f"Рука игрока {users_data[1][1]}: {players_hands[1]} - {await repo.total_up(players_hands[1])}\n\n"
         f"Результат: {result}.", reply_markup=blackjack_endgame_menu)
         i += 1
     await conn.close()
