@@ -117,6 +117,7 @@ async def start_psr_revansh(call:CallbackQuery, callback_data: dict, ):
         user = await user_repo.get_user(call.from_user.id)
         players.append(user)
         await create_psr(repo, lobby['rates_id'], lobby['user_count'], players, lobby['game_type_id'], call.message, 2)
+        await call.message.delete()
     else:
         await repo.add_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
         await call.answer("Вы записались в очередь на реванш")
@@ -224,7 +225,7 @@ async def prs_variant_user(call:CallbackQuery, callback_data: dict, ):
                             else:
                                 await call.bot.edit_message_text(chat_id=round_user['user_id'], message_id=round_user['message_id'], text=text+"Вы проиграли", reply_markup=psr_revansh_keyb(game['private_lobby_id']))
                 else:
-                    await call.message.edit_text(text=call.message.text+"\nВы дали свой ответ. Дождитесь ответов всех игроков",)
+                    await call.message.edit_text(text="Вы дали свой ответ.\nДождитесь ответов всех игроков",)
 
 
 
