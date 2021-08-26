@@ -15,5 +15,4 @@ async def bot_choice_game(call:CallbackQuery, state: FSMContext):
     await call.message.edit_text(
         f"Выберите игру в которую вы бы хотели сыграть",
         parse_mode=types.ParseMode.HTML, reply_markup=game_choice_menu_keyb([back_button]))
-    await StartGame_State.game_name.set()
 

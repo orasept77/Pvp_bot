@@ -33,9 +33,9 @@ class PSRRepo:
         sql = 'delete from "psr_lobby_private_user" where "lobby_id" = $1 and "user_id" = $2'
         id = await self.conn.execute(sql, lobby_id, user_id)
 
-    async def create_game(self, rates_id:int , user_count:int, game_type_id, private_lobby_id, lobby_type_id):
-        sql = 'insert into "psr"("rates_id", "user_count", "game_type_id", "private_lobby_id", "lobby_type_id") values($1,$2,$3,$4,$5) on conflict do nothing returning id'
-        id = await self.conn.fetchrow(sql, rates_id, user_count, game_type_id, private_lobby_id, lobby_type_id)
+    async def create_game(self, rates_id:int , user_count:int, game_type_id, private_lobby_id, type_id):
+        sql = 'insert into "psr"("rates_id", "user_count", "game_type_id", "private_lobby_id", "type_id") values($1,$2,$3,$4,$5) on conflict do nothing returning id'
+        id = await self.conn.fetchrow(sql, rates_id, user_count, game_type_id, private_lobby_id, type_id)
         if id:
             return id['id']
 
@@ -49,13 +49,13 @@ class PSRRepo:
         res = await self.conn.fetchrow(sql, lobby_id)
         return res
 
-    async def get_lobby_players(self, rates_id, user_count, user_id):
-        sql = 'select * from "psr_lobby" where rates_id = $1 and user_count = $2 and user_id != $3'
-        res = await self.conn.fetch(sql, rates_id, user_count, user_id)
+    async def get_lobby_players(self, rates_id, user_count):
+        sql = 'select u.* from "psr_lobby" pl join users u on u."id" = pl."user_id" where pl."rates_id" = $1 and pl."user_count" = $2 limit $2 - 1 '
+        res = await self.conn.fetch(sql, rates_id, user_count)
         return res
     
     async def get_lobby_private_players(self, lobby_id):
-        sql = 'select * from "psr_lobby_private_user" where lobby_id = $1'
+        sql = 'select u.* from "psr_lobby_private_user" plpu join users u on u."id" = plpu."user_id" where lobby_id = $1'
         res = await self.conn.fetch(sql, lobby_id)
         return res
     
@@ -113,7 +113,7 @@ class PSRRepo:
         return res
     
     async def get_round_user_variants(self, round_id: int):
-        sql = 'select pruv.*, pv."title" variant_title, u."first_name" user_name from psr_round_user_variant pruv join psr_variant pv on pv.id = pruv.variant_id join users u on u."id" = pruv."user_id" where round_id = $1  '
+        sql = 'select pruv.*, pv."title" variant_title, u."custom_nick" custom_nick from psr_round_user_variant pruv join psr_variant pv on pv.id = pruv.variant_id join users u on u."id" = pruv."user_id" where round_id = $1  '
         res = await self.conn.fetch(sql, round_id)
         return res
     

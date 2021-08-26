@@ -14,7 +14,7 @@ from keyboards.inline.callback_datas import main_menu_callback
 async def bot_start(message: types.Message, state: FSMContext):
     conn = await create_conn("conn_str")
     user_repo = UserRepo(conn=conn)
-    await user_repo.create_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name, message.from_user.username)
+    await user_repo.create_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name, message.from_user.username, nick=message.from_user.first_name)
     await state.finish()
     await message.answer(
         f"{fmt.hide_link('https://www.youtube.com/watch?v=dQw4w9WgXcQ')}"

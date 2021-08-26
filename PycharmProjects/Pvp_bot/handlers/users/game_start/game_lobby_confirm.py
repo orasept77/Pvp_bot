@@ -1,4 +1,4 @@
-from handlers.psr.keybs.start_psr import play_psr_with_friend
+from handlers.psr.keybs.start_psr import play_psr_with_friend_keyb
 from handlers.psr.keybs.game_types import psr_game_types
 from utils.db_api.deposit.deposit_repo import DepositRepo
 from utils.db_api.psr.psr_repo import PSRRepo
@@ -15,8 +15,7 @@ from loader import dp
 from states.start_game import StartGame_State
 
 
-@dp.callback_query_handler(make_a_bet_callback.filter(bet=["5", "10", "20", "50"]),
-                           state=StartGame_State.bet)
+@dp.callback_query_handler(make_a_bet_callback.filter(bet=["5", "10", "20", "50"]))
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
     conn = await create_conn("conn_str")
@@ -68,5 +67,5 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
             return
         elif data.get('type') == 'play_with_friend':
             text = "Выберите что вы хотите"
-            await call.message.edit_text(text=text, reply_markup=play_psr_with_friend())
+            await call.message.edit_text(text=text, reply_markup=play_psr_with_friend_keyb())
     await conn.close()
