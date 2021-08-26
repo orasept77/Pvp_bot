@@ -2,10 +2,11 @@
 from aiogram import executor
 from aiogram.dispatcher.dispatcher import Dispatcher
 
+
 from loader import dp
-import middlewares, filters, handlers
 from handlers.tiktaktoe import tiktaktoe
 from handlers.psr import psr
+import middlewares, filters, handlers
 from utils.notify_admins import on_startup_notify
 from utils.set_bot_commands import set_default_commands
 from keyboards.inline.callback_datas import tiktaktoe_callback

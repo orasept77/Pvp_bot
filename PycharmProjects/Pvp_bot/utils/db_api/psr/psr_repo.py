@@ -10,6 +10,11 @@ class PSRRepo:
         sql = 'insert into "psr_lobby"("user_id","rates_id", "user_count") values($1, $2, $3) on conflict do nothing'
         await self.conn.execute(sql, user_id, rates_id, user_count)
     
+    async def set_private_lobby_started(self, lobby_id: int):
+        sql = 'update "psr_lobby_private" set is_started = true where id = $1'
+        await self.conn.execute(sql, lobby_id)
+    
+    
 
     async def create_private_lobby(self, user_count: int, game_type_id, rates_id: int):
         sql = 'insert into "psr_lobby_private"("user_count", "game_type_id", "rates_id") values($1, $2, $3) on conflict do nothing returning id'

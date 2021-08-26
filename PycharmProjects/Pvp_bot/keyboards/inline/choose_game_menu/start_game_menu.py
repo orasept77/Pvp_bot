@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from keyboards.inline.callback_datas import create_lobby_callback, cancel_callback, invite_bj_lobby_callback
+from keyboards.inline.callback_datas import create_lobby_callback, cancel_callback, invite_bj_lobby_callback, main_menu_callback
 
 start_blackjack_menu = InlineKeyboardMarkup(
             inline_keyboard=
@@ -52,4 +52,6 @@ start_rcp_menu = InlineKeyboardMarkup(
             ],
             resize_keyboard=True,
 )
+
+
 

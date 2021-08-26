@@ -1,13 +1,10 @@
-
 from utils.db_api.common.balance_repo import BalanceRepo
 from handlers.tiktaktoe.services.check_winner import check_winner
 from utils.db_api.create_asyncpg_connection import create_conn
 from handlers.tiktaktoe.models.cell import Cell
 from handlers.tiktaktoe.keybs.draw import draw
-from utils.db_api.create_connection import db_connection
 from utils.db_api.tiktaktoe.tiktaktoe_repo import TikTakToeRepo
 from aiogram.types import CallbackQuery
-
 from keyboards.inline.callback_datas import main_menu_callback
 from loader import dp
 from handlers.tiktaktoe.keybs.start_tiktaktoe import tiktaktoe_callback

@@ -1,3 +1,4 @@
+from aiogram.dispatcher.storage import FSMContext
 from states.start_game import StartGame_State
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
@@ -10,10 +11,11 @@ from utils.db_api.user.user_repo import UserRepo
 from keyboards.inline.callback_datas import main_menu_callback
 
 @dp.message_handler(CommandStart(), state="*")
-async def bot_start(message: types.Message):
+async def bot_start(message: types.Message, state: FSMContext):
     conn = await create_conn("conn_str")
     user_repo = UserRepo(conn=conn)
     await user_repo.create_user(message.from_user.id, message.from_user.first_name, message.from_user.last_name, message.from_user.username)
+    await state.finish()
     await message.answer(
         f"{fmt.hide_link('https://www.youtube.com/watch?v=dQw4w9WgXcQ')}"
         f"Добро пожаловать в игрового бота *НАЗВАНИЕ БОТА*\n"
@@ -32,7 +34,8 @@ async def bot_start(message: types.Message):
 
 
 @dp.callback_query_handler(main_menu_callback.filter(menu_choice="main_menu"), state="*")
-async def bot_start_cb(call: types.CallbackQuery):
+async def bot_start_cb(call: types.CallbackQuery, state: FSMContext):
+    await state.finish()
     await call.message.edit_text(
         f"{fmt.hide_link('https://www.youtube.com/watch?v=dQw4w9WgXcQ')}"
         f"Добро пожаловать в игрового бота *НАЗВАНИЕ БОТА*\n"

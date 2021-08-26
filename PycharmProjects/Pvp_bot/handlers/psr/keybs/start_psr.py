@@ -11,6 +11,10 @@ cancel_psr_revansh_cb = CallbackData("cancel_psr_revansh_cb", "private_lobby_id"
 
 cancel_psr_randon_cb = "cancel_psr_randon_cb"
 
+create_private_psr_lobby_cb = "create_private_psr_lobby_cb"
+
+connect_private_psr_lobby_cb = "connect_private_psr_lobby_cb"
+
 def start_psr_keyb(rates_id, user_count, game_type_id):
     markup = InlineKeyboardMarkup(resize_keyboard=True)
     markup.add(InlineKeyboardButton(text="Старт", callback_data=psr_cb.new(
@@ -54,11 +58,17 @@ def cancel_psr_random_keyb():
     markup = InlineKeyboardMarkup(resize_keyboard=True)
     markup.add(InlineKeyboardButton(text="Отменить", callback_data=cancel_psr_randon_cb))
     return markup
+
+
+def play_psr_with_friend():
+    markup = InlineKeyboardMarkup(resize_keyboard=True)
+    markup.add(InlineKeyboardButton(text="Создать лобби", callback_data=create_private_psr_lobby_cb))
+    markup.add(InlineKeyboardButton(text="Подключится", callback_data=connect_private_psr_lobby_cb))
+    return markup
+
+def cancel_type_private_lobby_id():
+    markup = InlineKeyboardMarkup(resize_keyboard=True)
+    markup.add(InlineKeyboardButton(text="Отмена", callback_data=main_menu_callback.new(menu_choice="choice_game")))
+    return markup   
     
 
-def to_menu():
-        markup = InlineKeyboardMarkup(resize_keyboard=True)
-        markup.add(InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu")
-
-                ))
-        return markup

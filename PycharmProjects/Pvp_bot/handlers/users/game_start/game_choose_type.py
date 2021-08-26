@@ -24,7 +24,6 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
     await call.message.edit_text(
         f"Вы выбрали игру {callback_data.get('game')}\n"
         f"Ваш депозит составляет [{user_deposit[2]}] фишек.\n\n"
-
         f"Выберите интересующий вас тип игры:\n"
         f"  *Случайный противник - вам будет подобран случайный оппонент.\n"
         f"  *Играть с другом - вы получите уникальный ИД который вы должны будете передать вашему другу.\n"
