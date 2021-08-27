@@ -9,7 +9,7 @@ from aiogram.types import CallbackQuery
 
 from keyboards.inline.callback_datas import make_a_bet_callback
 from keyboards.inline.choose_game_menu.start_game_menu import start_blackjack_menu, invite_blackjack_menu
-from handlers.tiktaktoe.keybs.start_tiktaktoe import start_tiktaktoe
+from handlers.tiktaktoe.keybs.start_tiktaktoe import play_tiktaktoe_with_friend_keyb, start_tiktaktoe
 
 from loader import dp
 from states.start_game import StartGame_State
@@ -58,6 +58,9 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
                 f"Ваша ставка на игру: {game_bet}\n\n",
                 parse_mode=types.ParseMode.HTML, reply_markup=start_tiktaktoe(rates_id=rates_id))
             return
+        elif data.get('type') == 'play_with_friend':
+            text = "Выберите что вы хотите"
+            await call.message.edit_text(text=text, reply_markup=play_tiktaktoe_with_friend_keyb())
     if game_name == 'Камень-Ножницы-Бумага':
         if data.get('type') == 'random_player':
             repo = PSRRepo(conn)

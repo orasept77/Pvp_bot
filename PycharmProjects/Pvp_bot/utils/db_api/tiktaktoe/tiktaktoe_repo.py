@@ -11,6 +11,11 @@ class TikTakToeRepo:
         res = await self.conn.fetch(sql, rates_id, user_id)
         return res
     
+
+    async def set_private_lobby_started(self, lobby_id: int):
+        sql = 'update "tiktaktoe_lobby_private" set is_started = true where id = $1'
+        await self.conn.execute(sql, lobby_id)
+    
     async def create_game(self, rates_id:int , first_step_user_id:int, private_lobby_id):
         sql = 'insert into "tiktaktoe_game"("rates_id","user_step_id", "private_lobby_id") values($1,$2,$3) on conflict do nothing returning id'
         id = await self.conn.fetchrow(sql, rates_id, first_step_user_id, private_lobby_id)

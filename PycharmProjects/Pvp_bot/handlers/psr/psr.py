@@ -15,7 +15,6 @@ from handlers.psr.keybs.user_count import select_psr_user_count_cb
 from handlers.psr.keybs.start_psr import cancel_psr_private_lobby_cb, cancel_psr_private_lobby_keyb, cancel_psr_type_private_lobby_id_keyb, connect_private_psr_lobby_cb, create_private_psr_lobby_cb, cancel_psr_random_keyb, cancel_psr_revansh_keyb, psr_revansh_keyb, start_psr_keyb, psr_cb, cancel_psr_randon_cb, psr_revansh_cb, cancel_psr_revansh_cb
 from handlers.psr.keybs.draw import set_psr_variant_cb
 from keyboards.inline.main_menu import to_menu
-
 from loader import dp
 
 
@@ -33,7 +32,6 @@ async def create_private_lobby(call:CallbackQuery, state: FSMContext):
 async def connect_private_lobby(call:CallbackQuery, state: FSMContext):
     conn = await create_conn("conn_str")
     repo = PSRRepo(conn)
-    game_types = await repo.get_game_types()
     text = "Введите идентификатор игры"
     await TypePrivateLobbyId.typing.set()
     await state.update_data(last_message_id=call.message.message_id)

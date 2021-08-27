@@ -1,3 +1,7 @@
+from aiogram.types.message import Message
+from handlers.tiktaktoe.states.type_private_lobby_id import TikTakToeTypePrivateLobbyId
+from keyboards.inline.main_menu import to_menu
+from aiogram.dispatcher.storage import FSMContext
 from utils.db_api.user.user_repo import UserRepo
 from utils.db_api.common.balance_repo import BalanceRepo
 from handlers.tiktaktoe.services.check_winner import check_winner
@@ -8,9 +12,74 @@ from utils.db_api.tiktaktoe.tiktaktoe_repo import TikTakToeRepo
 from aiogram.types import CallbackQuery
 from keyboards.inline.callback_datas import main_menu_callback
 from loader import dp
-from handlers.tiktaktoe.keybs.start_tiktaktoe import cancel_tiktaktoe_revansh_cb, cancel_tiktaktoe_revansh_keyb, tiktaktoe_callback, tiktaktoe_revansh_keyb, tiktaktoe_revansh_cb
+from handlers.tiktaktoe.keybs.start_tiktaktoe import cancel_tiktaktoe_private_lobby_cb, connect_private_tiktaktoe_lobby_cb ,create_private_tiktaktoe_lobby_cb, cancel_tiktaktoe_revansh_cb, cancel_tiktaktoe_revansh_keyb, tiktaktoe_callback, tiktaktoe_revansh_keyb, tiktaktoe_revansh_cb
 from handlers.tiktaktoe.keybs.cancel_search_tiktaktoe import cancel_search_tiktaktoe_cb, cancel_search_tiktaktoe_keyb
 from handlers.tiktaktoe.keybs.draw import tiktoktoe_make_step_cb
+
+@dp.callback_query_handler(lambda call: call.data==create_private_tiktaktoe_lobby_cb, state="*")
+async def create_private_lobby(call:CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    game_name = data['game_name']
+    rates_id = int(data['id'])
+    conn = await create_conn("conn_str")
+    repo = TikTakToeRepo(conn)
+    id = await repo.create_private_lobby(rates_id)
+    await repo.add_private_lobby_user(id, call.from_user.id)
+    rates_value = data['bet']
+    text = f"Игра: {game_name}\nСтавка: {rates_value}"
+    text = text + "\nИгра создана.\nВы были добавлены в лобби игры.\n<b>Идентификатор игры: {}</b>".format(id)
+    await call.message.edit_text(text=text, reply_markup=to_menu())
+    return
+
+
+@dp.callback_query_handler(lambda call: call.data==connect_private_tiktaktoe_lobby_cb, state="*")
+async def connect_private_lobby(call:CallbackQuery, state: FSMContext):
+    conn = await create_conn("conn_str")
+    repo = TikTakToeRepo(conn)
+    text = "Введите идентификатор игры"
+    await TikTakToeTypePrivateLobbyId.typing.set()
+    await state.update_data(last_message_id=call.message.message_id)
+    await call.message.edit_text(text=text) #reply_markup=cancel_psr_type_private_lobby_id_keyb())
+    return
+
+@dp.message_handler(state=TikTakToeTypePrivateLobbyId.typing)
+async def typed_private_lobby_id(message:Message, state: FSMContext):
+    conn = await create_conn("conn_str")
+    data = await state.get_data()
+    repo = TikTakToeRepo(conn)
+    if message.text.isnumeric():
+        lobby = await repo.get_private_lobby(int(message.text))
+        if lobby["is_started"] == True:
+            await message.answer("Это лобби уже недоступно", reply_markup=to_menu())
+        if lobby:
+            players = await repo.get_lobby_private_players(int(message.text))
+            if players:
+                user_repo = UserRepo(conn)
+                user = await user_repo.get_user(message.from_user.id)
+                players = [players[0], user]
+                await message.bot.delete_message(message.from_user.id, data.get('last_message_id'))
+                await repo.add_private_lobby_user(int(message.text), message.from_user.id)
+                await repo.set_private_lobby_started(lobby['id'])
+                await create_tiktaktoe(repo, players, lobby['rates_id'], message)
+            else:
+                await repo.add_private_lobby_user(int(message.text), message.from_user.id)
+                await message.answer(text="Вы были добавлены в лобби. Ожидайте остальных игроков")
+            await state.finish()
+        else:
+            await message.answer(text="Игра не найдена. Проверьте правильность ввода цифр.", reply_markup=to_menu())
+    else:
+        await message.answer(text="Некоректный ввод. Попробуйте еще раз", reply_markup=to_menu())
+
+
+@dp.callback_query_handler(cancel_tiktaktoe_private_lobby_cb.filter(), state="*")
+async def cancel_psr_private_lobby(call:CallbackQuery, callback_data: dict, state: FSMContext):
+    conn = await create_conn("conn_str")
+    repo = TikTakToeRepo(conn)
+    await repo.delete_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
+    await call.message.edit_text("Вы были удалены из лобби", reply_markup=to_menu())
+
+
+
 
 
 @dp.callback_query_handler(lambda call: call.data == cancel_search_tiktaktoe_cb, state="*")
@@ -26,7 +95,6 @@ async def cancel_search_tiktaktoe(call:CallbackQuery):
 @dp.callback_query_handler(tiktaktoe_revansh_cb.filter(), state="*")
 async def start_tiktaktoe_revansh(call:CallbackQuery, callback_data: dict, ):
     conn = await create_conn("conn_str")
-    
     repo = TikTakToeRepo(conn)
     lobby = await repo.get_private_lobby(int(callback_data['private_lobby_id']))
     players = await repo.get_lobby_private_players(int(callback_data['private_lobby_id']))
@@ -90,7 +158,7 @@ async def create_tiktaktoe(repo: TikTakToeRepo, players: list, rates_id: int, me
     await repo.add_user_steps(9, round_id, user_ids=[i['id'] for i in players])
     cells = [Cell(cell['id'], "🪑" if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
     for i in players:
-        message = await message.bot.send_message(chat_id=i['id'], text=f"Вы играете за {charapters[i['id']]}", reply_markup=draw(cells))
+        message = await message.bot.send_message(chat_id=i['id'], text=f"Раунд 1.\nВы играете за {charapters[i['id']]}", reply_markup=draw(cells))
         await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)
 
 
