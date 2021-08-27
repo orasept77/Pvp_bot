@@ -126,7 +126,7 @@ async def start_psr_revansh(call:CallbackQuery, callback_data: dict, ):
 
 
 @dp.callback_query_handler(cancel_psr_revansh_cb.filter(), state="*")
-async def start_psr_cancel_revansh(call:CallbackQuery, callback_data: dict, ):
+async def psr_cancel_revansh(call:CallbackQuery, callback_data: dict, ):
     conn = await create_conn("conn_str")
     repo = PSRRepo(conn)
     await repo.delete_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)

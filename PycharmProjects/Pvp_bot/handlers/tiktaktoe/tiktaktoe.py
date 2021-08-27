@@ -8,7 +8,7 @@ from utils.db_api.tiktaktoe.tiktaktoe_repo import TikTakToeRepo
 from aiogram.types import CallbackQuery
 from keyboards.inline.callback_datas import main_menu_callback
 from loader import dp
-from handlers.tiktaktoe.keybs.start_tiktaktoe import tiktaktoe_callback
+from handlers.tiktaktoe.keybs.start_tiktaktoe import cancel_tiktaktoe_revansh_cb, cancel_tiktaktoe_revansh_keyb, tiktaktoe_callback, tiktaktoe_revansh_keyb, tiktaktoe_revansh_cb
 from handlers.tiktaktoe.keybs.cancel_search_tiktaktoe import cancel_search_tiktaktoe_cb, cancel_search_tiktaktoe_keyb
 from handlers.tiktaktoe.keybs.draw import tiktoktoe_make_step_cb
 
@@ -20,6 +20,38 @@ async def cancel_search_tiktaktoe(call:CallbackQuery):
     await repo.delete_users_lobby(call.from_user.id)
     await call.message.answer("Отменено")
     
+
+
+
+@dp.callback_query_handler(tiktaktoe_revansh_cb.filter(), state="*")
+async def start_tiktaktoe_revansh(call:CallbackQuery, callback_data: dict, ):
+    conn = await create_conn("conn_str")
+    
+    repo = TikTakToeRepo(conn)
+    lobby = await repo.get_private_lobby(int(callback_data['private_lobby_id']))
+    players = await repo.get_lobby_private_players(int(callback_data['private_lobby_id']))
+    if players:
+        user_repo = UserRepo(conn)
+        user = await user_repo.get_user(call.from_user.id)
+        players = [players[0], user]
+        await repo.add_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
+        await create_tiktaktoe(repo, players, lobby['rates_id'], call.message)
+        await call.message.delete()
+    else:
+        await repo.add_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
+        await call.answer("Вы записались в очередь на реванш")
+        await call.message.edit_text(text=call.message.text, reply_markup=cancel_tiktaktoe_revansh_keyb(int(callback_data['private_lobby_id'])))
+    await conn.close()
+
+
+@dp.callback_query_handler(cancel_tiktaktoe_revansh_cb.filter(), state="*")
+async def tiktaktoe_cancel_revansh(call:CallbackQuery, callback_data: dict, ):
+    conn = await create_conn("conn_str")
+    repo = TikTakToeRepo(conn)
+    await repo.delete_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
+    await call.answer("Вы вышли из очереди")
+    await call.message.edit_text(text=call.message.text, reply_markup=tiktaktoe_revansh_keyb(int(callback_data['private_lobby_id'])))
+
 
 
 @dp.callback_query_handler(tiktaktoe_callback.filter(), state="*")
@@ -44,7 +76,8 @@ async def start_tiktaktoe_random(call:CallbackQuery, callback_data: dict, ):
 
 
 async def create_tiktaktoe(repo: TikTakToeRepo, players: list, rates_id: int, message):
-    game_id = await repo.create_game(rates_id, players[0]['id'])
+    private_lobby_id = await repo.create_private_lobby(rates_id)
+    game_id = await repo.create_game(rates_id, players[0]['id'], private_lobby_id)
     round_id = await repo.create_game_round(game_id, players[0]['id'])
     await repo.create_cells(9 , round_id)
     charapters = {}
@@ -100,9 +133,9 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                     for game_user in game_users:
                         await call.bot.delete_message(chat_id=game_user['id'], message_id=game_user['message_id'])
                         if game_user['id'] == winner_id:
-                            await call.bot.send_message(text=f"Вы победили.\nВам было начислено на счет {rates['value']} фишек", chat_id=game_user['id'])
+                            await call.bot.send_message(text=f"Вы победили.\nВам было начислено на счет {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
                         else:
-                            await call.bot.send_message(text=f"Вы проиграли.\nУ вас было снято со счета {rates['value']} фишек", chat_id=game_user['id'])
+                            await call.bot.send_message(text=f"Вы проиграли.\nУ вас было снято со счета {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
                 else:
                     round_id = await repo.create_game_round(game['id'], game_users[0]['id'], sequence=round['sequence'] + 1)
                     await repo.create_cells(9 , round_id)
@@ -149,10 +182,8 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                     else:
                         await repo.set_game_end(game['id'])
                         for game_user in game_users:
-                            if game_user['id'] == winner_id:
-                                await call.bot.send_message(text=f"Вы победили.\nВам было начислено на счет {rates['value']} фишек", chat_id=game_user['id'])
-                            else:
-                                await call.bot.send_message(text=f"Вы проиграли.\nУ вас было снято со счета {rates['value']} фишек", chat_id=game_user['id'])
+                            message = await call.message.bot.edit_message_text(chat_id=game_user['id'],message_id=game_user['message_id'], text=f"Раунд {round['sequence']}.\nРезультат: Ничья", reply_markup=draw(cells))
+                            await call.bot.send_message(text=f"Игра закончилась ничьёй", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
         else:
             await call.answer("Поле уже занято", show_alert=True)
     else:

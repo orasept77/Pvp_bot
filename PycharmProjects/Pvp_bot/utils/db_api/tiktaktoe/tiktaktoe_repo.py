@@ -11,9 +11,9 @@ class TikTakToeRepo:
         res = await self.conn.fetch(sql, rates_id, user_id)
         return res
     
-    async def create_game(self, rates_id:int , first_step_user_id:int ):
-        sql = 'insert into "tiktaktoe_game"("rates_id","user_step_id") values($1,$2) on conflict do nothing returning id'
-        id = await self.conn.fetchrow(sql, rates_id, first_step_user_id)
+    async def create_game(self, rates_id:int , first_step_user_id:int, private_lobby_id):
+        sql = 'insert into "tiktaktoe_game"("rates_id","user_step_id", "private_lobby_id") values($1,$2,$3) on conflict do nothing returning id'
+        id = await self.conn.fetchrow(sql, rates_id, first_step_user_id, private_lobby_id)
         if id:
             return id['id']
         
@@ -126,7 +126,31 @@ class TikTakToeRepo:
         sql = 'update "tiktaktoe_cell" set user_id = $1 , is_busy=true where id = $2'
         await self.conn.execute(sql, user_id, cell_id)
 
+    async def create_private_lobby(self, rates_id: int):
+        sql = 'insert into "tiktaktoe_lobby_private"("rates_id") values($1) on conflict do nothing returning id'
+        id = await self.conn.fetchrow(sql, rates_id)
+        if id:
+            return id['id']
+
+    async def get_private_lobby(self, lobby_id):
+        sql = 'select * from "tiktaktoe_lobby_private" where id = $1'
+        res = await self.conn.fetchrow(sql, lobby_id)
+        return res
     
+    async def get_lobby_private_players(self, lobby_id):
+        sql = 'select u.* from "tiktaktoe_lobby_private_user" tlpu join users u on u."id" = tlpu."user_id" where lobby_id = $1'
+        res = await self.conn.fetch(sql, lobby_id)
+        return res
+    
+    async def add_private_lobby_user(self, lobby_id: int, user_id: int):
+        sql = 'insert into "tiktaktoe_lobby_private_user"("lobby_id", "user_id") values($1, $2) on conflict do nothing'
+        id = await self.conn.fetchrow(sql, lobby_id, user_id)
+        if id:
+            return id['id']
+        
+    async def delete_private_lobby_user(self, lobby_id: int, user_id: int):
+        sql = 'delete from "tiktaktoe_lobby_private_user" where "lobby_id" = $1 and "user_id" = $2'
+        id = await self.conn.execute(sql, lobby_id, user_id)
 
     """async def get_user(self, user_id):
         sql = 'select * from "User" where "Id" = $1'
