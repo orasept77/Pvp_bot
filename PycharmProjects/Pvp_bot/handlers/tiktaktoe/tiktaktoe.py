@@ -165,7 +165,7 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                 else:
                     await repo.set_round_end(round['id'])
                     r_w = await repo.get_round_winners(-1, game['id'])
-                    if len(r_w) != 1:
+                    if len(r_w) != 3:
                         round_id = await repo.create_game_round(game['id'], game_users[0]['id'], sequence=round['sequence'] + 1)
                         await repo.create_cells(9 , round_id)
                         charapters = {}
