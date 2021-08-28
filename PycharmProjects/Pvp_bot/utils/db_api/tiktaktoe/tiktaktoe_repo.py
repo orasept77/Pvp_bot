@@ -111,7 +111,7 @@ class TikTakToeRepo:
         return await self.conn.fetchrow(sql, game_id, user_id)
     
     async def get_round_users(self, round_id: int):
-        sql = 'select u.*, tr."character", tr."message_id" from tiktaktoe_round_user tr join users u on u."id" = tr."user_id" where round_id = $1'
+        sql = 'select u.*, tr."character", tr."message_id" from tiktaktoe_round_user tr join users u on u."id" = tr."user_id" where round_id = $1 order by u."id" '
         return await self.conn.fetch(sql, round_id)
     
     async def get_game_users(self, game_id: int):

@@ -87,7 +87,7 @@ async def cancel_search_tiktaktoe(call:CallbackQuery):
     conn = await create_conn("conn_str")
     repo = TikTakToeRepo(conn)
     await repo.delete_users_lobby(call.from_user.id)
-    await call.message.answer("Отменено")
+    await call.message.edit_text("Отменено", reply_markup=to_menu())
     
 
 
@@ -138,7 +138,7 @@ async def start_tiktaktoe_random(call:CallbackQuery, callback_data: dict, ):
         await create_tiktaktoe(repo, players, rates_id, call.message)
     else:
         await repo.add_lobby_user(call.from_user.id, rates_id)
-        await call.message.answer("Поиск игры начат, для отмены нажмите \"Отменить\" ", reply_markup=cancel_search_tiktaktoe_keyb())
+        await call.message.edit_text("Поиск игры начат, для отмены нажмите \"Отменить\" ", reply_markup=cancel_search_tiktaktoe_keyb())
     await conn.close()
 
 
@@ -205,6 +205,8 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                         else:
                             await call.bot.send_message(text=f"Вы проиграли.\nУ вас было снято со счета {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
                 else:
+                    if (round['sequence'] + 1) % 2 == 1:
+                        game_users.reverse()
                     round_id = await repo.create_game_round(game['id'], game_users[0]['id'], sequence=round['sequence'] + 1)
                     await repo.create_cells(9 , round_id)
                     charapters = {}
@@ -216,7 +218,7 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                     await repo.add_user_steps(9, round_id, user_ids=[i['id'] for i in game_users])
                     cells = [Cell(cell['id'], "🪑" if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
                     for i in game_users:
-                        message = await call.message.bot.edit_message_text(chat_id=i['id'],message_id=i['message_id'], text=f"Раунд {round['sequence'] + 1}\n.Вы играете за {charapters[i['id']]}", reply_markup=draw(cells))
+                        message = await call.message.bot.edit_message_text(chat_id=i['id'],message_id=i['message_id'], text=f"Раунд {round['sequence'] + 1}.\nВы играете за {charapters[i['id']]}", reply_markup=draw(cells))
                         await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)
             else:
                 next_step = await repo.get_step(round['id'], round['step']+1)
@@ -234,6 +236,8 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                     await repo.set_round_end(round['id'])
                     r_w = await repo.get_round_winners(-1, game['id'])
                     if len(r_w) != 3:
+                        if (round['sequence'] + 1) % 2 == 1:
+                            game_users.reverse()
                         round_id = await repo.create_game_round(game['id'], game_users[0]['id'], sequence=round['sequence'] + 1)
                         await repo.create_cells(9 , round_id)
                         charapters = {}
@@ -245,7 +249,7 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                         await repo.add_user_steps(9, round_id, user_ids=[i['id'] for i in game_users])
                         cells = [Cell(cell['id'], "🪑" if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
                         for i in game_users:
-                            message = await call.message.bot.edit_message_text(chat_id=i['id'],message_id=i['message_id'], text=f"Раунд {round['sequence'] + 1}\n.Вы играете за {charapters[i['id']]}", reply_markup=draw(cells))
+                            message = await call.message.bot.edit_message_text(chat_id=i['id'],message_id=i['message_id'], text=f"Раунд {round['sequence'] + 1}.\nВы играете за {charapters[i['id']]}", reply_markup=draw(cells))
                             await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)
                     else:
                         await repo.set_game_end(game['id'])
