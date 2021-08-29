@@ -1,4 +1,4 @@
-from handlers.psr.keybs.start_psr import play_psr_with_friend_keyb
+from handlers.psr.keybs.start_psr import play_psr_with_friend_keyb, start_psr_keyb
 from handlers.psr.keybs.game_types import psr_game_types
 from utils.db_api.deposit.deposit_repo import DepositRepo
 from utils.db_api.psr.psr_repo import PSRRepo
@@ -65,8 +65,8 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
         if data.get('type') == 'random_player':
             repo = PSRRepo(conn)
             game_types = await repo.get_game_types()
-            text = "Выберите режим игры"
-            await call.message.edit_text(text=text, reply_markup=psr_game_types(game_types))
+            text = f"Игра: {game_name}\nСтавка: {game_bet}"
+            await call.message.edit_text(text=text, reply_markup=start_psr_keyb(int(callback_data.get('id')), 2, 1))
             return
         elif data.get('type') == 'play_with_friend':
             text = "Выберите что вы хотите"

@@ -18,13 +18,23 @@ from keyboards.inline.main_menu import to_menu
 from loader import dp
 
 
-@dp.callback_query_handler(lambda call: call.data==create_private_psr_lobby_cb, state="*")
+"""@dp.callback_query_handler(lambda call: call.data==create_private_psr_lobby_cb, state="*")
 async def create_private_lobby(call:CallbackQuery, state: FSMContext):
     conn = await create_conn("conn_str")
     repo = PSRRepo(conn)
     game_types = await repo.get_game_types()
     text = "Выберите режим игры"
     await call.message.edit_text(text=text, reply_markup=psr_game_types(game_types))
+    return"""
+
+@dp.callback_query_handler(lambda call: call.data==create_private_psr_lobby_cb, state="*")
+async def create_private_lobby(call:CallbackQuery, state: FSMContext):
+    conn = await create_conn("conn_str")
+    repo = PSRRepo(conn)
+    data = await state.get_data()
+    id = await repo.create_private_lobby(2, 1, int(data.get("id")))
+    await repo.add_private_lobby_user(id, call.from_user.id)
+    await call.message.edit_text(text="Игра создана.\nВы были добавлены в лобби игры.\n<b>Идентификатор игры: {}</b>".format(id), reply_markup=to_menu())
     return
 
 

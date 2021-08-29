@@ -11,9 +11,9 @@ tiktaktoe_revansh_cb = CallbackData("tiktaktoe_revansh_cb", "private_lobby_id")
 
 cancel_tiktaktoe_revansh_cb = CallbackData("cancel_tiktaktoe_revansh_cb", "private_lobby_id")
 
-create_private_tiktaktoe_lobby_cb = "create_private_psr_lobby_cb"
+create_private_tiktaktoe_lobby_cb = "create_private_tiktaktoe_lobby_cb"
 
-connect_private_tiktaktoe_lobby_cb = "connect_private_psr_lobby_cb"
+connect_private_tiktaktoe_lobby_cb = "connect_private_tiktaktoe_lobby_cb"
 
 cancel_tiktaktoe_private_lobby_cb = CallbackData("cancel_tiktaktoe_private_lobby_cb", "private_lobby_id")
 
