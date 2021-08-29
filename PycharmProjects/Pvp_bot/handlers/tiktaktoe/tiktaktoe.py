@@ -1,3 +1,4 @@
+from aiogram.bot.bot import Bot
 from aiogram.types.message import Message
 from handlers.tiktaktoe.states.type_private_lobby_id import TikTakToeTypePrivateLobbyId
 from keyboards.inline.main_menu import to_menu
@@ -163,6 +164,67 @@ async def create_tiktaktoe(repo: TikTakToeRepo, players: list, rates_id: int, me
 
 
 
+async def create_round(repo: TikTakToeRepo, players: list, message: Message, game_id, round_sequence):
+    if (round_sequence) % 2 == 0:
+        players.reverse()
+    round_id = await repo.create_game_round(game_id, players[0]['id'], round_sequence)
+    await repo.create_cells(9 , round_id)
+    charapters = {}
+    charapters_variants = ["X", "O"]
+    for i in range(0, len(players)):
+        charapters[players[i]['id']] = charapters_variants[i]
+        await repo.add_user_to_game(players[i]['id'], game_id, charapters_variants[i])
+        await repo.add_user_to_round(players[i]['id'], round_id, charapters_variants[i])
+    cells = await repo.get_game_cells(round_id)
+    await repo.add_user_steps(9, round_id, user_ids=[i['id'] for i in players])
+    cells = [Cell(cell['id'], "🪑" if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
+    for i in players:
+        message = await message.bot.send_message(chat_id=i['id'], text=f"Раунд {round_sequence}.\nВы играете за {charapters[i['id']]}", reply_markup=draw(cells))
+        await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)
+
+
+
+async def send_game_end(winner_id, bot: Bot, game_users, game, rates):
+    if winner_id == -1:
+        for game_user in game_users:
+            await bot.send_message(text=f"Игра закончилась ничьёй", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
+    else:
+        for game_user in game_users:
+            if game_user['id'] == winner_id:
+                await bot.send_message(text=f"Вы победили.\nВам было начислено на счет {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
+            else:
+                await bot.send_message(text=f"Вы проиграли.\nУ вас было снято со счета {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
+
+
+
+
+def check_game_end(rounds):
+    p_w = {}
+    for i in rounds:
+        if i['winner_id'] != -1:
+            if p_w.get(i['winner_id']):
+                p_w[i['winner_id']] += 1
+            else:
+                p_w[i['winner_id']] = 1
+    for key, val in p_w.items():
+        if val >= 2:
+            return key
+    if len(rounds) >= 3:
+        winner_id = -1
+        wins_count = 0
+        for key, val in p_w.items():
+            if val > wins_count:
+                winner_id = key
+                wins_count = val
+            elif val == wins_count:
+                winner_id = -1
+        return winner_id
+    return False
+
+
+
+
+
 
 
 
@@ -187,25 +249,33 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
             await repo.take_cell(call.from_user.id, cell['id'])
             cells: list = await repo.get_game_cells(round['id'])
             cells = [Cell(cell['id'], next((i for i in game_users if i['id'] == cell['user_id']), None)['character'] if cell['user_id'] != None else "🪑" , cell['user_id'], cell['round_id'])  for cell in cells]
-            if_end, winner_id = check_winner(cells)
+            if_end, round_winner_id = check_winner(cells)
             b_repo = BalanceRepo(conn)
             rates = await b_repo.get_rates_by_id(game['rates_id'])
             if if_end:
                 await repo.set_round_end(round['id'])
-                await repo.set_round_winner_id(winner_id, round['id'])
-                r_w = await repo.get_round_winners(winner_id, game['id'])
-                if len(r_w) == 2:
-                    text=""
+                await repo.set_round_winner_id(round_winner_id, round['id'])
+                rounds = await repo.get_rounds(game['id'])
+                winner_id = check_game_end(rounds)
+                if winner_id:
                     await repo.set_game_end(game['id'])
-                    r_w = await repo.get_round_winners(winner_id, game['id'])
-                    for game_user in game_users:
+                    await send_game_end(winner_id, call.bot, game_users, game, rates)
+                    """for game_user in game_users:
                         await call.bot.delete_message(chat_id=game_user['id'], message_id=game_user['message_id'])
                         if game_user['id'] == winner_id:
                             await call.bot.send_message(text=f"Вы победили.\nВам было начислено на счет {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
                         else:
-                            await call.bot.send_message(text=f"Вы проиграли.\nУ вас было снято со счета {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
+                            await call.bot.send_message(text=f"Вы проиграли.\nУ вас было снято со счета {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))"""
                 else:
-                    if (round['sequence'] + 1) % 2 == 1:
+                    await create_round(repo, game_users, call.message, game['id'], round['sequence'] + 1)
+                winner_nickname = next((i['custom_nick'] for i in game_users if i['id'] == round_winner_id))
+                text = f"Раунд: {round['sequence']}.\nРезультат: победа {winner_nickname}"
+                for i in game_users:
+                    await call.bot.edit_message_text(text=text,
+                                                message_id=i['message_id'],
+                                                chat_id=i['id'],
+                                                reply_markup=draw(cells))
+                    """if (round['sequence'] + 1) % 2 == 0:
                         game_users.reverse()
                     round_id = await repo.create_game_round(game['id'], game_users[0]['id'], sequence=round['sequence'] + 1)
                     await repo.create_cells(9 , round_id)
@@ -219,7 +289,7 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                     cells = [Cell(cell['id'], "🪑" if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
                     for i in game_users:
                         message = await call.message.bot.edit_message_text(chat_id=i['id'],message_id=i['message_id'], text=f"Раунд {round['sequence'] + 1}.\nВы играете за {charapters[i['id']]}", reply_markup=draw(cells))
-                        await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)
+                        await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)"""
             else:
                 next_step = await repo.get_step(round['id'], round['step']+1)
                 if next_step:
@@ -234,9 +304,25 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                                                     reply_markup=draw(cells))
                 else:
                     await repo.set_round_end(round['id'])
-                    r_w = await repo.get_round_winners(-1, game['id'])
-                    if len(r_w) != 3:
-                        if (round['sequence'] + 1) % 2 == 1:
+                    r_w = await repo.get_rounds(game['id'])
+                    rounds = await repo.get_rounds(game['id'])
+                    winner_id = check_game_end(rounds)
+                    if winner_id:
+                        await repo.set_game_end(game['id'])
+                        await send_game_end(winner_id, call.bot, game_users, game, rates)
+                        """for game_user in game_users:
+                            message = await call.message.bot.edit_message_text(chat_id=game_user['id'],message_id=game_user['message_id'], text=f"Раунд {round['sequence']}.\nРезультат: Ничья", reply_markup=draw(cells))
+                            await call.bot.send_message(text=f"Игра закончилась ничьёй", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))"""
+                        
+                    else:
+                        await create_round(repo, game_users, call.message, game['id'], round['sequence'] + 1)
+                    text = f"Раунд: {round['sequence']}.\nРезультат: ничья"
+                    for i in game_users:
+                        await call.bot.edit_message_text(text=text,
+                                                    message_id=i['message_id'],
+                                                    chat_id=i['id'],
+                                                    reply_markup=draw(cells))
+                        """if (round['sequence'] + 1) % 2 == 1:
                             game_users.reverse()
                         round_id = await repo.create_game_round(game['id'], game_users[0]['id'], sequence=round['sequence'] + 1)
                         await repo.create_cells(9 , round_id)
@@ -250,12 +336,7 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                         cells = [Cell(cell['id'], "🪑" if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
                         for i in game_users:
                             message = await call.message.bot.edit_message_text(chat_id=i['id'],message_id=i['message_id'], text=f"Раунд {round['sequence'] + 1}.\nВы играете за {charapters[i['id']]}", reply_markup=draw(cells))
-                            await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)
-                    else:
-                        await repo.set_game_end(game['id'])
-                        for game_user in game_users:
-                            message = await call.message.bot.edit_message_text(chat_id=game_user['id'],message_id=game_user['message_id'], text=f"Раунд {round['sequence']}.\nРезультат: Ничья", reply_markup=draw(cells))
-                            await call.bot.send_message(text=f"Игра закончилась ничьёй", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
+                            await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)"""
         else:
             await call.answer("Поле уже занято", show_alert=True)
     else:

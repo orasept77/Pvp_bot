@@ -59,9 +59,9 @@ class TikTakToeRepo:
         id = await self.conn.execute(sql, winner_id, round_id)
     
 
-    async def get_round_winners(self, winner_id, game_id: int):
-        sql = 'select * from "tiktaktoe_round" where winner_id = $1 and game_id = $2'
-        res = await self.conn.fetch(sql, winner_id, game_id)
+    async def get_rounds(self, game_id: int):
+        sql = 'select * from "tiktaktoe_round" where game_id = $1'
+        res = await self.conn.fetch(sql, game_id)
         return res
 
     
