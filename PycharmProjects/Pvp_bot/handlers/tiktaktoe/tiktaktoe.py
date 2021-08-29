@@ -209,7 +209,7 @@ def check_game_end(rounds):
     for key, val in p_w.items():
         if val >= 2:
             return key
-    if len(rounds) >= 3:
+    if len(rounds) >= 7:
         winner_id = -1
         wins_count = 0
         for key, val in p_w.items():
