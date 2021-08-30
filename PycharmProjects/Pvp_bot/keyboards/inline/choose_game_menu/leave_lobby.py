@@ -20,7 +20,7 @@ leave_invite_lobby_menu = InlineKeyboardMarkup(
             [
                 [
                     InlineKeyboardButton(text="❌   Покинуть лобби   ❌", callback_data=leave_invite_lobby_callback.new(
-                        leave="yes"
+                        leave="true"
                     ))
                 ]
             ],

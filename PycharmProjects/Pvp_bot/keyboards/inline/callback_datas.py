@@ -21,6 +21,8 @@ deposit_withdrawal_type_callback = CallbackData("withdrawal", "type")
 deposit_withdrawal_amount_callback = CallbackData("withdrawal_amount", "amount")
 
 create_lobby_callback = CallbackData("game_name", "lobby_game_name")
+create_private_blackjack_lobby_cb = CallbackData("create_blackjack_lobby", "create_lobby")
+connect_private_blackjack_lobby_cb = CallbackData("connect_blackjack_lobby", "connect_lobby")
 invite_bj_lobby_callback = CallbackData("lobby", "created")
 leave_lobby_callback = CallbackData("leave_lobby", "leave")
 leave_invite_lobby_callback = CallbackData("leave_lobby", "leave")

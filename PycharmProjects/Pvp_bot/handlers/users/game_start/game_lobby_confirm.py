@@ -8,7 +8,8 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import CallbackQuery
 
 from keyboards.inline.callback_datas import make_a_bet_callback
-from keyboards.inline.choose_game_menu.start_game_menu import start_blackjack_menu, invite_blackjack_menu
+from keyboards.inline.choose_game_menu.start_game_menu import start_blackjack_menu, invite_blackjack_menu, \
+    play_blackjack_with_friend_keyb
 from handlers.tiktaktoe.keybs.start_tiktaktoe import play_tiktaktoe_with_friend_keyb, start_tiktaktoe
 
 from loader import dp
@@ -41,13 +42,15 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
                 f"Для начала игры нажми кнопку 'СТАРТ'.",
                 parse_mode=types.ParseMode.HTML, reply_markup=start_blackjack_menu)
         elif data.get('type') == 'play_with_friend':
-            await call.message.edit_text(
-                f"Вы выбрали игру {game_name}\n"
-                f"Тип игры: игра с другом\n\n"
-                f"Ваш депозит: [{user_deposit[2]}]\n"
-                f"Ваша ставка на игру: {game_bet}\n\n"
-                f"Для создания лобби нажми кнопку 'СТАРТ'.",
-                parse_mode=types.ParseMode.HTML, reply_markup=invite_blackjack_menu)
+            # await call.message.edit_text(
+            #     f"Вы выбрали игру {game_name}\n"
+            #     f"Тип игры: игра с другом\n\n"
+            #     f"Ваш депозит: [{user_deposit[2]}]\n"
+            #     f"Ваша ставка на игру: {game_bet}\n\n"
+            #     f"Для создания лобби нажми кнопку 'СТАРТ'.",
+            #     parse_mode=types.ParseMode.HTML, reply_markup=invite_blackjack_menu)
+            text = "Выберите что вы хотите"
+            await call.message.edit_text(text=text, reply_markup=play_blackjack_with_friend_keyb())
     if game_name == 'Крестики-Нолики':
         if data.get('type') == 'random_player':
             rates_id = int(callback_data.get('id'))
