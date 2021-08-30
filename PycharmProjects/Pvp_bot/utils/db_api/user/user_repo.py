@@ -35,6 +35,15 @@ class UserRepo:
         else:
             return user
 
+    async def set_custom_nick(self, user_id, nick):
+        sql = 'UPDATE users SET custom_nick = $2 WHERE id = $1'
+        res = await self.conn.fetch(sql, user_id, nick)
+        return res
+
+    async def get_custom_nick(self, user_id):
+        sql = 'SELECT custom_nick FROM users WHERE id = $2'
+        res = await self.conn.fetchrow(sql, user_id)
+        return res
     async def set_id(self, user_id, new_id):
         sql = 'UPDATE users SET id = $1 WHERE id = $2'
         res = await self.conn.fetch(sql, user_id, new_id)

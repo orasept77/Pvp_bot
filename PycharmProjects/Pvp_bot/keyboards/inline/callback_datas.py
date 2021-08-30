@@ -11,6 +11,8 @@ account_main_callback = CallbackData("account_main", "enter")
 account_statistics_callback = CallbackData("account_stat", "enter")
 account_statistics_top_callback = CallbackData("account_stat_top", "type")
 account_update_data_callback = CallbackData("account_update", "enter")
+account_change_nickname_cb = CallbackData("nickname", "change")
+account_change_nickname_callback = CallbackData("change_nickname", "button")
 
 support_callback = CallbackData("support", "to_do")
 
