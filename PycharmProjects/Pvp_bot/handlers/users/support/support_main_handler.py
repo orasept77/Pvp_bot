@@ -7,7 +7,7 @@ from loader import dp
 
 
 @dp.callback_query_handler(support_callback.filter(to_do="get_info"), state="*")
-async def bot_account_main(call:CallbackQuery):
+async def bot_account_support_main(call:CallbackQuery):
     await call.message.edit_text(
         f"У вас возникли вопросы или какие либо технические проблемы?.\n\n"
         f"Свяжитесь с нами и подробно опишите проблему:\n"
