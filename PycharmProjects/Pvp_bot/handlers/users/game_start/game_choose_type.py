@@ -11,8 +11,7 @@ from utils.db_api.create_asyncpg_connection import create_conn
 from utils.db_api.deposit.deposit_repo import DepositRepo
 
 
-@dp.callback_query_handler(choice_game_callback.filter(game=["Крестики-Нолики", "Блек-Джек", "Камень-Ножницы-Бумага"]),
-                           state="*")
+@dp.callback_query_handler(choice_game_callback.filter(game=["Крестики-Нолики", "Блек-Джек", "Камень-Ножницы-Бумага"]))
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await state.update_data(game_name=callback_data.get('game'))
     await state.update_data(user_id=call.from_user.id)
@@ -24,12 +23,10 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
     await call.message.edit_text(
         f"Вы выбрали игру {callback_data.get('game')}\n"
         f"Ваш депозит составляет [{user_deposit[2]}] фишек.\n\n"
-
         f"Выберите интересующий вас тип игры:\n"
         f"  *Случайный противник - вам будет подобран случайный оппонент.\n"
         f"  *Играть с другом - вы получите уникальный ИД который вы должны будете передать вашему другу.\n\n"
         f"Для управления нажмите на кнопки в меню.",
         parse_mode=types.ParseMode.HTML, reply_markup=choose_game_type_menu_keyb([back_button]))
     await conn.close()
-    #await StartGame_State.type.set()
 

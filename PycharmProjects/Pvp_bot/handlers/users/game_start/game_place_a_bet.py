@@ -11,8 +11,6 @@ from utils.db_api.create_asyncpg_connection import create_conn
 from utils.db_api.deposit.deposit_repo import DepositRepo
 from utils.db_api.rates.rates_repo import RatesRepo
 
-# @dp.callback_query_handler(choice_game_type_callback.filter(game_type=["random_player", "play_with_friend"]),
-#                            state=StartGame_State.type)
 @dp.callback_query_handler(choice_game_type_callback.filter(game_type=["random_player", "play_with_friend"]))
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     conn = await create_conn("conn_str")
@@ -27,7 +25,6 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
         f"Выберите наиболее интересующую вас ставку из меню ниже.\n\n"
         f"Для управления депозитом нажмите на кнопки в меню.",
         parse_mode=types.ParseMode.HTML, reply_markup=await rates_repo.get_rates_data())
-    #await StartGame_State.bet.set()
     await conn.close()
 
 
