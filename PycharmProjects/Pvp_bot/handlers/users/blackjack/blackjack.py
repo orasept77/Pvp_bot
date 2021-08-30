@@ -79,7 +79,7 @@ async def blackjack_endgame(game_id):
         await deposit_repo.plus_user_deposit(users_data[0]["id"], rate["value"])
         await deposit_repo.minus_user_deposit(users_data[1]["id"], rate["value"])
 
-        await stat_repo.update_win_balance(users_data[0]["id"], rate["value"])
+        awai    t stat_repo.update_win_balance(users_data[0]["id"], rate["value"])
         await stat_repo.update_lost_balance(users_data[1]["id"], rate["value"])
 
         await stat_repo.update_win_blackjack(users_data[0]["id"])
