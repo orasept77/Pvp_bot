@@ -16,7 +16,7 @@ def connection_settings(conn_str):
 
 
 def db_connection():
-    return connection_settings(
-        "postgres://postgres:123123123@144.91.110.3:5432/postgres"
-        #"postgres://postgres:jwnPbVr263Dk@localhost:5432/PvP_bot_db"
-    )
+    return connection_settings(return_connection_string())
+
+def return_connection_string():
+    return "postgres://postgres:123123123@144.91.110.3:5432/postgres"

@@ -7,6 +7,7 @@ from loader import dp
 
 @dp.message_handler(CommandHelp())
 async def bot_help(message: types.Message):
+
     await message.answer(
         f"У вас возникли вопросы или какие либо технические проблемы?.\n\n"
         f"Свяжитесь с нами и подробно опишите проблему:\n"

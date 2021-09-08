@@ -1,5 +1,5 @@
 from aiogram.dispatcher.storage import FSMContext
-from states.start_game import StartGame_State
+
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandStart
 import aiogram.utils.markdown as fmt

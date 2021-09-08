@@ -5,6 +5,8 @@ from aiogram import types
 from keyboards.inline.blackjack_menu.blackjacj_endgame_menu import blackjack_endgame_menu
 from keyboards.inline.blackjack_menu.blackjack_menu import blackjack_menu
 from loader import bot
+
+from shedulers.timers_sheduler import TimerRepository
 from utils.db_api.blackjack.blackjack_repo import BlackJackRepo
 from utils.db_api.create_asyncpg_connection import create_conn
 from utils.db_api.deposit.deposit_repo import DepositRepo
@@ -12,9 +14,9 @@ from utils.db_api.statistics.statistics_repo import StatisticsRepo
 from utils.db_api.user.user_repo import UserRepo
 
 
-async def start_blackjack(game_id):
+async def start_blackjack(game_id, scheduler):
     conn = await create_conn("conn_str")
-    repo = BlackJackRepo(conn=conn)
+    repo = BlackJackRepo(conn=conn, scheduler=scheduler)
     user_repo = UserRepo(conn=conn)
 
     deck = await repo.make_decks()
@@ -22,6 +24,7 @@ async def start_blackjack(game_id):
 
     players = await repo.get_players_list_to_announce(game_id)
     players_hands = [[], []]
+    player_timers = [[], []]
     users_data = []
     i = 0
     for player in players:
@@ -33,6 +36,8 @@ async def start_blackjack(game_id):
 
     i = 0
     for player in players:
+        player_timers[i] = TimerRepository(scheduler=scheduler, timer_name="blackjack", user_id=player['user_id'], game_id=game_id)
+        await player_timers[i].start_timer()
         await bot.send_message(player['user_id'], parse_mode=types.ParseMode.HTML, text=
         f"Игра начинается!\n"
         f"Игрок 1: {users_data[0]['custom_nick']}\n"
@@ -47,9 +52,9 @@ async def start_blackjack(game_id):
     await conn.close()
 
 
-async def blackjack_endgame(game_id):
+async def blackjack_endgame(game_id, scheduler):
     conn = await create_conn("conn_str")
-    repo = BlackJackRepo(conn=conn)
+    repo = BlackJackRepo(conn=conn, scheduler=scheduler)
     user_repo = UserRepo(conn=conn)
     stat_repo = StatisticsRepo(conn=conn)
     deposit_repo = DepositRepo(conn=conn)
@@ -100,10 +105,12 @@ async def blackjack_endgame(game_id):
 
 
     i = 0
+    player_timers = [[], []]
     for player in players:
         msg = await repo.get_player_message_id(players[i][0], game_id)
         chat_id = await repo.get_player_chat_id(players[i][0], game_id)
-
+        player_timers[i] = TimerRepository(scheduler=scheduler, timer_name="blackjack", user_id=player['user_id'], game_id=game_id)
+        await player_timers[i].remove_timer()
         await repo.set_players_hand(game_id, players[i][0], players_hands[i])
         await bot.edit_message_text(message_id=int(msg[0]), chat_id=chat_id[0], parse_mode=types.ParseMode.HTML, text=
         f"Игра окончена!\n\n"

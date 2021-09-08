@@ -7,7 +7,8 @@ from aiogram.types import CallbackQuery
 from handlers.users.blackjack.blackjack import blackjack_endgame
 from keyboards.inline.blackjack_menu.blackjack_menu import blackjack_menu
 from keyboards.inline.callback_datas import blackjack_callback
-from loader import dp
+from loader import dp, scheduler
+from shedulers.timers_sheduler import TimerRepository
 from utils.db_api.blackjack.blackjack_repo import BlackJackRepo
 from utils.db_api.create_asyncpg_connection import create_conn
 
@@ -15,11 +16,14 @@ from utils.db_api.create_asyncpg_connection import create_conn
 @dp.callback_query_handler(blackjack_callback.filter(what_to_do="more"))
 async def bot_blackjack_give_one_card(call:CallbackQuery, callback_data: dict, state: FSMContext):
     conn = await create_conn("conn_str")
-    repo = BlackJackRepo(conn=conn)
+    repo = BlackJackRepo(conn=conn, scheduler=scheduler)
+
+
     data = await state.get_data()
     game_id = await repo.get_player_game_id(call.from_user.id)
     await state.update_data(game_id=game_id[0])
-
+    timer = TimerRepository(scheduler=scheduler, timer_name="blackjack", user_id=call.from_user.id, game_id=game_id[0])
+    await timer.update_timer()
     data = await state.get_data()
     deck = await repo.get_deck(data.get('game_id'))
     deck = json.loads(deck[0])
@@ -45,14 +49,16 @@ async def bot_blackjack_stop_taking(call:CallbackQuery, callback_data: dict, sta
     data = await state.get_data()
 
     conn = await create_conn("conn_str")
-    repo = BlackJackRepo(conn=conn)
+    repo = BlackJackRepo(conn=conn, scheduler=scheduler)
 
     if not data.get('game_id'):
         game_id = await repo.get_player_game_id(call.from_user.id)
-        print(game_id)
         await state.update_data(game_id=game_id[0])
 
     data = await state.get_data()
+    timer = TimerRepository(scheduler=scheduler, timer_name="blackjack", user_id=call.from_user.id, game_id=data.get('game_id'))
+    await timer.pause_timer()
+
     await repo.set_player_state(data.get('game_id'), call.from_user.id, 'STOP')
 
     player_hand = await repo.get_player_hand(data.get('game_id'), call.from_user.id)
@@ -60,7 +66,7 @@ async def bot_blackjack_stop_taking(call:CallbackQuery, callback_data: dict, sta
 
     states = await repo.get_players_states(data.get('game_id'))
     if states[0][0] == 'STOP' and states[1][0] == 'STOP':
-        await blackjack_endgame(data.get('game_id'))
+        await blackjack_endgame(data.get('game_id'), scheduler=scheduler)
     else:
         msg = await repo.get_player_message_id(call.from_user.id, data.get('game_id'))
         chat_id = await repo.get_player_chat_id(call.from_user.id, data.get('game_id'))
