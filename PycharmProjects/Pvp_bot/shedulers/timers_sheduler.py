@@ -1,5 +1,6 @@
 from apscheduler.triggers.interval import IntervalTrigger
 
+from data.config import DEFAULT_TURN_TIME, BLACKJACK_TURN_TIME, TIKTAKTOE_TURN_TIME, RPC_TURN_TIME, TIMER_TICK
 from handlers.users.blackjack.blackjack_autolose import blackjack_player_auto_loose
 from utils.db_api.blackjack.blackjack_repo import BlackJackRepo
 from utils.db_api.create_asyncpg_connection import create_conn
@@ -12,24 +13,24 @@ class TimerRepository:
         self.user_id = user_id
         self.game_id = game_id
 
-        # Переменная, где хранится функция для работы с ней
+        # Переменная, где хранится таск
         self.job = None
 
         # Как часто обновлять таймер. Для модификации - измените аттрибут "tick"
         # Один раз в <tick> будет срабатывать функция для обновления таймера и таймер будет уменьшаться на <tick>
         # Чем число меньше - тем больше памяти требуется
-        self.tick = 5
+        self.tick = TIMER_TICK
         self.intervalTrigger = IntervalTrigger(seconds=self.tick)
 
         # Стандартное время таймера
-        self.default_time = 90  # seconds
+        self.default_time = DEFAULT_TURN_TIME  # seconds
 
         # Далее локальные переменные
         # Стандартное время на ход для каждой игры. Для кастомизации - изменить после "="
         # Переменные имеют формат "self.default_<timer_name>_time = self.default_time"
-        self.default_blackjack_time = self.default_time
-        self.default_tiktaktoe_time = self.default_time
-        self.default_rps_time = self.default_time
+        self.default_blackjack_time = BLACKJACK_TURN_TIME
+        self.default_tiktaktoe_time = TIKTAKTOE_TURN_TIME
+        self.default_rps_time = RPC_TURN_TIME
 
         # Переменные в которых ведётся отсчёт
         # Переменные имеют формат "self.<timer_name>_time_left = self.default_<timer_name>_time"
@@ -48,8 +49,11 @@ class TimerRepository:
         # Логика автолуза Блекджека
         if self.timer_name == 'blackjack':
             self.blackjack_time_left -= self.tick
-            if self.blackjack_time_left == 0:
-                conn = await create_conn("conn_str")
+            print()
+            print(f"ТАЙМЕР ИГРОКА {self.user_id}")
+            print()
+            if self.blackjack_time_left <= 0:
+                conn = await create_conn()
                 repo = BlackJackRepo(conn=conn)
                 game = repo.get_game(self.game_id)
                 if game is None:
@@ -93,6 +97,7 @@ class TimerRepository:
             self.job = self.scheduler.add_job(self.timer_make_tick, self.intervalTrigger,
                                               id=f'{self.timer_name}_timer')
         else:
+            print(f"Запустил таймер {self.timer_name}_timer_{self.user_id}_{self.game_id}")
             self.job = self.scheduler.add_job(self.timer_make_tick, self.intervalTrigger,
                                               id=f'{self.timer_name}_timer_{self.user_id}_{self.game_id}')
 
@@ -102,6 +107,7 @@ class TimerRepository:
             self.job = self.scheduler.add_job(self.timer_make_tick, self.intervalTrigger,
                                               id=f'{self.timer_name}_timer')
         else:
+            print(f"Таймер {self.user_id} обновлён.")
             self.scheduler.remove_job(f'{self.timer_name}_timer_{self.user_id}_{self.game_id}')
             self.job = self.scheduler.add_job(self.timer_make_tick, self.intervalTrigger,
                                               id=f'{self.timer_name}_timer_{self.user_id}_{self.game_id}')
@@ -110,16 +116,19 @@ class TimerRepository:
         if self.user_id is None:
             self.scheduler.pause_job(f'{self.timer_name}_timer')
         else:
+            print(f"Таймер {self.user_id} поставлен на паузу.")
             self.scheduler.pause_job(f'{self.timer_name}_timer_{self.user_id}_{self.game_id}')
 
     async def resume_timer(self):
         if self.user_id is None:
             self.scheduler.resume_job(f'{self.timer_name}_timer')
         else:
+            print(f"Таймер {self.user_id} снят с паузы.")
             self.scheduler.resume_job(f'{self.timer_name}_timer_{self.user_id}_{self.game_id}')
 
     async def remove_timer(self):
         if self.user_id is None:
             self.scheduler.remove_job(f'{self.timer_name}_timer')
         else:
+            print(f"Таймер {self.user_id} удалён.")
             self.scheduler.remove_job(f'{self.timer_name}_timer_{self.user_id}_{self.game_id}')

@@ -17,7 +17,7 @@ from utils.db_api.user.user_repo import UserRepo
 
 @dp.callback_query_handler(account_main_callback.filter(enter="true"), state="*")
 async def bot_account_main(call:CallbackQuery):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     user_repo = UserRepo(conn=conn)
     deposit_repo = DepositRepo(conn=conn)
     user = await user_repo.get_user(call.from_user.id)
@@ -44,7 +44,7 @@ async def bot_account_main(call:CallbackQuery):
 
 @dp.callback_query_handler(account_change_nickname_cb.filter(change="yes"), state="*")
 async def bot_account_change_nickname_question(call:CallbackQuery):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     user_repo = UserRepo(conn=conn)
     user = await user_repo.get_user(call.from_user.id)
     if user:
@@ -59,7 +59,7 @@ async def bot_account_change_nickname_question(call:CallbackQuery):
 
 @dp.callback_query_handler(account_change_nickname_callback.filter(button="yes"), state="*")
 async def bot_account_change_nickname(call:CallbackQuery, state: FSMContext):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     user_repo = UserRepo(conn=conn)
     user = await user_repo.get_user(call.from_user.id)
     await state.update_data(last_message_id=call.message.message_id)
@@ -75,7 +75,7 @@ async def bot_account_change_nickname(call:CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state=AccountChangeNichname.typing)
 async def bot_account_change_nickname_done(message:Message, state: FSMContext):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     user_repo = UserRepo(conn=conn)
     user = await user_repo.get_user(message.from_user.id)
     if user:

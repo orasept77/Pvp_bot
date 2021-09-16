@@ -16,6 +16,10 @@ class DepositRepo:
         sql = """UPDATE deposits SET balance = balance - $2 where user_id = $1"""
         return await self.conn.fetchrow(sql, user_id, balance)
 
+    async def liqpay_deposit(self, user_id, balance):
+        sql = """UPDATE deposits SET balance = balance + $2 where user_id = $1"""
+        return await self.conn.fetchrow(sql, user_id, balance)
+
     async def get_user_deposit(self, user_id):
         sql = """select * from deposits where user_id = $1"""
         return await self.conn.fetchrow(sql, user_id)

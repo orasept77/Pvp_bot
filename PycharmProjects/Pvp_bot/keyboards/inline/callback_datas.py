@@ -15,7 +15,7 @@ account_change_nickname_cb = CallbackData("nickname", "change")
 account_change_nickname_callback = CallbackData("change_nickname", "button")
 
 support_callback = CallbackData("support", "to_do")
-
+support_task_callback = CallbackData("support_task", "type")
 deposit_main_callback = CallbackData("deposit_menu", "what_to_do")
 deposit_deposit_type_callback = CallbackData("deposit", "type")
 deposit_deposit_amount_callback = CallbackData("deposit_amount", "amount")

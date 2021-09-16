@@ -31,5 +31,5 @@ class RatesRepo:
             keyboard.append([InlineKeyboardButton(text=f"{bet[1]}",
                                                   callback_data=make_a_bet_callback.new(id=bet[0], bet=f"{bet[1]}"))])
         keyboard.append([InlineKeyboardButton(text="💰   Депозит   💰", callback_data=main_menu_callback.new(menu_choice="deposit")), ])
-        keyboard.append([InlineKeyboardButton(text="❌   Отмена   ❌", callback_data=cancel_callback.new(status="cancel")), ])
+        keyboard.append([InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))])
         return InlineKeyboardMarkup(inline_keyboard=keyboard, resize_keyboard=True, )

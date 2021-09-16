@@ -3,7 +3,6 @@ from handlers.tiktaktoe.models.cell import Cell
 
 
 def check_winner(cells: List[Cell]):
-    print([i.user_id for i in cells])
     if cells[0].user_id == cells[4].user_id == cells[8].user_id != None:
         return (True, cells[0].user_id)
     if cells[2].user_id == cells[4].user_id == cells[6].user_id != None:

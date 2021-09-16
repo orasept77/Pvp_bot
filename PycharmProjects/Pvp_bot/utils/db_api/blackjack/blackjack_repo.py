@@ -6,6 +6,7 @@ from asyncpg.connection import Connection
 import numpy as np
 import random
 
+from data.config import BLACKJACK_IS_DEALER_ENABLED
 from keyboards.inline.blackjack_menu.blackjacj_endgame_menu import blackjack_autoloose_menu
 from loader import bot
 from utils.db_api.deposit.deposit_repo import DepositRepo
@@ -117,6 +118,11 @@ class BlackJackRepo:
         if await self.total_up(hand) > 21:
             return True
 
+    # Дилер добирает карты, если сумма его очков меньше 17ти
+    async def dealer_take_card_if_totalup_less_17(self, deck, dealer_hand):
+        while await self.total_up(dealer_hand) < 17:
+            dealer_hand.append(deck.pop(0))
+
     # Сравнение рук игроков
     async def compare_players_hands(self, player_one_hand, player_two_hand):
         if await self.total_up(player_one_hand) > await self.total_up(player_two_hand) and await self.total_up(
@@ -150,9 +156,101 @@ class BlackJackRepo:
             # print('UNEXPECTED_RESULT')
             return 'UNEXPECTED_RESULT'
 
+    # Сравнение рук игроков и дилера
+    async def compare_players_with_dealer_hands(self, dealer_hand, player_one_hand, player_two_hand, result):
+        if result == 'player_one_won' and await self.more_than_21(dealer_hand):
+            # print('игрок 1 выиграл, и у дилера больше 21')
+            return 'player_one_won'
+        elif result == 'player_one_won' and await self.total_up(dealer_hand) <= 21 and await self.total_up(
+                dealer_hand) < await self.total_up(
+                player_one_hand):
+            # print('у игрока 1 больше чем у дилера, и у дилера меньше 21')
+            return 'player_one_won'
+        elif result == 'player_one_won' and await self.total_up(dealer_hand) <= 21 and await self.total_up(
+                dealer_hand) > await self.total_up(
+                player_one_hand):
+            # print('у игрока 1 меньше чем у дилера, и у дилера меньше 21')
+            return 'dealer_won'
+        elif result == 'player_one_won' and await self.total_up(dealer_hand) <= 21 and await self.total_up(
+                dealer_hand) == await self.total_up(
+                player_one_hand):
+            # print('у игрока 1 и дилера одинаковый результат')
+            return 'draw'
+
+        elif result == 'player_two_won' and await self.more_than_21(dealer_hand):
+            # print('игрок 2 выиграл, и у дилера больше 21')
+            return 'player_two_won'
+        elif result == 'player_two_won' and await self.total_up(dealer_hand) <= 21 and await self.total_up(
+                dealer_hand) < await self.total_up(
+                player_two_hand):
+            # print('у игрока 2 больше чем у дилера, и у дилера меньше 21')
+            return 'player_two_won'
+        elif result == 'player_two_won' and await self.total_up(dealer_hand) <= 21 and await self.total_up(
+                dealer_hand) > await self.total_up(
+                player_two_hand):
+            # print('у игрока 2 меньше чем у дилера, и у дилера меньше 21')
+            return 'dealer_won'
+        elif result == 'player_two_won' and await self.total_up(dealer_hand) <= 21 and await self.total_up(
+                dealer_hand) == await self.total_up(
+                player_two_hand):
+            # print('у игрока 2 и дилера одинаковый результат')
+            return 'draw'
+
+        elif result == 'draw_more_21' and await self.total_up(dealer_hand) <= 21:
+            # print('у игроков больше 21, а у дилера меньше 21')
+            return 'dealer_won'
+        elif result == 'draw_more_21' and await self.more_than_21(dealer_hand):
+            # print('у игроков и у дилера больше 21')
+            return 'draw'
+
+        elif result == 'draw' and await self.more_than_21(dealer_hand):
+            # print('у игроков одинаковое кол-во очков, а у дилера больше 21')
+            return 'draw'
+        elif result == 'draw' and await self.total_up(player_one_hand) > await self.total_up(
+                dealer_hand) and await self.total_up(dealer_hand) <= 21:
+            # print('у игроков одинаковое кол-во очков и больше чем у дилера, а у дилера меньше 21')
+            return 'draw'
+        elif result == 'draw' and await self.total_up(player_one_hand) < await self.total_up(
+                dealer_hand) and await self.total_up(dealer_hand) <= 21:
+            # print('у игроков одинаковое кол-во очков но меньше чем у дилера, а у дилера меньше 21')
+            return 'dealer_won'
+        elif result == 'draw' and await self.total_up(player_one_hand) == await self.total_up(dealer_hand):
+            # print('у всех одинаковое количество очков')
+            return 'draw'
+
+    async def count_player_cards(self, game_id, user_id):
+        sql = 'SELECT hand FROM blackjack_game_user WHERE game_id = $1 AND user_id = $2'
+        res = await self.conn.fetchrow(sql, game_id, user_id)
+        return len(res['hand'])
+
+    async def get_player_turn(self, game_id):
+        sql = 'SELECT user_turn FROM blackjack_game WHERE id = $1'
+        res = await self.conn.fetchrow(sql, game_id)
+        return res
+
+    async def set_player_turn(self, game_id, user_id):
+        sql = 'UPDATE blackjack_game SET user_turn = $1 WHERE id = $2'
+        res = await self.conn.fetchrow(sql, int(user_id), int(game_id))
+        return res
+
+    async def get_dealer_hand(self, game_id):
+        sql = 'SELECT hand FROM blackjack_game_dealer WHERE game_id = $1'
+        res = await self.conn.fetchrow(sql, game_id)
+        return res
+
+    async def set_dealer_hand(self, game_id, hand):
+        sql = 'UPDATE blackjack_game_dealer SET hand = $1 WHERE game_id = $2'
+        res = await self.conn.fetch(sql, json.dumps(hand), game_id)
+        return res
+
     async def create_game(self, rates_id):
-        create_game_query = 'WITH game AS (INSERT INTO blackjack_game(rates_id) VALUES ($1) RETURNING id) SELECT id FROM game'
-        return await self.conn.fetchrow(create_game_query, int(rates_id))
+        create_game_query = 'WITH game AS (INSERT INTO blackjack_game (rates_id) VALUES ($1) RETURNING id) SELECT id FROM game'
+        game = await self.conn.fetchrow(create_game_query, int(rates_id))
+
+        if BLACKJACK_IS_DEALER_ENABLED is True:
+            create_game_query = 'INSERT INTO blackjack_game_dealer (game_id) VALUES ($1)'
+            await self.conn.fetchrow(create_game_query, game[0])
+        return game
 
     async def find_lobby(self, rates_id):
         find_lobby_query = 'SELECT * FROM blackjack_lobby WHERE rates_id = $1'
@@ -217,6 +315,11 @@ class BlackJackRepo:
         res = await self.conn.fetch(sql, game_id)
         return res
 
+    async def get_player_states(self, game_id, user_id):
+        sql = 'SELECT state FROM blackjack_game_user WHERE game_id = $1 AND user_id = $2'
+        res = await self.conn.fetchrow(sql, game_id, user_id)
+        return res
+
     async def get_player_hand(self, game_id, user_id):
         sql = 'SELECT hand FROM blackjack_game_user WHERE game_id = $1 AND user_id = $2'
         res = await self.conn.fetchrow(sql, game_id, user_id)
@@ -262,9 +365,9 @@ class BlackJackRepo:
         res = await self.conn.fetchrow(sql, user_id, game_id, message_id)
         return res
 
-    async def set_player_chat_id(self, user_id, game_id, message_id):
+    async def set_player_chat_id(self, user_id, game_id, chat_id):
         sql = 'UPDATE blackjack_game_user SET chat_id = $3 WHERE user_id = $1 AND game_id = $2'
-        res = await self.conn.fetchrow(sql, user_id, game_id, message_id)
+        res = await self.conn.fetchrow(sql, user_id, game_id, chat_id)
         return res
 
     async def set_deck(self, game_id, deck):

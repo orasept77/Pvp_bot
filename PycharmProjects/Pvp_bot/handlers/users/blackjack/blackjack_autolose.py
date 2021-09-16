@@ -13,7 +13,7 @@ from utils.db_api.user.user_repo import UserRepo
 
 
 async def blackjack_player_auto_loose(player_id):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     looser_data = player_id
     repo = BlackJackRepo(conn=conn)
     game_id = await repo.get_player_game_id(int(player_id))

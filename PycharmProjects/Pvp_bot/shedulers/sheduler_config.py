@@ -4,18 +4,18 @@ from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 # Database URL to connect
-from utils.db_api.create_connection import return_connection_string
+from data.config import MAX_INSTANCES, TIMEZONE
+from utils.db_api.create_asyncpg_connection import return_connection_string
+
 
 class SchedulerRepo:
     def __init__(self):
-        # Максимальное количество работников
-        self.max_workers = 20
         # Максимально количество выполняемых задач одновременно
-        self.max_instances = 10
+        self.max_instances = MAX_INSTANCES
         # Timezone
-        self.timezone = "UTC"
+        self.timezone = TIMEZONE
         # Ссылка на базу данных
-        self.database_url = return_connection_string()
+        #self.database_url = await return_connection_string()
 
         self.scheduler = None
 

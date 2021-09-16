@@ -15,7 +15,7 @@ from utils.db_api.deposit.deposit_repo import DepositRepo
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     await state.update_data(game_name=callback_data.get('game'))
     await state.update_data(user_id=call.from_user.id)
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     deposit_repo = DepositRepo(conn=conn)
     user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
     data = await state.get_data()

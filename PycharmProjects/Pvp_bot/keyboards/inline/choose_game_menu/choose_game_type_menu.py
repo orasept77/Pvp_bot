@@ -2,7 +2,7 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from numpy import result_type
 
-from keyboards.inline.callback_datas import choice_game_type_callback, cancel_callback
+from keyboards.inline.callback_datas import choice_game_type_callback, cancel_callback, main_menu_callback
 
 
 def choose_game_type_menu_keyb(sup_buttons: list):
@@ -15,4 +15,6 @@ def choose_game_type_menu_keyb(sup_buttons: list):
                     )))
     for i in sup_buttons:
         markup.add(i)
+    markup.add(InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu")))
+
     return markup

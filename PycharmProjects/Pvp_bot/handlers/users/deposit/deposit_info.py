@@ -13,7 +13,7 @@ from utils.db_api.deposit.deposit_repo import DepositRepo
 
 @dp.callback_query_handler(main_menu_callback.filter(menu_choice="deposit"))
 async def bot_deposit_main(call:CallbackQuery):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     deposit_repo = DepositRepo(conn=conn)
     user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
     await call.message.edit_text(
@@ -28,7 +28,7 @@ async def bot_deposit_main(call:CallbackQuery):
 
 @dp.message_handler(commands=['deposit'])
 async def bot_deposit_main_command(message: types.Message):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     deposit_repo = DepositRepo(conn=conn)
     user_deposit = await deposit_repo.get_user_deposit(message.from_user.id)
     await message.answer(

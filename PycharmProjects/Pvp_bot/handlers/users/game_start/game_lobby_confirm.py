@@ -19,7 +19,7 @@ from states.start_game import StartGame_State
 @dp.callback_query_handler(make_a_bet_callback.filter(bet=["5", "10", "20", "50"]))
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
     #await call.answer(cache_time=60)
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     deposit_repo = DepositRepo(conn=conn)
     user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
     await state.update_data(id=callback_data.get('id'))

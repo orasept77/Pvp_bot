@@ -13,7 +13,7 @@ from utils.db_api.user.user_repo import UserRepo
 
 @dp.callback_query_handler(account_update_data_callback.filter(enter="true"))
 async def bot_account_update_data(call:CallbackQuery):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     user_repo = UserRepo(conn=conn)
     await user_repo.update_user(call.from_user.id, call.from_user.first_name, call.from_user.last_name, call.from_user.username)
     await call.message.edit_text(

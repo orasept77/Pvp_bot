@@ -1,6 +1,13 @@
 from asyncpg import connect
 
-async def create_conn(conn_str: str):
-    conn_str = "postgres://postgres:123123123@144.91.110.3:5432/postgres"
-    #conn_str = "postgres://postgres:jwnPbVr263Dk@localhost:5432/PvP_bot_db"
+from data.config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
+
+
+async def return_connection_string():
+    return f"postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+
+async def create_conn():
+    conn_str = await return_connection_string()
     return await connect(conn_str)
+

@@ -1,5 +1,7 @@
 from aiogram.bot.bot import Bot
 from aiogram.types.message import Message
+
+from data.config import TIKTAKTOE_EMPTY_CELL_EMOJI, TIKTAKTOE_PLAYER_ONE_CELL_EMOJI, TIKTAKTOE_PLAYER_TWO_CELL_EMOJI
 from handlers.tiktaktoe.states.type_private_lobby_id import TikTakToeTypePrivateLobbyId
 from keyboards.inline.main_menu import to_menu
 from aiogram.dispatcher.storage import FSMContext
@@ -22,7 +24,7 @@ async def create_private_lobby(call:CallbackQuery, state: FSMContext):
     data = await state.get_data()
     game_name = data['game_name']
     rates_id = int(data['id'])
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = TikTakToeRepo(conn)
     id = await repo.create_private_lobby(rates_id)
     await repo.add_private_lobby_user(id, call.from_user.id)
@@ -35,7 +37,7 @@ async def create_private_lobby(call:CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(lambda call: call.data==connect_private_tiktaktoe_lobby_cb, state="*")
 async def connect_private_lobby(call:CallbackQuery, state: FSMContext):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = TikTakToeRepo(conn)
     text = "Введите идентификатор игры"
     await TikTakToeTypePrivateLobbyId.typing.set()
@@ -45,7 +47,7 @@ async def connect_private_lobby(call:CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state=TikTakToeTypePrivateLobbyId.typing)
 async def typed_private_lobby_id(message:Message, state: FSMContext):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     data = await state.get_data()
     repo = TikTakToeRepo(conn)
     if message.text.isnumeric():
@@ -74,7 +76,7 @@ async def typed_private_lobby_id(message:Message, state: FSMContext):
 
 @dp.callback_query_handler(cancel_tiktaktoe_private_lobby_cb.filter(), state="*")
 async def cancel_psr_private_lobby(call:CallbackQuery, callback_data: dict, state: FSMContext):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = TikTakToeRepo(conn)
     await repo.delete_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
     await call.message.edit_text("Вы были удалены из лобби", reply_markup=to_menu())
@@ -85,7 +87,7 @@ async def cancel_psr_private_lobby(call:CallbackQuery, callback_data: dict, stat
 
 @dp.callback_query_handler(lambda call: call.data == cancel_search_tiktaktoe_cb, state="*")
 async def cancel_search_tiktaktoe(call:CallbackQuery):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = TikTakToeRepo(conn)
     await repo.delete_users_lobby(call.from_user.id)
     await call.message.edit_text("Отменено", reply_markup=to_menu())
@@ -95,7 +97,7 @@ async def cancel_search_tiktaktoe(call:CallbackQuery):
 
 @dp.callback_query_handler(tiktaktoe_revansh_cb.filter(), state="*")
 async def start_tiktaktoe_revansh(call:CallbackQuery, callback_data: dict, ):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = TikTakToeRepo(conn)
     lobby = await repo.get_private_lobby(int(callback_data['private_lobby_id']))
     players = await repo.get_lobby_private_players(int(callback_data['private_lobby_id']))
@@ -115,7 +117,7 @@ async def start_tiktaktoe_revansh(call:CallbackQuery, callback_data: dict, ):
 
 @dp.callback_query_handler(cancel_tiktaktoe_revansh_cb.filter(), state="*")
 async def tiktaktoe_cancel_revansh(call:CallbackQuery, callback_data: dict, ):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = TikTakToeRepo(conn)
     await repo.delete_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
     await call.answer("Вы вышли из очереди")
@@ -126,7 +128,7 @@ async def tiktaktoe_cancel_revansh(call:CallbackQuery, callback_data: dict, ):
 @dp.callback_query_handler(tiktaktoe_callback.filter(), state="*")
 async def start_tiktaktoe_random(call:CallbackQuery, callback_data: dict, ):
     rates_id = int(callback_data['rates_id'])
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = TikTakToeRepo(conn)
     players = await repo.get_lobby_players(rates_id, call.from_user.id)
     if players:
@@ -150,14 +152,14 @@ async def create_tiktaktoe(repo: TikTakToeRepo, players: list, rates_id: int, me
     round_id = await repo.create_game_round(game_id, players[0]['id'])
     await repo.create_cells(9 , round_id)
     charapters = {}
-    charapters_variants = ["X", "O"]
+    charapters_variants = [TIKTAKTOE_PLAYER_ONE_CELL_EMOJI, TIKTAKTOE_PLAYER_TWO_CELL_EMOJI]
     for i in range(0, len(players)):
         charapters[players[i]['id']] = charapters_variants[i]
         await repo.add_user_to_game(players[i]['id'], game_id, charapters_variants[i])
         await repo.add_user_to_round(players[i]['id'], round_id, charapters_variants[i])
     cells = await repo.get_game_cells(round_id)
     await repo.add_user_steps(9, round_id, user_ids=[i['id'] for i in players])
-    cells = [Cell(cell['id'], "🪑" if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
+    cells = [Cell(cell['id'], TIKTAKTOE_EMPTY_CELL_EMOJI if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
     for i in players:
         message = await message.bot.send_message(chat_id=i['id'], text=f"Раунд 1.\nВы играете за {charapters[i['id']]}", reply_markup=draw(cells))
         await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)
@@ -170,14 +172,14 @@ async def create_round(repo: TikTakToeRepo, players: list, message: Message, gam
     round_id = await repo.create_game_round(game_id, players[0]['id'], round_sequence)
     await repo.create_cells(9 , round_id)
     charapters = {}
-    charapters_variants = ["X", "O"]
+    charapters_variants = [TIKTAKTOE_PLAYER_ONE_CELL_EMOJI, TIKTAKTOE_PLAYER_TWO_CELL_EMOJI]
     for i in range(0, len(players)):
         charapters[players[i]['id']] = charapters_variants[i]
         await repo.add_user_to_game(players[i]['id'], game_id, charapters_variants[i])
         await repo.add_user_to_round(players[i]['id'], round_id, charapters_variants[i])
     cells = await repo.get_game_cells(round_id)
     await repo.add_user_steps(9, round_id, user_ids=[i['id'] for i in players])
-    cells = [Cell(cell['id'], "🪑" if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
+    cells = [Cell(cell['id'], TIKTAKTOE_EMPTY_CELL_EMOJI if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
     for i in players:
         message = await message.bot.send_message(chat_id=i['id'], text=f"Раунд {round_sequence}.\nВы играете за {charapters[i['id']]}", reply_markup=draw(cells))
         await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)
@@ -230,7 +232,7 @@ def check_game_end(rounds):
 
 @dp.callback_query_handler(tiktoktoe_make_step_cb.filter(), state="*")
 async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = TikTakToeRepo(conn)
     cell = await repo.get_round_cell_by_id(int(callback_data['cell_id']))
     round = await repo.get_round_by_id(int(callback_data["round_id"]))
@@ -248,7 +250,7 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
             game_users = await repo.get_round_users(round['id'])
             await repo.take_cell(call.from_user.id, cell['id'])
             cells: list = await repo.get_game_cells(round['id'])
-            cells = [Cell(cell['id'], next((i for i in game_users if i['id'] == cell['user_id']), None)['character'] if cell['user_id'] != None else "🪑" , cell['user_id'], cell['round_id'])  for cell in cells]
+            cells = [Cell(cell['id'], next((i for i in game_users if i['id'] == cell['user_id']), None)['character'] if cell['user_id'] != None else TIKTAKTOE_EMPTY_CELL_EMOJI , cell['user_id'], cell['round_id'])  for cell in cells]
             if_end, round_winner_id = check_winner(cells)
             b_repo = BalanceRepo(conn)
             rates = await b_repo.get_rates_by_id(game['rates_id'])
@@ -280,13 +282,13 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                     round_id = await repo.create_game_round(game['id'], game_users[0]['id'], sequence=round['sequence'] + 1)
                     await repo.create_cells(9 , round_id)
                     charapters = {}
-                    charapters_variants = ["X", "O"]
+                    charapters_variants = [TIKTAKTOE_PLAYER_ONE_CELL_EMOJI, TIKTAKTOE_PLAYER_TWO_CELL_EMOJI]
                     for i in range(0, len(game_users)):
                         charapters[game_users[i]['id']] = charapters_variants[i]
                         await repo.add_user_to_round(game_users[i]['id'], round_id, charapters_variants[i])
                     cells = await repo.get_game_cells(round_id)
                     await repo.add_user_steps(9, round_id, user_ids=[i['id'] for i in game_users])
-                    cells = [Cell(cell['id'], "🪑" if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
+                    cells = [Cell(cell['id'], TIKTAKTOE_EMPTY_CELL_EMOJI if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
                     for i in game_users:
                         message = await call.message.bot.edit_message_text(chat_id=i['id'],message_id=i['message_id'], text=f"Раунд {round['sequence'] + 1}.\nВы играете за {charapters[i['id']]}", reply_markup=draw(cells))
                         await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)"""
@@ -327,13 +329,13 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                         round_id = await repo.create_game_round(game['id'], game_users[0]['id'], sequence=round['sequence'] + 1)
                         await repo.create_cells(9 , round_id)
                         charapters = {}
-                        charapters_variants = ["X", "O"]
+                        charapters_variants = [TIKTAKTOE_PLAYER_ONE_CELL_EMOJI, TIKTAKTOE_PLAYER_TWO_CELL_EMOJI]
                         for i in range(0, len(game_users)):
                             charapters[game_users[i]['id']] = charapters_variants[i]
                             await repo.add_user_to_round(game_users[i]['id'], round_id, charapters_variants[i])
                         cells = await repo.get_game_cells(round_id)
                         await repo.add_user_steps(9, round_id, user_ids=[i['id'] for i in game_users])
-                        cells = [Cell(cell['id'], "🪑" if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
+                        cells = [Cell(cell['id'], TIKTAKTOE_EMPTY_CELL_EMOJI if not cell['user_id'] else charapters[cell['user_id']], cell['user_id'], cell['round_id'])  for cell in cells]
                         for i in game_users:
                             message = await call.message.bot.edit_message_text(chat_id=i['id'],message_id=i['message_id'], text=f"Раунд {round['sequence'] + 1}.\nВы играете за {charapters[i['id']]}", reply_markup=draw(cells))
                             await repo.set_game_round_user_message_id(i['id'], round_id, message.message_id)"""

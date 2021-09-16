@@ -25,4 +25,5 @@ def account_menu_keyb(sup_btns: list):
     for i in sup_btns:
 
         markup.add(i)
+    markup.add(InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu")))
     return markup

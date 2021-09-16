@@ -12,6 +12,9 @@ account_update_info_menu = InlineKeyboardMarkup(
                         enter="true"
                     )),
                 ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
+                ]
             ],
             resize_keyboard=True,
 )

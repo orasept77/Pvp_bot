@@ -1,12 +1,14 @@
+from utils.db_api.create_tables_if_not_exists import create_tables_if_not_exists
+from utils.notify_admins import on_startup_notify
+from utils.set_bot_commands import set_default_commands
+
 
 from aiogram import executor
 from aiogram.dispatcher.dispatcher import Dispatcher
 
 
 from loader import dp
-from handlers.tiktaktoe import tiktaktoe
-from handlers.psr import psr
-import middlewares, filters, handlers
+import middlewares, handlers
 from utils.notify_admins import on_startup_notify
 from utils.set_bot_commands import set_default_commands
 from keyboards.inline.callback_datas import tiktaktoe_callback
@@ -17,6 +19,9 @@ async def on_startup(dispatcher: Dispatcher):
     # Уведомляет про запуск
     await on_startup_notify(dispatcher)
 
+    await create_tables_if_not_exists()
+
 
 if __name__ == '__main__':
+    # Запуск телеграм-бота
     executor.start_polling(dp, on_startup=on_startup)

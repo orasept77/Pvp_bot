@@ -24,6 +24,9 @@ deposit_menu_main = InlineKeyboardMarkup(
                     InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=account_main_callback.new(
                         enter="true"
                     )),
+                ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
                 ]
             ],
             resize_keyboard=True,
@@ -42,6 +45,9 @@ withdrawal_menu = InlineKeyboardMarkup(
                     InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
                         what_to_do="withdrawal"
                     ))
+                ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
                 ]
             ],
             resize_keyboard=True,
@@ -60,6 +66,9 @@ deposit_menu = InlineKeyboardMarkup(
                     InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
                         what_to_do="deposit"
                     )),
+                ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
                 ]
             ],
             resize_keyboard=True,
@@ -98,6 +107,9 @@ deposit_amount_menu = InlineKeyboardMarkup(
                     InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=main_menu_callback.new(
                         menu_choice="deposit"
                     )),
+                ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
                 ]
             ],
             resize_keyboard=True,
@@ -137,6 +149,9 @@ withdrawal_amount_menu = InlineKeyboardMarkup(
                     InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=main_menu_callback.new(
                         menu_choice="deposit"
                     )),
+                ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
                 ]
             ],
             resize_keyboard=True,
@@ -148,6 +163,9 @@ deposit_amount_back_menu = InlineKeyboardMarkup(
                     InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
                         what_to_do="deposit"
                     ))
+                ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
                 ]
             ],
             resize_keyboard=True,
@@ -160,6 +178,9 @@ withdrawal_amount_back_menu = InlineKeyboardMarkup(
                     InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
                         what_to_do="withdrawal"
                     ))
+                ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
                 ]
             ],
             resize_keyboard=True,
@@ -172,6 +193,9 @@ withdrawal_type_back_menu = InlineKeyboardMarkup(
                     InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
                         what_to_do="withdrawal"
                     ))
+                ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
                 ]
             ],
             resize_keyboard=True,
@@ -184,6 +208,9 @@ deposit_type_back_menu = InlineKeyboardMarkup(
                     InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=deposit_main_callback.new(
                         what_to_do="deposit"
                     ))
+                ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
                 ]
             ],
             resize_keyboard=True,

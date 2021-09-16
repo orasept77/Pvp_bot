@@ -31,6 +31,7 @@ def start_psr_keyb(rates_id, user_count, game_type_id):
                             game_type_id=game_type_id
 
             )))
+    markup.add(InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu")))
     return markup
 
 def psr_revansh_keyb(private_lobby_id: int):
@@ -66,6 +67,7 @@ def play_psr_with_friend_keyb():
     markup = InlineKeyboardMarkup(resize_keyboard=True)
     markup.add(InlineKeyboardButton(text="Создать лобби", callback_data=create_private_psr_lobby_cb))
     markup.add(InlineKeyboardButton(text="Подключится", callback_data=connect_private_psr_lobby_cb))
+    markup.add(InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu")))
     return markup
 
 def cancel_psr_type_private_lobby_id_keyb():

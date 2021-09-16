@@ -15,7 +15,7 @@ from utils.db_api.deposit.deposit_repo import DepositRepo
 @dp.callback_query_handler(deposit_main_callback.filter(what_to_do="withdrawal"))
 async def bot_deposit_withdrawal(call:CallbackQuery, state: FSMContext):
     await state.update_data(what_to_do="make_deposit")
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     deposit_repo = DepositRepo(conn=conn)
     user_deposit = await deposit_repo.get_user_deposit(call.from_user.id)
     await call.message.edit_text(
