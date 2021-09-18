@@ -69,7 +69,6 @@ async def bot_blackjack_create_invite_lobby(call: CallbackQuery, callback_data: 
 async def bot_blackjack_start_invite_lobby_1(call:CallbackQuery, state: FSMContext):
     text = "Введите идентификатор игры"
     await BlackJackTypePrivateLobbyId.typing.set()
-    await state.update_data(last_message_id=call.message.message_id)
     await call.message.edit_text(text=text)
 
 

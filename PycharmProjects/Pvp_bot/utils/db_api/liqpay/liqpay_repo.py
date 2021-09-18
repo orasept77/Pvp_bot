@@ -38,7 +38,7 @@ class LiqPayRepo:
     # WITHDRAWALS
     async def create_withdrawal_order(self, user_id, amount):
         sql = """INSERT INTO liqpay_withdrawals (user_id, amount, state ) VALUES ($1, $2, $3) RETURNING id"""
-        return await self.conn.fetchrow(sql, user_id, amount, 'PROCESSING')
+        return await self.conn.fetchrow(sql, user_id, int(amount), 'PROCESSING')
 
     async def withdrawal_get_order_user_id(self, order_id):
         sql = """SELECT user_id FROM liqpay_withdrawals WHERE id = $1"""

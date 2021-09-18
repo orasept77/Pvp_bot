@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sslify import SSLify
 
-from data.config import DEBUG, SECRET_KEY
+from config import DEBUG, SECRET_KEY
 
 webhook_app = Flask(__name__)
 
@@ -14,3 +14,6 @@ else:
 webhook_app.config['SECRET_KEY'] = SECRET_KEY
 webhook_app.config['TESTING'] = DEBUG
 webhook_app.config['DEBUG'] = DEBUG
+
+if __name__ == '__main__':
+    webhook_app.run()

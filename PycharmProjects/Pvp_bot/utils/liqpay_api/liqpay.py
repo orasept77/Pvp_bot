@@ -14,8 +14,8 @@ liqpay = LiqPay(LIQPAY_PUBLICKEY, LIQPAY_PRIVATEKEY)
 async def liqpay_create_deposit_payment(user_id, amount, phone):
     conn = await create_conn()
     repo = LiqPayRepo(conn=conn)
-    order_id = await repo.create_deposit_order(user_id, amount, phone)
-
+    order_id = await repo.create_deposit_order(user_id, int(amount), phone)
+    order_id = order_id['id']
     res = liqpay.api("request", {
         "action": "invoice_bot",
         "version": "3",
@@ -31,67 +31,124 @@ async def liqpay_create_deposit_payment(user_id, amount, phone):
     return res
 
 
-async def liqpay_update_deposit_status(response, order_id):
-    conn = await create_conn()
-    repo = LiqPayRepo(conn=conn)
-    deposit = DepositRepo(conn=conn)
-
-    if response == 'ok':
-        await repo.deposit_order_success(order_id)
-        user_id = await repo.deposit_get_order_user_id(order_id)
-        amount = await repo.deposit_get_order_amount(order_id)
-        await deposit.liqpay_deposit(user_id['user_id'], amount['amount'])
-    elif response == 'error':
-        await repo.deposit_order_not_enough_money(order_id)
-    else:
-        await repo.deposit_order_set_state(order_id, 'UNEXPECTED_ERROR')
-
-    await conn.close()
-    return
+# async def liqpay_update_deposit_status(response, order_id):
+#     conn = await create_conn()
+#     repo = LiqPayRepo(conn=conn)
+#     deposit = DepositRepo(conn=conn)
+#
+#     if response == 'ok':
+#         await repo.deposit_order_success(order_id)
+#         user_id = await repo.deposit_get_order_user_id(order_id)
+#         amount = await repo.deposit_get_order_amount(order_id)
+#         await deposit.liqpay_deposit(user_id['user_id'], amount['amount'])
+#     elif response == 'error':
+#         await repo.deposit_order_not_enough_money(order_id)
+#     else:
+#         await repo.deposit_order_set_state(order_id, 'UNEXPECTED_ERROR')
+#
+#     await conn.close()
+#     return
 
 
 # WITHDRAWALS
-async def liqpay_create_withdrawal_payment(user_id, amount, user_card_number, first_name, last_name):
+async def liqpay_create_withdrawal_payment_by_phone(user_id, amount, user_phone, first_name, last_name):
     conn = await create_conn()
     repo = LiqPayRepo(conn=conn)
     deposit = DepositRepo(conn=conn)
 
-    order_id = await repo.create_withdrawal_order(user_id, amount)
+    order_id = await repo.create_withdrawal_order(user_id, int(amount))
+    order_id = order_id['id']
+    await repo.withdrawal_set_order_payment_type(order_id, "BY_PHONE")
+    await repo.withdrawal_set_order_first_name(order_id, first_name)
+    await repo.withdrawal_set_order_last_name(order_id, last_name)
     res = liqpay.api("request", {
         "action": "p2pcredit",
         "version": "3",
         "amount": str(amount),
         "currency": str(LIQPAY_CURRENCY),
         "order_id": str(order_id),
-        "receiver_card": str(user_card_number).replace(" ", ""),
         "receiver_last_name": str(last_name).replace(" ", ""),
         "receiver_first_name": str(first_name).replace(" ", ""),
         "description": str(LIQPAY_WITHDRAWAL_MESSAGE),
-        "server_url": str(LIQPAY_WITHDRAWAL_URL)
+        "server_url": str(LIQPAY_WITHDRAWAL_URL),
+        "receiver_phone": str(user_phone)
     })
-    await deposit.minus_user_deposit(user_id, amount)
+    await deposit.minus_user_deposit(user_id, int(amount))
     await conn.close()
     return res
 
 
-
-async def liqpay_update_withdrawal_status(response, order_id):
+async def liqpay_create_withdrawal_payment_by_card(user_id, amount, user_card_number, first_name, last_name):
     conn = await create_conn()
     repo = LiqPayRepo(conn=conn)
     deposit = DepositRepo(conn=conn)
 
-    user_id = await repo.withdrawal_get_order_user_id(order_id)
-    amount = await repo.withdrawal_get_order_amount(order_id)
-    if response == 'success':
-        await repo.withdrawal_order_success(order_id)
-    elif response == 'failure':
-        await repo.withdrawal_order_failure(order_id, 'ERROR')
-        await deposit.update_user_deposit(user_id['user_id'], amount['amount'])
-    elif response == 'error':
-        await repo.withdrawal_order_error(order_id)
-        await deposit.update_user_deposit(user_id['user_id'], amount['amount'])
-    else:
-        await repo.withdrawal_order_set_state(order_id, 'UNEXPECTED_ERROR')
-
+    order_id = await repo.create_withdrawal_order(user_id, int(amount))
+    order_id = order_id['id']
+    await repo.withdrawal_set_order_payment_type(order_id, "BY_CARD")
+    await repo.withdrawal_set_order_first_name(order_id, first_name)
+    await repo.withdrawal_set_order_last_name(order_id, last_name)
+    res = liqpay.api("request", {
+        "action": "p2pcredit",
+        "version": "3",
+        "amount": str(amount),
+        "currency": str(LIQPAY_CURRENCY),
+        "order_id": str(order_id),
+        "receiver_last_name": str(last_name).replace(" ", ""),
+        "receiver_first_name": str(first_name).replace(" ", ""),
+        "description": str(LIQPAY_WITHDRAWAL_MESSAGE),
+        "server_url": str(LIQPAY_WITHDRAWAL_URL),
+        "receiver_card": str(user_card_number)
+    })
+    await deposit.minus_user_deposit(user_id, int(amount))
     await conn.close()
-    return
+    return res
+
+
+async def liqpay_create_withdrawal_payment_by_email(user_id, amount, user_email, first_name, last_name):
+    conn = await create_conn()
+    repo = LiqPayRepo(conn=conn)
+    deposit = DepositRepo(conn=conn)
+
+    order_id = await repo.create_withdrawal_order(user_id, int(amount))
+    order_id = order_id['id']
+    await repo.withdrawal_set_order_payment_type(order_id, "BY_EMAIL")
+    await repo.withdrawal_set_order_first_name(order_id, first_name)
+    await repo.withdrawal_set_order_last_name(order_id, last_name)
+    res = liqpay.api("request", {
+        "action": "p2pcredit",
+        "version": "3",
+        "amount": str(amount),
+        "currency": str(LIQPAY_CURRENCY),
+        "order_id": str(order_id),
+        "receiver_last_name": str(last_name).replace(" ", ""),
+        "receiver_first_name": str(first_name).replace(" ", ""),
+        "description": str(LIQPAY_WITHDRAWAL_MESSAGE),
+        "server_url": str(LIQPAY_WITHDRAWAL_URL),
+        "receiver_email": str(user_email),
+        "customer": str(user_id)
+    })
+    await deposit.minus_user_deposit(user_id, int(amount))
+    await conn.close()
+    return res
+
+# async def liqpay_update_withdrawal_status(response, order_id):
+#     conn = await create_conn()
+#     repo = LiqPayRepo(conn=conn)
+#     deposit = DepositRepo(conn=conn)
+#
+#     user_id = await repo.withdrawal_get_order_user_id(order_id)
+#     amount = await repo.withdrawal_get_order_amount(order_id)
+#     if response == 'success':
+#         await repo.withdrawal_order_success(order_id)
+#     elif response == 'failure':
+#         await repo.withdrawal_order_failure(order_id, 'ERROR')
+#         await deposit.update_user_deposit(user_id['user_id'], amount['amount'])
+#     elif response == 'error':
+#         await repo.withdrawal_order_error(order_id)
+#         await deposit.update_user_deposit(user_id['user_id'], amount['amount'])
+#     else:
+#         await repo.withdrawal_order_set_state(order_id, 'UNEXPECTED_ERROR')
+#
+#     await conn.close()
+#     return

@@ -8,6 +8,9 @@ IP = "localhost"  # Тоже str, но для айпи адреса хоста
 # 'True' - Статус, когда приложение в разработке
 DEBUG = True
 
+# Адресс хоста на котором находится сервер
+HOST_URL = "yourhost.com"
+
 # Секретный ключ вашего приложения
 SECRET_KEY = '123123123'
 
@@ -34,10 +37,14 @@ LIQPAY_PRIVATEKEY = ''
 # Публичный ключ
 LIQPAY_PUBLICKEY = ''
 
-# Ссылка на обработчик платежей оплаты (ввода денег)
-LIQPAY_DEPOSIT_URL = ''
-# Ссылка на обработчик платежей для вывода денег
-LIQPAY_WITHDRAWAL_URL = ''
+# # Ссылка на обработчик платежей оплаты (ввода денег)
+# LIQPAY_DEPOSIT_URL = f'{HOST_URL}/webhook_deposits/'
+# # Ссылка на обработчик платежей для вывода денег
+# LIQPAY_WITHDRAWAL_URL = f'{HOST_URL}/webhook_withdrawals/'
+
+LIQPAY_DEPOSIT_URL = f'{HOST_URL}/webhook_deposits/'
+LIQPAY_WITHDRAWAL_URL = f'{HOST_URL}/webhook_withdrawals/'
+
 
 # Валюта
 LIQPAY_CURRENCY = "USD"

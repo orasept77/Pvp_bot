@@ -24,6 +24,10 @@ class DepositRepo:
         sql = """select * from deposits where user_id = $1"""
         return await self.conn.fetchrow(sql, user_id)
 
+    async def get_user_balance(self, user_id):
+        sql = """select balance from deposits where user_id = $1"""
+        return await self.conn.fetchrow(sql, user_id)
+
     async def set_user_deposit(self, user_id, balance):
         sql = """UPDATE deposits SET balance = $2 where user_id = $1"""
         return await self.conn.fetchrow(sql, user_id, balance)
