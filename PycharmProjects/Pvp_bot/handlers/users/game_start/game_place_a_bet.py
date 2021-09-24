@@ -13,7 +13,7 @@ from utils.db_api.rates.rates_repo import RatesRepo
 
 @dp.callback_query_handler(choice_game_type_callback.filter(game_type=["random_player", "play_with_friend"]))
 async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     deposit_repo = DepositRepo(conn=conn)
     rates_repo = RatesRepo(conn=conn)
     user_balance = await deposit_repo.get_user_deposit(call.from_user.id)
@@ -31,7 +31,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
 # @dp.callback_query_handler(choice_game_type_callback.filter(game_type=["connect_to_the_friend"]),
 #                            state=StartGame_State.type)
 # async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMContext):
-#     conn = await create_conn("conn_str")
+#     conn = await create_conn()
 #     deposit_repo = DepositRepo(conn=conn)
 #     user_balance = await deposit_repo.get_user_deposit(call.from_user.id)
 #     await state.update_data(type=callback_data.get('game_type'))

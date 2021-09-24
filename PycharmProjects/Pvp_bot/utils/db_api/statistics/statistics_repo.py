@@ -7,6 +7,7 @@ from keyboards.inline.callback_datas import make_a_bet_callback, main_menu_callb
 class StatisticsRepo:
     def __init__(self, conn: Connection):
         self.conn = conn
+        self.commission = 6
 
     async def get_stat(self, user_id):
         sql = 'SELECT * FROM statistics WHERE id = $1'
@@ -134,6 +135,7 @@ class StatisticsRepo:
         return res
 
     async def update_win_balance(self, user_id, balance):
+        balance = (balance * 2) - ((balance / 100) * self.commission)
         sql = 'UPDATE statistics SET win_balance = win_balance + $2 WHERE user_id = $1'
         res = await self.conn.fetch(sql, user_id, balance)
         return res

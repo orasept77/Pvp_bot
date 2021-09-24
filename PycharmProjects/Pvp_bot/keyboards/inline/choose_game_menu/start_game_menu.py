@@ -13,6 +13,9 @@ start_blackjack_menu = InlineKeyboardMarkup(
                 ],
                 [
                     InlineKeyboardButton(text="❌    Отмена    ❌", callback_data=main_menu_callback.new(menu_choice="main_menu")),
+                ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
                 ]
             ],
             resize_keyboard=True,
@@ -22,6 +25,7 @@ def play_blackjack_with_friend_keyb():
     markup = InlineKeyboardMarkup(resize_keyboard=True)
     markup.add(InlineKeyboardButton(text="Создать лобби", callback_data=create_private_blackjack_lobby_cb.new(create_lobby="true")))
     markup.add(InlineKeyboardButton(text="Подключиться", callback_data=connect_private_blackjack_lobby_cb.new(connect_lobby="true")))
+    markup.add(InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu")))
     return markup
 
 invite_blackjack_menu = InlineKeyboardMarkup(

@@ -15,12 +15,20 @@ account_change_nickname_cb = CallbackData("nickname", "change")
 account_change_nickname_callback = CallbackData("change_nickname", "button")
 
 support_callback = CallbackData("support", "to_do")
-
+support_task_callback = CallbackData("support_task", "type")
 deposit_main_callback = CallbackData("deposit_menu", "what_to_do")
 deposit_deposit_type_callback = CallbackData("deposit", "type")
 deposit_deposit_amount_callback = CallbackData("deposit_amount", "amount")
 deposit_withdrawal_type_callback = CallbackData("withdrawal", "type")
 deposit_withdrawal_amount_callback = CallbackData("withdrawal_amount", "amount")
+
+liqpay_deposit_start_callback = CallbackData("liqpay_deposit_start_cb", "start_deposit_liqpay_dialog")
+liqpay_deposit_data_is_correct_callback = CallbackData("liqpay_deposit_data_is_correct_callback", "correct")
+liqpay_deposit_stop_callback = CallbackData("liqpay_deposit_stop", "stop")
+
+liqpay_withdrawal_starting_dialogue_callback = CallbackData("liqpay_withdrawal_starting_dialogue", "start_withdrawal_dialogue")
+liqpay_withdrawal_data_is_correct_callback = CallbackData("liqpay_withdrawal_data_is_correct", "correct")
+liqpay_withdrawal_stop_callback = CallbackData("liqpay_withdrawal_stop_callback", "stop")
 
 create_lobby_callback = CallbackData("game_name", "lobby_game_name")
 create_private_blackjack_lobby_cb = CallbackData("create_blackjack_lobby", "create_lobby")

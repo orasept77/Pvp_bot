@@ -1,9 +1,7 @@
 # Choice game menu
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from keyboards.inline.callback_datas import choice_game_callback, cancel_callback
-
-
+from keyboards.inline.callback_datas import choice_game_callback, cancel_callback, main_menu_callback
 
 
 def game_choice_menu_keyb(support_buttons: list):
@@ -19,4 +17,6 @@ def game_choice_menu_keyb(support_buttons: list):
                     )))
     for btn in support_buttons:
         markup.add(btn)
+    markup.add(InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu")))
+
     return markup

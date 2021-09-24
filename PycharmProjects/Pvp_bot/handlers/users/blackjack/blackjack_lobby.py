@@ -6,21 +6,21 @@ from aiogram.types import CallbackQuery, Message
 
 from handlers.users.blackjack.blackjack import start_blackjack
 from keyboards.inline.callback_datas import create_lobby_callback, blackjack_endgame_callback, \
-    leave_lobby_callback, invite_bj_lobby_callback, leave_invite_lobby_callback, create_private_blackjack_lobby_cb, \
+    leave_lobby_callback, leave_invite_lobby_callback, create_private_blackjack_lobby_cb, \
     connect_private_blackjack_lobby_cb
 from keyboards.inline.choose_game_menu.leave_lobby import leave_lobby_menu, leave_invite_lobby_menu
 from keyboards.inline.main_menu import to_menu
-from loader import dp
+from loader import dp, scheduler
 from states.blackjack_private_lobby import BlackJackTypePrivateLobbyId
 from utils.db_api.blackjack.blackjack_repo import BlackJackRepo
 from utils.db_api.create_asyncpg_connection import create_conn
 
 
 @dp.callback_query_handler(create_lobby_callback.filter(lobby_game_name="blackjack"))
-async def bot_blackjack_create_lobby(call:CallbackQuery, callback_data: dict, state: FSMContext):
+async def bot_blackjack_create_lobby(call: CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
-    conn = await create_conn("conn_str")
-    repo = BlackJackRepo(conn=conn)
+    conn = await create_conn()
+    repo = BlackJackRepo(conn=conn, scheduler=scheduler)
     data = await state.get_data()
     if data.get('game_id'):
         await repo.delete_game_blackjack(data.get('game_id'))
@@ -42,14 +42,14 @@ async def bot_blackjack_create_lobby(call:CallbackQuery, callback_data: dict, st
         await repo.connect_player(call.from_user.id, game[0], call.message.chat.id)
         await repo.connect_player(lobby[0], game[0], lobby[2])
         await repo.delete_lobby_blackjack(lobby[0])
-        await start_blackjack(game[0])
+        await start_blackjack(game[0], scheduler)
 
 
 @dp.callback_query_handler(create_private_blackjack_lobby_cb.filter(create_lobby="true"))
-async def bot_blackjack_create_invite_lobby(call:CallbackQuery, callback_data: dict, state: FSMContext):
+async def bot_blackjack_create_invite_lobby(call: CallbackQuery, callback_data: dict, state: FSMContext):
     await call.answer(cache_time=60)
-    conn = await create_conn("conn_str")
-    repo = BlackJackRepo(conn=conn)
+    conn = await create_conn()
+    repo = BlackJackRepo(conn=conn, scheduler=scheduler)
     data = await state.get_data()
     if data.get('game_id'):
         await repo.delete_game_blackjack(data.get('game_id'))
@@ -69,15 +69,14 @@ async def bot_blackjack_create_invite_lobby(call:CallbackQuery, callback_data: d
 async def bot_blackjack_start_invite_lobby_1(call:CallbackQuery, state: FSMContext):
     text = "Введите идентификатор игры"
     await BlackJackTypePrivateLobbyId.typing.set()
-    await state.update_data(last_message_id=call.message.message_id)
     await call.message.edit_text(text=text)
 
 
 @dp.message_handler(state=BlackJackTypePrivateLobbyId.typing)
 async def bot_blackjack_start_invite_lobby(message:Message, state: FSMContext):
     if message.text.isnumeric():
-        conn = await create_conn("conn_str")
-        repo = BlackJackRepo(conn=conn)
+        conn = await create_conn()
+        repo = BlackJackRepo(conn=conn, scheduler=scheduler)
         lobby = await repo.find_invited_lobby(int(message.text))
         if not lobby:
             text = f"Лобби больше не существует или вы ввели неверный номер лобби.\n Для выхода в главное меню используйте меню ниже"
@@ -105,7 +104,7 @@ async def bot_blackjack_start_invite_lobby(message:Message, state: FSMContext):
             await repo.delete_invite_lobby_by_id(lobby[0])
             await state.update_data(game_id=game[0])
             await state.update_data(user_id=int(message.from_user.id))
-            await start_blackjack(game[0])
+            await start_blackjack(game[0], scheduler)
             await state.finish()
             await conn.close()
     else:
@@ -118,8 +117,8 @@ async def bot_blackjack_start_invite_lobby(message:Message, state: FSMContext):
 @dp.callback_query_handler(blackjack_endgame_callback.filter(result="revenge"))
 async def bot_blackjack_revenge(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
-    conn = await create_conn("conn_str")
-    repo = BlackJackRepo(conn=conn)
+    conn = await create_conn()
+    repo = BlackJackRepo(conn=conn, scheduler=scheduler)
     data = await state.get_data()
     await repo.set_player_state(data.get('game_id'), call.from_user.id, 'REVENGE')
     states = await repo.get_players_states(data.get('game_id'))
@@ -132,7 +131,7 @@ async def bot_blackjack_revenge(call:CallbackQuery, state: FSMContext):
             f"Вы приняли предложение реванша.\n",
             parse_mode=types.ParseMode.HTML)
         await repo.create_revenge_game(data.get('game_id'))
-        await start_blackjack(data.get('game_id'))
+        await start_blackjack(data.get('game_id'), scheduler)
     else:
         await call.message.edit_text(
             f"Вы отправили предложение реванша. Ожидаем решения игрока.\n",
@@ -158,8 +157,8 @@ async def bot_blackjack_revenge(call:CallbackQuery, state: FSMContext):
 async def bot_blackjack_revenge_cancel(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
 
-    conn = await create_conn("conn_str")
-    repo = BlackJackRepo(conn=conn)
+    conn = await create_conn()
+    repo = BlackJackRepo(conn=conn, scheduler=scheduler)
     data = await state.get_data()
     await repo.delete_game_blackjack(data.get('game_id'))
 
@@ -172,8 +171,8 @@ async def bot_blackjack_revenge_cancel(call:CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(leave_lobby_callback.filter(leave="yes"))
 async def bot_blackjack_lobby_leave(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
-    conn = await create_conn("conn_str")
-    repo = BlackJackRepo(conn=conn)
+    conn = await create_conn()
+    repo = BlackJackRepo(conn=conn, scheduler=scheduler)
     await repo.delete_lobby_blackjack(call.from_user.id)
     await call.message.edit_text(
         f"Вы отменили поиск игры.\n",
@@ -185,8 +184,8 @@ async def bot_blackjack_lobby_leave(call:CallbackQuery, state: FSMContext):
 @dp.callback_query_handler(leave_invite_lobby_callback.filter(leave="true"))
 async def bot_blackjack_lobby_invite_leave(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
-    conn = await create_conn("conn_str")
-    repo = BlackJackRepo(conn=conn)
+    conn = await create_conn()
+    repo = BlackJackRepo(conn=conn, scheduler=scheduler)
     await repo.delete_invite_lobby_by_userid(call.from_user.id)
     await call.message.edit_text(
         f"Лобби было закрыто.\n",
@@ -198,8 +197,8 @@ async def bot_blackjack_lobby_invite_leave(call:CallbackQuery, state: FSMContext
 @dp.callback_query_handler(blackjack_endgame_callback.filter(result="leave"))
 async def bot_blackjack_game_leave(call:CallbackQuery, state: FSMContext):
     await call.answer(cache_time=60)
-    conn = await create_conn("conn_str")
-    repo = BlackJackRepo(conn=conn)
+    conn = await create_conn()
+    repo = BlackJackRepo(conn=conn, scheduler=scheduler)
     data = await state.get_data()
     await repo.delete_game_blackjack(data.get('game_id'))
     await state.update_data(game_id=None)

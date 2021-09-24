@@ -20,7 +20,7 @@ from loader import dp
 
 """@dp.callback_query_handler(lambda call: call.data==create_private_psr_lobby_cb, state="*")
 async def create_private_lobby(call:CallbackQuery, state: FSMContext):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = PSRRepo(conn)
     game_types = await repo.get_game_types()
     text = "Выберите режим игры"
@@ -29,7 +29,7 @@ async def create_private_lobby(call:CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(lambda call: call.data==create_private_psr_lobby_cb, state="*")
 async def create_private_lobby(call:CallbackQuery, state: FSMContext):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = PSRRepo(conn)
     data = await state.get_data()
     id = await repo.create_private_lobby(2, 1, int(data.get("id")))
@@ -40,7 +40,7 @@ async def create_private_lobby(call:CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(lambda call: call.data==connect_private_psr_lobby_cb, state="*")
 async def connect_private_lobby(call:CallbackQuery, state: FSMContext):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = PSRRepo(conn)
     text = "Введите идентификатор игры"
     await TypePrivateLobbyId.typing.set()
@@ -51,7 +51,7 @@ async def connect_private_lobby(call:CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state=TypePrivateLobbyId.typing)
 async def typed_private_lobby_id(message:Message, state: FSMContext):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     data = await state.get_data()
     repo = PSRRepo(conn)
     if message.text.isnumeric():
@@ -80,7 +80,7 @@ async def typed_private_lobby_id(message:Message, state: FSMContext):
 
 @dp.callback_query_handler(cancel_psr_private_lobby_cb.filter(), state="*")
 async def cancel_psr_private_lobby(call:CallbackQuery, callback_data: dict, state: FSMContext):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = PSRRepo(conn)
     await repo.delete_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
     await call.message.edit_text("Вы были удалены из лобби", reply_markup=to_menu())
@@ -106,7 +106,7 @@ async def psr_confirm_screen(call:CallbackQuery, callback_data: dict, state: FSM
     if data.get('type') == 'random_player':
         await call.message.edit_text(text=text, reply_markup=start_psr_keyb(rates_id, user_count, game_type_id))
     elif data.get('type') == 'play_with_friend':
-        conn = await create_conn("conn_str")
+        conn = await create_conn()
         repo = PSRRepo(conn)
         id = await repo.create_private_lobby(user_count, game_type_id, rates_id)
         await repo.add_private_lobby_user(id, call.from_user.id)
@@ -115,7 +115,7 @@ async def psr_confirm_screen(call:CallbackQuery, callback_data: dict, state: FSM
 
 @dp.callback_query_handler(psr_revansh_cb.filter(), state="*")
 async def start_psr_revansh(call:CallbackQuery, callback_data: dict, ):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = PSRRepo(conn)
     lobby = await repo.get_private_lobby(int(callback_data['private_lobby_id']))
     players = await repo.get_lobby_private_players(int(callback_data['private_lobby_id']))
@@ -135,7 +135,7 @@ async def start_psr_revansh(call:CallbackQuery, callback_data: dict, ):
 
 @dp.callback_query_handler(cancel_psr_revansh_cb.filter(), state="*")
 async def psr_cancel_revansh(call:CallbackQuery, callback_data: dict, ):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = PSRRepo(conn)
     await repo.delete_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
     await call.answer("Вы вышли из очереди")
@@ -145,7 +145,7 @@ async def psr_cancel_revansh(call:CallbackQuery, callback_data: dict, ):
 @dp.callback_query_handler(psr_cb.filter(), state="*")
 async def start_psr_random(call:CallbackQuery, callback_data: dict, ):
     rates_id = int(callback_data['rates_id'])
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     user_repo = UserRepo(conn)
     user = await user_repo.get_user(call.from_user.id)
     repo = PSRRepo(conn)
@@ -163,7 +163,7 @@ async def start_psr_random(call:CallbackQuery, callback_data: dict, ):
 
 @dp.callback_query_handler(lambda call: call.data == cancel_psr_randon_cb, state="*")
 async def cancel_psr_random(call:CallbackQuery ):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = PSRRepo(conn)
     await repo.delete_users_lobby(call.from_user.id)
     await call.message.edit_text(text="Поиск игры отменен", reply_markup=to_menu())
@@ -188,7 +188,7 @@ async def create_psr(repo: PSRRepo, rates_id, user_count, players, game_type_id,
 
 @dp.callback_query_handler(set_psr_variant_cb.filter(), state="*")
 async def prs_variant_user(call:CallbackQuery, callback_data: dict, ):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     repo = PSRRepo(conn)
     game = await repo.get_game_by_id(int(callback_data['psr_id']))
     if game and not game['is_end']:

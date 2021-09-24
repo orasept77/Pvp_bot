@@ -21,6 +21,7 @@ def start_tiktaktoe(rates_id):
     markup = InlineKeyboardMarkup(resize_keyboard=True)
     markup.add(InlineKeyboardButton(text="Старт", callback_data=tiktaktoe_callback.new(rates_id=rates_id)))
     markup.add(InlineKeyboardButton(text="Отмена", callback_data=cancel_callback.new(status="cancel")))
+    markup.add(InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu")))
     return markup
 
 
@@ -51,6 +52,7 @@ def play_tiktaktoe_with_friend_keyb():
     markup = InlineKeyboardMarkup(resize_keyboard=True)
     markup.add(InlineKeyboardButton(text="Создать лобби", callback_data=create_private_tiktaktoe_lobby_cb))
     markup.add(InlineKeyboardButton(text="Подключится", callback_data=connect_private_tiktaktoe_lobby_cb))
+    markup.add(InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu")))
     return markup
 
 

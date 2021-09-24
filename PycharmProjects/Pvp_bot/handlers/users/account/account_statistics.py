@@ -14,7 +14,7 @@ from utils.db_api.user.user_repo import UserRepo
 
 @dp.callback_query_handler(account_statistics_callback.filter(enter="true"))
 async def bot_account_statistics(call:CallbackQuery):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     stat_repo = StatisticsRepo(conn=conn)
     blackjack_games = await stat_repo.get_games_blackjack(call.from_user.id)
     blackjack_wins = await stat_repo.get_win_blackjack(call.from_user.id)
@@ -40,7 +40,7 @@ async def bot_account_statistics(call:CallbackQuery):
 
 @dp.callback_query_handler(account_statistics_top_callback.filter(type="deposit_win"))
 async def bot_account_statistics_top_10_by_points(call:CallbackQuery):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     stat_repo = StatisticsRepo(conn=conn)
     user_top = await stat_repo.get_user_position_balance(call.from_user.id)
     tops = await stat_repo.get_top10_win_balance()
@@ -56,7 +56,7 @@ async def bot_account_statistics_top_10_by_points(call:CallbackQuery):
 
 @dp.callback_query_handler(account_statistics_top_callback.filter(type="blackjack"))
 async def bot_account_statistics_top_10_by_win_blackjack(call:CallbackQuery):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     stat_repo = StatisticsRepo(conn=conn)
     user_top = await stat_repo.get_user_position_blackjack(call.from_user.id)
     tops = await stat_repo.get_top10_win_blackjack()
@@ -72,7 +72,7 @@ async def bot_account_statistics_top_10_by_win_blackjack(call:CallbackQuery):
 
 @dp.callback_query_handler(account_statistics_top_callback.filter(type="tiktaktoe"))
 async def bot_account_statistics_top_10_by_win_tiktaktoe(call:CallbackQuery):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     stat_repo = StatisticsRepo(conn=conn)
     user_top = await stat_repo.get_user_position_tiktaktoe(call.from_user.id)
     tops = await stat_repo.get_top10_win_tiktaktoe()
@@ -88,7 +88,7 @@ async def bot_account_statistics_top_10_by_win_tiktaktoe(call:CallbackQuery):
 
 @dp.callback_query_handler(account_statistics_top_callback.filter(type="rpc"))
 async def bot_account_statistics_top_10_by_win_rpc(call:CallbackQuery):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     stat_repo = StatisticsRepo(conn=conn)
     user_top = await stat_repo.get_user_position_rpc(call.from_user.id)
     tops = await stat_repo.get_top10_win_rpc()

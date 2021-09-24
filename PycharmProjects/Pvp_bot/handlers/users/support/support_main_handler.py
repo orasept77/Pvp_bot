@@ -3,6 +3,7 @@ from aiogram.types import CallbackQuery
 
 from keyboards.inline.callback_datas import support_callback
 from keyboards.inline.cancel_menu import cancel_menu
+from keyboards.inline.support.support_keyb import support_menu
 from loader import dp
 
 
@@ -10,6 +11,5 @@ from loader import dp
 async def bot_account_support_main(call:CallbackQuery):
     await call.message.edit_text(
         f"У вас возникли вопросы или какие либо технические проблемы?.\n\n"
-        f"Свяжитесь с нами и подробно опишите проблему:\n"
-        f"*контакты службы поддержки*",
-        parse_mode=types.ParseMode.HTML, reply_markup=cancel_menu)
+        f"Выбирите необходимую опцию из меню ниже\n",
+        parse_mode=types.ParseMode.HTML, reply_markup=support_menu)
