@@ -1,11 +1,10 @@
+from shedulers.sheduler_config import SchedulerRepo
 from utils.db_api.create_tables_if_not_exists import create_tables_if_not_exists
 from utils.notify_admins import on_startup_notify
 from utils.set_bot_commands import set_default_commands
 
-
 from aiogram import executor
 from aiogram.dispatcher.dispatcher import Dispatcher
-
 
 from loader import dp
 import middlewares, handlers
@@ -21,6 +20,7 @@ http = urllib3.PoolManager(
     ca_certs=certifi.where()
 )
 
+
 async def on_startup(dispatcher: Dispatcher):
     # Устанавливаем дефолтные команды
     await set_default_commands(dispatcher)
@@ -32,4 +32,8 @@ async def on_startup(dispatcher: Dispatcher):
 
 if __name__ == '__main__':
     # Запуск телеграм-бота
-    executor.start_polling(dp, on_startup=on_startup)
+    try:
+        print("[BOT STARTING...]")
+        executor.start_polling(dp, on_startup=on_startup)
+    except:
+        print("[BOT STARTING ERROR]")

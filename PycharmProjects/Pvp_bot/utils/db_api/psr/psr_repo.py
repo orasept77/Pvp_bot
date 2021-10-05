@@ -106,6 +106,20 @@ class PSRRepo:
         res = await self.conn.fetchrow(sql, id)
         return res
 
+    async def get_rate_id(self, id: int):
+        sql = 'select rates_id from psr where id = $1'
+        res = await self.conn.fetchrow(sql, id)
+        return res
+
+    async def get_user_count(self, id: int):
+        sql = 'select user_count from psr where id = $1'
+        res = await self.conn.fetchrow(sql, id)
+        return res
+
+    async def get_game_type_id(self, id: int):
+        sql = 'select game_type_id from psr where id = $1'
+        res = await self.conn.fetchrow(sql, id)
+        return res
 
     async def get_round_user_variant(self, user_id: int, round_id:int ):
         sql = 'select * from psr_round_user_variant where user_id = $1 and round_id = $2 '

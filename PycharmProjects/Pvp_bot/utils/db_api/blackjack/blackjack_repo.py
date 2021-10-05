@@ -393,6 +393,8 @@ class BlackJackRepo:
     async def delete_game_blackjack(self, game_id):
         sql = 'DELETE FROM blackjack_game_user WHERE game_id = $1;'
         await self.conn.fetch(sql, game_id)
+        sql = 'DELETE FROM blackjack_game_dealer WHERE game_id = $1;'
+        await self.conn.fetch(sql, game_id)
         sql = 'DELETE FROM blackjack_game WHERE id = $1;'
         res = await self.conn.fetch(sql, game_id)
         return res

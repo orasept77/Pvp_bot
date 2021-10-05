@@ -58,6 +58,7 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
         if game_name == 'Крестики-Нолики':
             if data.get('type') == 'random_player':
                 rates_id = int(callback_data.get('id'))
+                await state.update_data(rates_id=int(callback_data.get('id')))
                 await call.message.edit_text(
                     f"Вы выбрали игру {game_name}\n"
                     f"Тип игры: {game_type}\n"
@@ -73,6 +74,9 @@ async def bot_choice_game(call:CallbackQuery, callback_data: dict, state: FSMCon
                 repo = PSRRepo(conn)
                 game_types = await repo.get_game_types()
                 text = f"Игра: {game_name}\nСтавка: {game_bet}"
+                await state.update_data(rates_id=int(callback_data.get('id')))
+                await state.update_data(user_count=2)
+                await state.update_data(game_type_id=1)
                 await call.message.edit_text(text=text, reply_markup=start_psr_keyb(int(callback_data.get('id')), 2, 1))
                 return
             elif data.get('type') == 'play_with_friend':

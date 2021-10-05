@@ -64,7 +64,9 @@ class TikTakToeRepo:
         res = await self.conn.fetch(sql, game_id)
         return res
 
-    
+    async def get_rate_id(self, game_id: int):
+        sql = 'select rates_id from tiktaktoe_game where id = $1'
+        return await self.conn.fetchrow(sql, game_id)
 
     async def create_cells(self, n:int, round_id: int):
         sql = 'insert into "tiktaktoe_cell"("round_id") values($1) on conflict do nothing'

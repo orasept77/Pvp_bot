@@ -52,22 +52,23 @@ async def typed_private_lobby_id(message:Message, state: FSMContext):
     repo = TikTakToeRepo(conn)
     if message.text.isnumeric():
         lobby = await repo.get_private_lobby(int(message.text))
-        if lobby["is_started"] == True:
-            await message.answer("Это лобби уже недоступно", reply_markup=to_menu())
         if lobby:
-            players = await repo.get_lobby_private_players(int(message.text))
-            if players:
-                user_repo = UserRepo(conn)
-                user = await user_repo.get_user(message.from_user.id)
-                players = [players[0], user]
-                await message.bot.delete_message(message.from_user.id, data.get('last_message_id'))
-                await repo.add_private_lobby_user(int(message.text), message.from_user.id)
-                await repo.set_private_lobby_started(lobby['id'])
-                await create_tiktaktoe(repo, players, lobby['rates_id'], message)
+            if lobby["is_started"] is True:
+                await message.answer("Это лобби уже недоступно", reply_markup=to_menu())
             else:
-                await repo.add_private_lobby_user(int(message.text), message.from_user.id)
-                await message.answer(text="Вы были добавлены в лобби. Ожидайте остальных игроков")
-            await state.finish()
+                players = await repo.get_lobby_private_players(int(message.text))
+                if players:
+                    user_repo = UserRepo(conn)
+                    user = await user_repo.get_user(message.from_user.id)
+                    players = [players[0], user]
+                    await message.bot.delete_message(message.from_user.id, data.get('last_message_id'))
+                    await repo.add_private_lobby_user(int(message.text), message.from_user.id)
+                    await repo.set_private_lobby_started(lobby['id'])
+                    await create_tiktaktoe(repo, players, lobby['rates_id'], message)
+                else:
+                    await repo.add_private_lobby_user(int(message.text), message.from_user.id)
+                    await message.answer(text="Вы были добавлены в лобби. Ожидайте остальных игроков")
+                await state.finish()
         else:
             await message.answer(text="Игра не найдена. Проверьте правильность ввода цифр.", reply_markup=to_menu())
     else:
@@ -116,12 +117,13 @@ async def start_tiktaktoe_revansh(call:CallbackQuery, callback_data: dict, ):
 
 
 @dp.callback_query_handler(cancel_tiktaktoe_revansh_cb.filter(), state="*")
-async def tiktaktoe_cancel_revansh(call:CallbackQuery, callback_data: dict, ):
+async def tiktaktoe_cancel_revansh(call:CallbackQuery, callback_data: dict, state: FSMContext):
     conn = await create_conn()
     repo = TikTakToeRepo(conn)
     await repo.delete_private_lobby_user(int(callback_data['private_lobby_id']), call.from_user.id)
     await call.answer("Вы вышли из очереди")
-    await call.message.edit_text(text=call.message.text, reply_markup=tiktaktoe_revansh_keyb(int(callback_data['private_lobby_id'])))
+    data = await state.get_data()
+    await call.message.edit_text(text=call.message.text, reply_markup=tiktaktoe_revansh_keyb(int(callback_data['private_lobby_id']), data.get('rates_id')))
 
 
 
@@ -186,16 +188,16 @@ async def create_round(repo: TikTakToeRepo, players: list, message: Message, gam
 
 
 
-async def send_game_end(winner_id, bot: Bot, game_users, game, rates):
+async def send_game_end(winner_id, bot: Bot, game_users, game, rates, rate_id):
     if winner_id == -1:
         for game_user in game_users:
-            await bot.send_message(text=f"Игра закончилась ничьёй", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
+            await bot.send_message(text=f"Игра закончилась ничьёй", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id'], rate_id))
     else:
         for game_user in game_users:
             if game_user['id'] == winner_id:
-                await bot.send_message(text=f"Вы победили.\nВам было начислено на счет {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
+                await bot.send_message(text=f"Вы победили.\nВам было начислено на счет {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id'], rate_id))
             else:
-                await bot.send_message(text=f"Вы проиграли.\nУ вас было снято со счета {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))
+                await bot.send_message(text=f"Вы проиграли.\nУ вас было снято со счета {rates['value']} фишек", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id'], rate_id))
 
 
 
@@ -231,7 +233,7 @@ def check_game_end(rounds):
 
 
 @dp.callback_query_handler(tiktoktoe_make_step_cb.filter(), state="*")
-async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
+async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict, state: FSMContext):
     conn = await create_conn()
     repo = TikTakToeRepo(conn)
     cell = await repo.get_round_cell_by_id(int(callback_data['cell_id']))
@@ -261,7 +263,8 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                 winner_id = check_game_end(rounds)
                 if winner_id:
                     await repo.set_game_end(game['id'])
-                    await send_game_end(winner_id, call.bot, game_users, game, rates)
+                    rate_id = await repo.get_rate_id(game['id'])
+                    await send_game_end(winner_id, call.bot, game_users, game, rates, int(rate_id['rates_id']))
                     """for game_user in game_users:
                         await call.bot.delete_message(chat_id=game_user['id'], message_id=game_user['message_id'])
                         if game_user['id'] == winner_id:
@@ -311,7 +314,8 @@ async def make_step_tiktaktoe(call:CallbackQuery, callback_data: dict):
                     winner_id = check_game_end(rounds)
                     if winner_id:
                         await repo.set_game_end(game['id'])
-                        await send_game_end(winner_id, call.bot, game_users, game, rates)
+                        rate_id = await repo.get_rate_id(game['id'])
+                        await send_game_end(winner_id, call.bot, game_users, game, rates, int(rate_id['rates_id']))
                         """for game_user in game_users:
                             message = await call.message.bot.edit_message_text(chat_id=game_user['id'],message_id=game_user['message_id'], text=f"Раунд {round['sequence']}.\nРезультат: Ничья", reply_markup=draw(cells))
                             await call.bot.send_message(text=f"Игра закончилась ничьёй", chat_id=game_user['id'], reply_markup=tiktaktoe_revansh_keyb(game['private_lobby_id']))"""
