@@ -79,12 +79,11 @@ async def bot_blackjack_start_invite_lobby(message:Message, state: FSMContext):
         repo = BlackJackRepo(conn=conn, scheduler=scheduler)
         lobby = await repo.find_invited_lobby(int(message.text))
         if not lobby:
-            text = f"Лобби больше не существует или вы ввели неверный номер лобби.\n Для выхода в главное меню используйте меню ниже"
+            text = f"Лобби больше не существует или вы ввели неверный номер лобби.\nДля выхода в главное меню используйте меню ниже"
             await message.answer(
                 text=text,
                 parse_mode=types.ParseMode.HTML, reply_markup=to_menu())
             await conn.close()
-            await state.finish()
         else:
             data = await state.get_data()
             if data.get('game_id'):

@@ -25,12 +25,13 @@ def start_tiktaktoe(rates_id):
     return markup
 
 
-def tiktaktoe_revansh_keyb(private_lobby_id: int):
+def tiktaktoe_revansh_keyb(private_lobby_id: int, rates_id):
     markup = InlineKeyboardMarkup(resize_keyboard=True)
     markup.add(InlineKeyboardButton(text="Реванш", callback_data=tiktaktoe_revansh_cb.new(
                             private_lobby_id = private_lobby_id
 
             )))
+    markup.add(InlineKeyboardButton(text="Играть со случайным игроком", callback_data=tiktaktoe_callback.new(rates_id=rates_id)))
     markup.add(InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu")
 
             ))
