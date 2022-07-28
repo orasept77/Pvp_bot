@@ -13,17 +13,15 @@ from utils.db_api.user.user_repo import UserRepo
 
 @dp.callback_query_handler(account_update_data_callback.filter(enter="true"))
 async def bot_account_update_data(call:CallbackQuery):
-    conn = await create_conn("conn_str")
+    conn = await create_conn()
     user_repo = UserRepo(conn=conn)
     await user_repo.update_user(call.from_user.id, call.from_user.first_name, call.from_user.last_name, call.from_user.username)
     await call.message.edit_text(
-        f"Уважаемый {call.from_user.first_name} {call.from_user.last_name} [@{call.from_user.username}],\n\n"
+        f"Уважаемый {call.from_user.first_name} [@{call.from_user.username}],\n\n"
         f"Ваши данные профиля были обновленны в меру открытости вашего профиля.\n\n"
         f"Новые обновлённые данные профиля:\n"
         f"Ваш ID: {call.from_user.id}\n"
         f"Ваше имя пользователя: @{call.from_user.username}\n"
-        f"Ваше имя: {call.from_user.first_name}\n"
-        f"Ваша фамилия: {call.from_user.last_name}\n"
-        f"Вы можете вернуться в меню аккаунта, депозита, либо сразу начать играть из меню ниже",
+        f"Ваш ник: {call.from_user.first_name}\n",
         parse_mode=types.ParseMode.HTML, reply_markup=account_update_info_menu)
     await conn.close()

@@ -8,13 +8,13 @@ account_update_info_menu = InlineKeyboardMarkup(
             inline_keyboard=
             [
                 [
-                    InlineKeyboardButton(text="🎫  Личный кабинет  🎫", callback_data=account_main_callback.new(
+                    InlineKeyboardButton(text="🔽   Назад   🔽", callback_data=account_main_callback.new(
                         enter="true"
                     )),
-                    InlineKeyboardButton(text="🎮  Начать играть  🎮", callback_data=main_menu_callback.new(
-                        menu_choice="choice_game"
-                    )),
                 ],
+                [
+                    InlineKeyboardButton(text="В меню", callback_data=main_menu_callback.new(menu_choice="main_menu"))
+                ]
             ],
             resize_keyboard=True,
 )
