@@ -4,19 +4,19 @@
 DEBUG = True
 
 # Секретный ключ вашего приложения
-SECRET_KEY = '123123123'
+SECRET_KEY = ''
 
 # <---      Настройка подключения к базе данных         --->
 # Имя пользователя
-DB_USER = "postgres"
+DB_USER = ""
 # Пароль
-DB_PASSWORD = "123123123"
+DB_PASSWORD = ""
 # Хост (localhost или IP адресс)
-DB_HOST = "144.91.110.3"
+DB_HOST = ""
 # Порт
-DB_PORT = "5432"
+DB_PORT = ""
 # Название базы данных
-DB_NAME = "postgres"
+DB_NAME = ""
 
 def return_connection_string():
     return f"postgres://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
